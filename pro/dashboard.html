@@ -288,17 +288,23 @@ async function doLogout(){ await sb().auth.signOut(); location.reload(); }
 
 async function onLogin(user){
   STATE.user = user;
-  $('login').classList.add('hidden');
-  $('app').classList.remove('hidden');
   // Charger le salon du gérant (RLS : owner = auth.uid())
   var r = await sb().from('salons').select('*').eq('owner', user.id).limit(1).maybeSingle();
   if(r.error || !r.data){
-    $('main').innerHTML = '<div class="card"><h2>Aucun salon associé</h2>'+
-      '<p class="muted" style="margin-top:8px">Ce compte n\'est rattaché à aucun salon. '+
-      'Contacte l\'administrateur Waqqti pour lier ton salon à cet email.</p></div>';
-    $('side-salon').textContent = user.email;
+    // Ce compte n'est rattaché à aucun salon → PAS un compte pro.
+    // On garde l'écran de connexion (on n'ouvre pas le dashboard) et on explique.
+    showLogin();
+    var err=$('login-err'); err.style.color='var(--red)';
+    err.innerHTML = 'Ce compte (<b>'+esc(user.email)+'</b>) n\'est pas rattaché à un salon.<br>'+
+      'L\'espace pro est réservé aux gérants.<br>'+
+      '<a href="/auth.html" style="color:var(--or);font-weight:700;text-decoration:none">← Aller à l\'espace client</a>'+
+      ' &nbsp;·&nbsp; <a href="#" id="switch-account" style="color:var(--brun-l);font-weight:600;text-decoration:none">Changer de compte</a>';
+    var sw=$('switch-account');
+    if(sw) sw.addEventListener('click', async function(e){ e.preventDefault(); await sb().auth.signOut(); location.reload(); });
     return;
   }
+  $('login').classList.add('hidden');
+  $('app').classList.remove('hidden');
   STATE.salon = r.data;
   $('side-salon').textContent = r.data.nom;
 
