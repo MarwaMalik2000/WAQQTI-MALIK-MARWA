@@ -7,7 +7,9 @@
   <meta name="description" content="La première plateforme algérienne de réservation en ligne pour salons de beauté et coiffure. Gérez vos rendez-vous 24h/24."/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500&family=Scheherazade+New:wght@700&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500&family=Scheherazade+New:wght@700&family=Amiri:wght@700&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet"/>
+  <!-- Moteur de traduction FR / AR (doit être dans le <head>) -->
+  <script src="assets/i18n.js"></script>
   <style>
     :root {
       --or:     #F68423;
@@ -676,13 +678,14 @@ z"/>
 </svg>
   </a>
  <div class="nav-links">
-  <a href="/annuaire.html">Annuaire des salons</a>
-  <a href="#fonctions">Fonctionnalités</a>
-  <a href="#formules">Formules</a>
-  <a href="#comment">Comment ça marche</a>
-  <a href="/auth.html" class="lien-client">Espace client</a>
-  <a href="/pro/dashboard.html" class="lien-pro" style="font-weight:700; color:var(--or);">Espace Pro</a>
-  <a href="#contact" class="btn-nav">Essai gratuit 30j →</a>
+  <a href="/annuaire.html" data-i18n="nav.annuaire">Annuaire des salons</a>
+  <a href="#fonctions" data-i18n="nav.fonctions">Fonctionnalités</a>
+  <a href="#formules" data-i18n="nav.formules">Formules</a>
+  <a href="#comment" data-i18n="nav.comment">Comment ça marche</a>
+  <a href="/auth.html" class="lien-client" data-i18n="nav.espace_client">Espace client</a>
+  <a href="/pro/dashboard.html" class="lien-pro" style="font-weight:700; color:var(--or);" data-i18n="nav.espace_pro">Espace Pro</a>
+  <a href="#contact" class="btn-nav" data-i18n="nav.essai">Essai gratuit 30j →</a>
+  <button type="button" data-lang-toggle class="lang-btn" style="font-family:'Tajawal',sans-serif;font-weight:700;background:var(--or);color:#fff;border:none;border-radius:50px;padding:8px 16px;cursor:pointer;font-size:14px">العربية</button>
 </div>
 </nav>
 
@@ -692,17 +695,17 @@ z"/>
     <div>
       <div class="badge">
         <span class="badge-dot"></span>
-        Première plateforme beauté en Algérie
+        <span data-i18n="hero.badge">Première plateforme beauté en Algérie</span>
       </div>
-      <h1>Votre salon, <em>réservé</em><br/>en ligne 24h/24</h1>
-      <p class="hero-p">
+      <h1 data-i18n-html="hero.titre">Votre salon, <em>réservé</em><br/>en ligne 24h/24</h1>
+      <p class="hero-p" data-i18n="hero.p">
         Waqqti connecte vos clients à votre salon automatiquement.
         Confirmations SMS, agenda intelligent, zéro appel manqué.
         Commencez gratuitement pendant 30 jours.
       </p>
       <div class="cta-row">
-        <a href="#contact" class="btn-prim">Démarrer gratuitement →</a>
-        <a href="#comment" class="btn-sec">Voir comment ça marche</a>
+        <a href="#contact" class="btn-prim" data-i18n="hero.cta1">Démarrer gratuitement →</a>
+        <a href="#comment" class="btn-sec" data-i18n="hero.cta2">Voir comment ça marche</a>
       </div>
     </div>
 
@@ -1167,7 +1170,7 @@ z"/>
 <section class="sec" id="fonctions">
   <div class="sec-in">
     <p class="lbl reveal">Ce qu'on vous offre</p>
-    <h2 class="reveal">Tout ce dont votre salon a besoin,<br/>dans une seule app</h2>
+    <h2 class="reveal" data-i18n-html="sec.fonctions">Tout ce dont votre salon a besoin,<br/>dans une seule app</h2>
     <p class="sub reveal">Plus d'appels manqués, plus de cahiers désorganisés. Waqqti gère tout à votre place.</p>
 
     <div class="feat-grid">
@@ -1209,7 +1212,7 @@ z"/>
 <section class="pricing" id="formules">
   <div class="pricing-in">
     <p class="lbl reveal">Tarifs</p>
-    <h2 class="reveal">Des formules pour chaque salon</h2>
+    <h2 class="reveal" data-i18n="sec.formules">Des formules pour chaque salon</h2>
     <p class="sub reveal">30 jours d'essai gratuit sur toutes les formules. Sans carte bancaire.</p>
 
     <div class="plan-grid">
@@ -1266,7 +1269,7 @@ z"/>
 <section class="how" id="comment">
   <div class="how-in">
     <p class="lbl reveal">Simple et rapide</p>
-    <h2 class="reveal">Opérationnel en 24 heures</h2>
+    <h2 class="reveal" data-i18n="sec.comment">Opérationnel en 24 heures</h2>
     <p class="sub reveal">On s'occupe de tout. Vous nous envoyez vos prestations, on crée votre page.</p>
 
     <div class="steps">
@@ -1296,7 +1299,7 @@ z"/>
 
 <!-- CTA -->
 <section class="cta-sec" id="contact">
-  <h2>Prêt(e) à moderniser votre salon ?</h2>
+  <h2 data-i18n="sec.contact">Prêt(e) à moderniser votre salon ?</h2>
   <p>30 jours gratuits · Sans engagement · Opérationnel en 24h</p>
   <a href="https://wa.me/213549829949?text=Bonjour%20Waqqti%2C%20je%20veux%20tester%20la%20plateforme%20pour%20mon%20salon%20!"
      class="btn-wh" target="_blank" rel="noopener">
