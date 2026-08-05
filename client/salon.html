@@ -1,0 +1,948 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Salon Yasmine Beauty — Réservation Waqqti</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../assets/config.js" defer></script>
+  <style>
+    :root {
+      --or:#F68423; --or-dk:#D26F1A; --or-lt:#F5B865;
+      --cream:#FDEFE2; --cream2:#F5E2CC;
+      --brun:#3D1F00; --brun-l:#7A5030;
+      --green:#2D9E5F; --red:#E0454C;
+      --sh:0 4px 30px rgba(246,132,35,.15);
+      --sh-lg:0 12px 50px rgba(246,132,35,.22);
+    }
+    *,*::before,*::after { box-sizing:border-box; margin:0; padding:0 }
+    body { font-family:'DM Sans',sans-serif; background:var(--cream); color:var(--brun); min-height:100vh; padding-bottom:120px }
+
+    /* ── HEADER SALON ── */
+    .header {
+      background:linear-gradient(135deg,var(--or) 0%,var(--or-dk) 100%);
+      padding:32px 5% 80px;
+      color:#fff;
+      position:relative;
+      overflow:hidden;
+    }
+    .header::before {
+      content:''; position:absolute; bottom:-1px; left:0; right:0; height:30px;
+      background:var(--cream);
+      clip-path:polygon(0 100%, 100% 100%, 100% 0, 0 70%);
+    }
+    .top-bar {
+      max-width:900px; margin:0 auto;
+      display:flex; align-items:center; justify-content:space-between;
+      font-size:13px;
+    }
+    .top-bar a { color:rgba(255,255,255,.85); text-decoration:none; display:flex; align-items:center; gap:6px }
+    .top-bar a:hover { color:#fff }
+    .salon-hero {
+      max-width:900px; margin:32px auto 0;
+      display:flex; align-items:center; gap:24px;
+    }
+    .salon-avatar {
+      width:90px; height:90px; border-radius:24px;
+      background:#fff;
+      display:flex; align-items:center; justify-content:center;
+      font-family:'Cormorant Garamond',serif; font-size:42px;
+      font-weight:700; color:var(--or);
+      box-shadow:0 8px 24px rgba(0,0,0,.15);
+      flex-shrink:0;
+    }
+    .salon-info h1 {
+      font-family:'Cormorant Garamond',serif;
+      font-size:36px; font-weight:700;
+      margin-bottom:4px; line-height:1.1;
+    }
+    .salon-meta { display:flex; gap:18px; flex-wrap:wrap; font-size:14px; opacity:.92 }
+    .salon-meta span { display:flex; align-items:center; gap:5px }
+    .open-pill {
+      display:inline-flex; align-items:center; gap:6px;
+      background:rgba(255,255,255,.2); padding:5px 14px;
+      border-radius:50px; font-size:12px; font-weight:500;
+      margin-top:8px; backdrop-filter:blur(8px);
+    }
+    .open-pill .dot {
+      width:7px; height:7px; border-radius:50%;
+      background:#3eea90;
+      animation:pulse 2s infinite;
+    }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+
+    /* ── CONTAINER ── */
+    .container { max-width:900px; margin:-40px auto 0; padding:0 5%; position:relative; z-index:2 }
+
+    /* ── ÉTAPES (BREADCRUMB) ── */
+    .steps-bar {
+      background:#fff; border-radius:20px; padding:18px 24px;
+      box-shadow:var(--sh); margin-bottom:24px;
+      display:flex; align-items:center; justify-content:space-between; gap:12px;
+    }
+    .step-item {
+      display:flex; align-items:center; gap:10px;
+      flex:1; font-size:13px;
+    }
+    .step-num {
+      width:30px; height:30px; border-radius:50%;
+      background:var(--cream2); color:var(--brun-l);
+      display:flex; align-items:center; justify-content:center;
+      font-weight:600; font-size:13px; flex-shrink:0;
+      transition:all .3s;
+    }
+    .step-item.active .step-num { background:var(--or); color:#fff }
+    .step-item.done .step-num { background:var(--green); color:#fff }
+    .step-item.done .step-num::before { content:'✓'; }
+    .step-item.done .step-num span { display:none }
+    .step-item.active .step-label { color:var(--or); font-weight:600 }
+    .step-arrow { color:var(--brun-l); opacity:.3 }
+
+    /* ── CARD ── */
+    .card {
+      background:#fff; border-radius:20px;
+      padding:28px; margin-bottom:20px;
+      box-shadow:var(--sh);
+    }
+    .card-title {
+      font-family:'Cormorant Garamond',serif;
+      font-size:24px; font-weight:700;
+      color:var(--brun); margin-bottom:6px;
+    }
+    .card-sub { font-size:14px; color:var(--brun-l); margin-bottom:24px }
+
+    /* ── PRESTATIONS LIST ── */
+    .prest-categ {
+      font-size:11px; font-weight:600; letter-spacing:2px;
+      color:var(--or); text-transform:uppercase;
+      margin:24px 0 12px;
+    }
+    .prest-categ:first-child { margin-top:0 }
+    .prest-item {
+      display:flex; align-items:center; justify-content:space-between;
+      padding:16px; border:1.5px solid var(--cream2);
+      border-radius:14px; margin-bottom:10px;
+      cursor:pointer; transition:all .2s;
+    }
+    .prest-item:hover {
+      border-color:var(--or-lt);
+      background:rgba(246,132,35,.03);
+    }
+    .prest-item.selected {
+      border-color:var(--or); background:rgba(246,132,35,.07);
+      box-shadow:0 4px 16px rgba(246,132,35,.15);
+    }
+    .prest-info { flex:1 }
+    .prest-name { font-weight:600; font-size:15px; margin-bottom:3px; color:var(--brun) }
+    .prest-duration { font-size:12px; color:var(--brun-l) }
+    .prest-price {
+      font-family:'Cormorant Garamond',serif;
+      font-size:22px; font-weight:700; color:var(--or);
+      margin-left:16px;
+    }
+
+    /* ── EMPLOYÉS (formule confort/premium) ── */
+    .employes-grid {
+      display:grid; grid-template-columns:repeat(auto-fit, minmax(140px,1fr));
+      gap:12px; margin-bottom:20px;
+    }
+    .employe-card {
+      padding:18px; border:1.5px solid var(--cream2);
+      border-radius:14px; text-align:center;
+      cursor:pointer; transition:all .2s;
+    }
+    .employe-card:hover { border-color:var(--or-lt); transform:translateY(-2px) }
+    .employe-card.selected {
+      border-color:var(--or); background:rgba(246,132,35,.07);
+    }
+    .emp-avatar {
+      width:50px; height:50px; border-radius:50%;
+      background:var(--or); color:#fff;
+      display:flex; align-items:center; justify-content:center;
+      font-family:'Cormorant Garamond',serif;
+      font-size:22px; font-weight:700;
+      margin:0 auto 10px;
+    }
+    .emp-name { font-weight:600; font-size:14px; margin-bottom:2px }
+    .emp-role { font-size:11px; color:var(--brun-l) }
+
+    .formule-note {
+      background:rgba(246,132,35,.06);
+      border-left:3px solid var(--or);
+      padding:12px 14px;
+      font-size:13px; color:var(--brun-l);
+      border-radius:0 10px 10px 0; margin-bottom:18px;
+    }
+
+    /* ── DATE PICKER ── */
+    .dates-row {
+      display:flex; gap:10px; overflow-x:auto;
+      padding-bottom:8px; margin-bottom:20px;
+      scrollbar-width:thin; scrollbar-color:var(--or-lt) transparent;
+    }
+    .dates-row::-webkit-scrollbar { height:5px }
+    .dates-row::-webkit-scrollbar-thumb { background:var(--or-lt); border-radius:5px }
+    .date-card {
+      min-width:74px; padding:12px 8px;
+      border:1.5px solid var(--cream2); border-radius:14px;
+      text-align:center; cursor:pointer; transition:all .2s;
+      background:#fff; flex-shrink:0;
+    }
+    .date-card:hover:not(.closed) { border-color:var(--or-lt) }
+    .date-card.selected {
+      background:var(--or); color:#fff; border-color:var(--or);
+      box-shadow:0 4px 14px rgba(246,132,35,.3);
+    }
+    .date-card.closed { opacity:.35; cursor:not-allowed; background:var(--cream2) }
+    .date-day { font-size:11px; text-transform:uppercase; letter-spacing:.5px; opacity:.7 }
+    .date-num { font-size:22px; font-weight:700; margin:2px 0 }
+    .date-month { font-size:10px; opacity:.7; text-transform:uppercase }
+    .date-card.selected .date-day,
+    .date-card.selected .date-month { opacity:.9 }
+
+    /* ── SLOTS HORAIRES ── */
+    .slots-section { margin-top:16px }
+    .slots-period {
+      font-size:11px; font-weight:600; letter-spacing:1.5px;
+      color:var(--brun-l); text-transform:uppercase;
+      margin:18px 0 10px;
+    }
+    .slots-grid {
+      display:grid; grid-template-columns:repeat(auto-fill, minmax(80px, 1fr));
+      gap:8px;
+    }
+    .slot-btn {
+      padding:11px 6px; text-align:center;
+      background:#fff; border:1.5px solid var(--cream2);
+      border-radius:10px; font-size:14px; font-weight:600;
+      color:var(--brun); cursor:pointer; transition:all .15s;
+      font-family:'DM Sans',sans-serif;
+    }
+    .slot-btn:hover:not(:disabled) { border-color:var(--or); color:var(--or) }
+    .slot-btn.selected {
+      background:var(--or); color:#fff; border-color:var(--or);
+      transform:scale(1.03);
+    }
+    .slot-btn:disabled {
+      background:var(--cream2); color:#ccc;
+      cursor:not-allowed; text-decoration:line-through;
+    }
+
+    /* ── FORM COORDONNÉES ── */
+    .form-row { margin-bottom:16px }
+    .form-row label {
+      display:block; font-size:13px; font-weight:600;
+      color:var(--brun); margin-bottom:6px;
+    }
+    .form-row input,
+    .form-row textarea {
+      width:100%; padding:13px 16px;
+      border:1.5px solid var(--cream2); border-radius:12px;
+      font-size:15px; font-family:inherit;
+      background:#fff; color:var(--brun); transition:all .2s;
+    }
+    .form-row input:focus,
+    .form-row textarea:focus {
+      outline:none; border-color:var(--or);
+      box-shadow:0 0 0 4px rgba(246,132,35,.1);
+    }
+    .form-row .hint { font-size:11px; color:var(--brun-l); margin-top:5px }
+
+    /* ── BARRE RÉCAP FIXE EN BAS ── */
+    .recap-bar {
+      position:fixed; bottom:0; left:0; right:0; z-index:50;
+      background:#fff; border-top:1px solid var(--cream2);
+      padding:14px 5%; box-shadow:0 -8px 30px rgba(0,0,0,.06);
+      transform:translateY(100%); transition:transform .3s;
+    }
+    .recap-bar.visible { transform:translateY(0) }
+    .recap-inner {
+      max-width:900px; margin:0 auto;
+      display:flex; align-items:center; justify-content:space-between; gap:16px;
+    }
+    .recap-info { flex:1 }
+    .recap-label { font-size:11px; color:var(--brun-l); text-transform:uppercase; letter-spacing:1px }
+    .recap-value { font-size:15px; font-weight:600; color:var(--brun); margin-top:2px }
+    .btn-next {
+      background:var(--or); color:#fff;
+      padding:14px 28px; border-radius:50px;
+      font-size:15px; font-weight:600;
+      border:none; cursor:pointer; transition:all .2s;
+      box-shadow:0 4px 16px rgba(246,132,35,.35);
+      display:flex; align-items:center; gap:8px;
+    }
+    .btn-next:hover { background:var(--or-dk); transform:translateY(-1px) }
+    .btn-next:disabled { opacity:.5; cursor:not-allowed; transform:none }
+
+    /* ── CONFIRMATION ── */
+    .confirm-screen {
+      text-align:center; padding:40px 20px;
+    }
+    .confirm-icon {
+      width:90px; height:90px; border-radius:50%;
+      background:var(--green); color:#fff;
+      display:flex; align-items:center; justify-content:center;
+      font-size:46px; margin:0 auto 24px;
+      animation:bounce .6s ease;
+    }
+    @keyframes bounce {
+      0% { transform:scale(0); opacity:0 }
+      60% { transform:scale(1.15) }
+      100% { transform:scale(1); opacity:1 }
+    }
+    .confirm-screen h2 {
+      font-family:'Cormorant Garamond',serif;
+      font-size:32px; font-weight:700;
+      color:var(--brun); margin-bottom:8px;
+    }
+    .confirm-screen p { color:var(--brun-l); margin-bottom:24px; line-height:1.7 }
+    .confirm-detail {
+      background:var(--cream); border-radius:14px;
+      padding:20px; text-align:left;
+      max-width:380px; margin:0 auto 24px;
+    }
+    .confirm-detail div { margin-bottom:10px; font-size:14px }
+    .confirm-detail div:last-child { margin-bottom:0 }
+    .confirm-detail strong { color:var(--brun); display:inline-block; min-width:90px }
+
+    /* ── WAQQTI BADGE ── */
+    .waqqti-footer {
+      text-align:center; padding:30px 0 20px;
+      font-size:11px; color:var(--brun-l);
+    }
+    .waqqti-footer a { color:var(--or); text-decoration:none; font-weight:600 }
+
+    /* ── ANIMATIONS ── */
+    .step-content { display:none; animation:fadeIn .35s ease }
+    .step-content.active { display:block }
+    @keyframes fadeIn {
+      from { opacity:0; transform:translateY(10px) }
+      to { opacity:1; transform:translateY(0) }
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width:600px) {
+      .salon-hero { flex-direction:column; text-align:center; gap:16px }
+      .salon-meta { justify-content:center }
+      .steps-bar { padding:14px; flex-wrap:wrap; gap:8px }
+      .step-item { font-size:11px }
+      .step-num { width:26px; height:26px; font-size:12px }
+      .step-arrow { display:none }
+      .step-label { display:none }
+      .card { padding:20px }
+      .card-title { font-size:20px }
+      .recap-inner { flex-direction:column; gap:10px }
+      .recap-info { width:100%; text-align:center }
+      .btn-next { width:100%; justify-content:center }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════ HEADER SALON ═══════════ -->
+<div class="header">
+  <div class="top-bar">
+    <a href="/">← Retour</a>
+    <a href="https://wa.me/213XXXXXXXXX" target="_blank">💬 Aide WhatsApp</a>
+  </div>
+
+  <div class="salon-hero">
+    <div class="salon-avatar">Y</div>
+    <div class="salon-info">
+      <h1>Salon Yasmine Beauty</h1>
+      <div class="salon-meta">
+        <span>📍 Alger Centre, Rue Didouche</span>
+        <span>⏰ 09h–19h</span>
+      </div>
+      <span class="open-pill">
+        <span class="dot"></span> Ouvert maintenant
+      </span>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- ═══════════ ÉTAPES ═══════════ -->
+  <div class="steps-bar">
+    <div class="step-item active" data-step="1">
+      <div class="step-num"><span>1</span></div>
+      <div class="step-label">Prestation</div>
+    </div>
+    <span class="step-arrow">→</span>
+    <div class="step-item" data-step="2">
+      <div class="step-num"><span>2</span></div>
+      <div class="step-label">Date & heure</div>
+    </div>
+    <span class="step-arrow">→</span>
+    <div class="step-item" data-step="3">
+      <div class="step-num"><span>3</span></div>
+      <div class="step-label">Coordonnées</div>
+    </div>
+    <span class="step-arrow">→</span>
+    <div class="step-item" data-step="4">
+      <div class="step-num"><span>4</span></div>
+      <div class="step-label">Confirmation</div>
+    </div>
+  </div>
+
+  <!-- ═══════════ ÉTAPE 1 : PRESTATION ═══════════ -->
+  <div class="step-content active" id="step-1">
+    <div class="card">
+      <h2 class="card-title">Choisissez votre prestation</h2>
+      <p class="card-sub">Sélectionnez le service souhaité</p>
+
+      <div class="prest-categ">Coiffure</div>
+      <div class="prest-item" data-id="1" data-name="Coupe + Brushing" data-duration="60" data-price="1800">
+        <div class="prest-info">
+          <div class="prest-name">Coupe + Brushing</div>
+          <div class="prest-duration">1h00</div>
+        </div>
+        <div class="prest-price">1 800 DA</div>
+      </div>
+      <div class="prest-item" data-id="2" data-name="Coloration complète" data-duration="120" data-price="4500">
+        <div class="prest-info">
+          <div class="prest-name">Coloration complète</div>
+          <div class="prest-duration">2h00</div>
+        </div>
+        <div class="prest-price">4 500 DA</div>
+      </div>
+      <div class="prest-item" data-id="3" data-name="Mèches + Brushing" data-duration="150" data-price="5500">
+        <div class="prest-info">
+          <div class="prest-name">Mèches + Brushing</div>
+          <div class="prest-duration">2h30</div>
+        </div>
+        <div class="prest-price">5 500 DA</div>
+      </div>
+
+      <div class="prest-categ">Soins visage</div>
+      <div class="prest-item" data-id="4" data-name="Soin hydratant" data-duration="45" data-price="2500">
+        <div class="prest-info">
+          <div class="prest-name">Soin hydratant</div>
+          <div class="prest-duration">45min</div>
+        </div>
+        <div class="prest-price">2 500 DA</div>
+      </div>
+      <div class="prest-item" data-id="5" data-name="Épilation visage" data-duration="20" data-price="800">
+        <div class="prest-info">
+          <div class="prest-name">Épilation visage (sourcils + lèvres)</div>
+          <div class="prest-duration">20min</div>
+        </div>
+        <div class="prest-price">800 DA</div>
+      </div>
+
+      <div class="prest-categ">Nail art</div>
+      <div class="prest-item" data-id="6" data-name="Manucure simple" data-duration="45" data-price="1500">
+        <div class="prest-info">
+          <div class="prest-name">Manucure simple</div>
+          <div class="prest-duration">45min</div>
+        </div>
+        <div class="prest-price">1 500 DA</div>
+      </div>
+      <div class="prest-item" data-id="7" data-name="Vernis semi-permanent" data-duration="60" data-price="2200">
+        <div class="prest-info">
+          <div class="prest-name">Vernis semi-permanent</div>
+          <div class="prest-duration">1h00</div>
+        </div>
+        <div class="prest-price">2 200 DA</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════ ÉTAPE 2 : DATE + EMPLOYÉ + HEURE ═══════════ -->
+  <div class="step-content" id="step-2">
+    <!-- CHOIX EMPLOYÉ (formule confort/premium) -->
+    <div class="card" id="employes-card">
+      <h2 class="card-title">Choisissez votre préférence</h2>
+      <p class="card-sub">Avec qui souhaitez-vous prendre rendez-vous ?</p>
+
+      <div class="employes-grid">
+        <div class="employe-card" data-emp="0" data-emp-name="">
+          <div class="emp-avatar" style="background:var(--cream2);color:var(--brun)">?</div>
+          <div class="emp-name">Peu importe</div>
+          <div class="emp-role">1er disponible</div>
+        </div>
+        <div class="employe-card" data-emp="1" data-emp-name="Yasmine">
+          <div class="emp-avatar">Y</div>
+          <div class="emp-name">Yasmine</div>
+          <div class="emp-role">Coiffure</div>
+        </div>
+        <div class="employe-card" data-emp="2" data-emp-name="Samira">
+          <div class="emp-avatar">S</div>
+          <div class="emp-name">Samira</div>
+          <div class="emp-role">Soins · Nail</div>
+        </div>
+        <div class="employe-card" data-emp="3" data-emp-name="Nadia">
+          <div class="emp-avatar">N</div>
+          <div class="emp-name">Nadia</div>
+          <div class="emp-role">Coiffure</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DATE -->
+    <div class="card">
+      <h2 class="card-title">Choisissez la date</h2>
+      <p class="card-sub">Faites défiler pour voir plus de dates</p>
+      <div class="dates-row" id="dates-row">
+        <!-- Généré en JS -->
+      </div>
+
+      <!-- HEURE -->
+      <div class="slots-section" id="slots-section" style="display:none">
+        <div class="slots-period">Matin</div>
+        <div class="slots-grid" id="slots-morning"></div>
+        <div class="slots-period">Après-midi</div>
+        <div class="slots-grid" id="slots-afternoon"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════ ÉTAPE 3 : COORDONNÉES ═══════════ -->
+  <div class="step-content" id="step-3">
+    <div class="card">
+      <h2 class="card-title">Vos coordonnées</h2>
+      <p class="card-sub">Nous enverrons une confirmation par SMS</p>
+
+      <div class="form-row">
+        <label>Nom complet *</label>
+        <input type="text" id="client-nom" placeholder="Ex: Amina Kaci" required>
+      </div>
+
+      <div class="form-row">
+        <label>Numéro de téléphone *</label>
+        <input type="tel" id="client-tel" placeholder="0770 12 34 56" required>
+        <div class="hint">Nous vous enverrons un SMS de confirmation et un rappel 24h avant</div>
+      </div>
+
+      <div class="form-row">
+        <label>Note pour le salon (optionnel)</label>
+        <textarea id="client-note" rows="3" placeholder="Précisions, demandes particulières…"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════ ÉTAPE 4 : CONFIRMATION ═══════════ -->
+  <div class="step-content" id="step-4">
+    <div class="card confirm-screen">
+      <div class="confirm-icon">✓</div>
+      <h2>Réservation confirmée !</h2>
+      <p>Un SMS de confirmation vient d'être envoyé à votre numéro</p>
+
+      <div class="confirm-detail">
+        <div><strong>Salon :</strong> Salon Yasmine Beauty</div>
+        <div><strong>Service :</strong> <span id="confirm-prest"></span></div>
+        <div><strong>Date :</strong> <span id="confirm-date"></span></div>
+        <div><strong>Heure :</strong> <span id="confirm-heure"></span></div>
+        <div><strong>Avec :</strong> <span id="confirm-emp"></span></div>
+        <div><strong>Prix :</strong> <span id="confirm-prix"></span></div>
+      </div>
+
+      <p style="font-size:13px">
+        Pour annuler ou modifier, contactez directement le salon.
+      </p>
+
+      <button class="btn-next" style="margin:20px auto 0" onclick="location.reload()">
+        Faire une autre réservation
+      </button>
+    </div>
+  </div>
+
+  <div class="waqqti-footer">
+    Réservation propulsée par <a href="https://waqqti.dz" target="_blank">Waqqti.dz</a> · La référence beauté en Algérie
+  </div>
+</div>
+
+<!-- ═══════════ BARRE RÉCAP FIXE ═══════════ -->
+<div class="recap-bar" id="recap-bar">
+  <div class="recap-inner">
+    <div class="recap-info">
+      <div class="recap-label" id="recap-label">Prestation choisie</div>
+      <div class="recap-value" id="recap-value">—</div>
+    </div>
+    <button class="btn-next" id="btn-next" onclick="nextStep()">
+      Continuer →
+    </button>
+  </div>
+</div>
+
+<script>
+// ── État global ──
+const reservation = {
+  salon: null, salonId: null,
+  prestation: null, prestationId: null, duree: null, prix: null,
+  employe: null, employeId: null, employeNom: null,
+  date: null, dateLabel: null,
+  heure: null,
+};
+let currentStep = 1;
+
+// Lecture du slug dans l'URL : ?s=yasmine-beauty ou /yasmine-beauty
+function getSalonSlug() {
+  const params = new URLSearchParams(window.location.search);
+  const fromParam = params.get('s') || params.get('salon');
+  if (fromParam) return fromParam;
+  // Sinon, utiliser le démo
+  return 'demo';
+}
+
+async function initSalon() {
+  const slug = getSalonSlug();
+
+  // Charger le salon
+  const { data: salon, error } = await WAQQTI.supabase
+    .from('salons')
+    .select('*')
+    .eq('slug', slug)
+    .eq('actif', true)
+    .single();
+
+  if (error || !salon) {
+    document.body.innerHTML = '<div style="padding:60px; text-align:center; font-family:DM Sans"><h1>Salon introuvable</h1><p>Vérifiez le lien.</p></div>';
+    return;
+  }
+
+  reservation.salon = salon;
+  reservation.salonId = salon.id;
+
+  // Afficher header salon
+  document.querySelector('.salon-info h1').textContent = salon.nom;
+  const meta = document.querySelector('.salon-meta');
+  meta.innerHTML = `
+    <span>📍 ${salon.adresse || 'Algérie'}</span>
+    <span>⏰ 09h–19h</span>
+  `;
+  document.querySelector('.salon-avatar').textContent = salon.nom.charAt(0).toUpperCase();
+
+  // Charger prestations
+  await loadPrestations(salon.id);
+
+  // Charger employés (si formule ≥ confort)
+  if (['confort', 'premium'].includes(salon.formule)) {
+    await loadEmployes(salon.id);
+  } else {
+    // Cacher la section employés
+    const empCard = document.getElementById('employes-card');
+    if (empCard) empCard.style.display = 'none';
+  }
+}
+
+async function loadPrestations(salonId) {
+  const { data: prestations } = await WAQQTI.supabase
+    .from('prestations')
+    .select('*')
+    .eq('salon_id', salonId)
+    .eq('actif', true)
+    .order('categorie', { ascending: true })
+    .order('ordre', { ascending: true });
+
+  const step1 = document.querySelector('#step-1 .card');
+  if (!prestations || prestations.length === 0) {
+    step1.innerHTML += '<p style="text-align:center; color:var(--brun-l); padding:20px">Aucune prestation disponible. Le salon les ajoute prochainement.</p>';
+    return;
+  }
+
+  // Regrouper par catégorie
+  const groups = {};
+  prestations.forEach(p => {
+    const cat = p.categorie || 'Autres';
+    if (!groups[cat]) groups[cat] = [];
+    groups[cat].push(p);
+  });
+
+  // Supprimer les exemples figés
+  step1.querySelectorAll('.prest-categ, .prest-item').forEach(el => el.remove());
+
+  // Régénérer
+  Object.entries(groups).forEach(([cat, items]) => {
+    const catEl = document.createElement('div');
+    catEl.className = 'prest-categ';
+    catEl.textContent = cat;
+    step1.appendChild(catEl);
+
+    items.forEach(p => {
+      const div = document.createElement('div');
+      div.className = 'prest-item';
+      div.dataset.id = p.id;
+      div.dataset.name = p.nom;
+      div.dataset.duration = p.duree_minutes;
+      div.dataset.price = p.prix;
+      const dureeLabel = p.duree_minutes >= 60
+        ? `${Math.floor(p.duree_minutes/60)}h${p.duree_minutes % 60 ? (p.duree_minutes%60).toString().padStart(2,'0') : '00'}`
+        : `${p.duree_minutes}min`;
+      div.innerHTML = `
+        <div class="prest-info">
+          <div class="prest-name">${p.nom}</div>
+          <div class="prest-duration">${dureeLabel}</div>
+        </div>
+        <div class="prest-price">${Number(p.prix).toLocaleString('fr')} DA</div>
+      `;
+      div.addEventListener('click', () => selectPrestation(div, p));
+      step1.appendChild(div);
+    });
+  });
+}
+
+function selectPrestation(item, p) {
+  document.querySelectorAll('.prest-item').forEach(x => x.classList.remove('selected'));
+  item.classList.add('selected');
+  reservation.prestationId = p.id;
+  reservation.prestation = p.nom;
+  reservation.duree = p.duree_minutes;
+  reservation.prix = p.prix;
+  document.getElementById('recap-label').textContent = 'Prestation choisie';
+  document.getElementById('recap-value').textContent = `${p.nom} · ${Number(p.prix).toLocaleString('fr')} DA`;
+  document.getElementById('recap-bar').classList.add('visible');
+  document.getElementById('btn-next').disabled = false;
+}
+
+async function loadEmployes(salonId) {
+  const { data: employes } = await WAQQTI.supabase
+    .from('employes')
+    .select('*')
+    .eq('salon_id', salonId)
+    .eq('actif', true)
+    .order('ordre', { ascending: true });
+
+  const grid = document.querySelector('.employes-grid');
+  if (!grid) return;
+
+  // Garder seulement "Peu importe"
+  const items = grid.querySelectorAll('.employe-card');
+  for (let i = 1; i < items.length; i++) items[i].remove();
+
+  // Ajouter les vrais employés
+  (employes || []).forEach((emp, idx) => {
+    const colors = ['#F68423', '#4A6FE0', '#2D9E5F', '#9333EA', '#EC4899'];
+    const card = document.createElement('div');
+    card.className = 'employe-card';
+    card.dataset.emp = emp.id;
+    card.dataset.empName = `${emp.prenom || ''} ${emp.nom}`.trim();
+    card.innerHTML = `
+      <div class="emp-avatar" style="background:${emp.couleur || colors[idx % colors.length]}">${(emp.prenom || emp.nom).charAt(0).toUpperCase()}</div>
+      <div class="emp-name">${emp.prenom || emp.nom}</div>
+      <div class="emp-role">${emp.specialite || ''}</div>
+    `;
+    card.addEventListener('click', () => {
+      document.querySelectorAll('.employe-card').forEach(c => c.classList.remove('selected'));
+      card.classList.add('selected');
+      reservation.employeId = emp.id;
+      reservation.employeNom = card.dataset.empName;
+    });
+    grid.appendChild(card);
+  });
+
+  // Réattacher event sur "Peu importe"
+  const anyOne = grid.querySelector('[data-emp="0"]');
+  if (anyOne) {
+    anyOne.addEventListener('click', () => {
+      document.querySelectorAll('.employe-card').forEach(c => c.classList.remove('selected'));
+      anyOne.classList.add('selected');
+      reservation.employeId = null;
+      reservation.employeNom = null;
+    });
+  }
+}
+
+// ─── DATES ───
+function generateDates() {
+  const datesRow = document.getElementById('dates-row');
+  datesRow.innerHTML = '';
+  const today = new Date();
+  const days = ['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'];
+  const months = ['Jan','Fév','Mar','Avr','Mai','Juin','Juil','Août','Sep','Oct','Nov','Déc'];
+
+  for (let i = 0; i < 14; i++) {
+    const date = new Date(today);
+    date.setDate(today.getDate() + i);
+    const card = document.createElement('div');
+    card.className = 'date-card';
+    card.innerHTML = `
+      <div class="date-day">${days[date.getDay()]}</div>
+      <div class="date-num">${date.getDate()}</div>
+      <div class="date-month">${months[date.getMonth()]}</div>
+    `;
+    card.addEventListener('click', () => selectDate(card, date));
+    datesRow.appendChild(card);
+  }
+}
+
+async function selectDate(card, date) {
+  document.querySelectorAll('.date-card').forEach(c => c.classList.remove('selected'));
+  card.classList.add('selected');
+  const days = ['dimanche','lundi','mardi','mercredi','jeudi','vendredi','samedi'];
+  const months = ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
+  reservation.date = date.toISOString().slice(0,10);
+  reservation.dateLabel = `${days[date.getDay()]} ${date.getDate()} ${months[date.getMonth()]}`;
+  await generateSlots();
+}
+
+async function generateSlots() {
+  document.getElementById('slots-section').style.display = 'block';
+  const morning = document.getElementById('slots-morning');
+  const afternoon = document.getElementById('slots-afternoon');
+  morning.innerHTML = '<div style="grid-column:span 4; color:var(--brun-l); font-size:12px">Chargement...</div>';
+  afternoon.innerHTML = '';
+
+  // Charger les RDV existants pour cette date
+  const startOfDay = new Date(reservation.date + 'T00:00:00').toISOString();
+  const endOfDay = new Date(reservation.date + 'T23:59:59').toISOString();
+
+  let query = WAQQTI.supabase
+    .from('reservations')
+    .select('date_rdv, duree_minutes, employe_id')
+    .eq('salon_id', reservation.salonId)
+    .gte('date_rdv', startOfDay)
+    .lte('date_rdv', endOfDay)
+    .not('statut', 'in', '(annule)');
+
+  if (reservation.employeId) {
+    query = query.eq('employe_id', reservation.employeId);
+  }
+  const { data: existingRdvs } = await query;
+
+  // Créneaux possibles
+  const morningSlots = ['09:00','09:30','10:00','10:30','11:00','11:30','12:00','12:30'];
+  const afternoonSlots = ['14:00','14:30','15:00','15:30','16:00','16:30','17:00','17:30','18:00'];
+
+  // Identifier les créneaux pris
+  const isSlotTaken = (slot) => {
+    const slotStart = new Date(`${reservation.date}T${slot}:00`);
+    const slotEnd = new Date(slotStart.getTime() + reservation.duree * 60000);
+    return (existingRdvs || []).some(r => {
+      const rStart = new Date(r.date_rdv);
+      const rEnd = new Date(rStart.getTime() + r.duree_minutes * 60000);
+      return slotStart < rEnd && slotEnd > rStart;
+    });
+  };
+
+  morning.innerHTML = '';
+  morningSlots.forEach(slot => {
+    const btn = document.createElement('button');
+    btn.className = 'slot-btn';
+    btn.textContent = slot;
+    btn.disabled = isSlotTaken(slot);
+    if (!btn.disabled) btn.addEventListener('click', () => selectSlot(btn, slot));
+    morning.appendChild(btn);
+  });
+
+  afternoonSlots.forEach(slot => {
+    const btn = document.createElement('button');
+    btn.className = 'slot-btn';
+    btn.textContent = slot;
+    btn.disabled = isSlotTaken(slot);
+    if (!btn.disabled) btn.addEventListener('click', () => selectSlot(btn, slot));
+    afternoon.appendChild(btn);
+  });
+}
+
+function selectSlot(btn, slot) {
+  document.querySelectorAll('.slot-btn').forEach(s => s.classList.remove('selected'));
+  btn.classList.add('selected');
+  reservation.heure = slot;
+  document.getElementById('recap-label').textContent = `${reservation.dateLabel} à ${slot}`;
+  document.getElementById('recap-value').textContent =
+    `${reservation.prestation}${reservation.employeNom ? ' · ' + reservation.employeNom : ''}`;
+  document.getElementById('btn-next').disabled = false;
+}
+
+// ─── NAVIGATION ───
+function goToStep(n) {
+  document.querySelectorAll('.step-content').forEach(s => s.classList.remove('active'));
+  document.getElementById('step-' + n).classList.add('active');
+  document.querySelectorAll('.step-item').forEach(s => {
+    const stepNum = parseInt(s.dataset.step);
+    s.classList.remove('active','done');
+    if (stepNum < n) s.classList.add('done');
+    if (stepNum === n) s.classList.add('active');
+  });
+  currentStep = n;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function nextStep() {
+  if (currentStep === 1) {
+    if (!reservation.prestation) return;
+    goToStep(2);
+    document.getElementById('btn-next').disabled = true;
+    document.getElementById('recap-label').textContent = 'Date & heure';
+    document.getElementById('recap-value').textContent = 'À sélectionner';
+  } else if (currentStep === 2) {
+    if (!reservation.date || !reservation.heure) return;
+    goToStep(3);
+    document.getElementById('btn-next').disabled = true;
+    document.getElementById('recap-label').textContent = 'Coordonnées';
+    document.getElementById('recap-value').textContent = 'À remplir';
+    const nom = document.getElementById('client-nom');
+    const tel = document.getElementById('client-tel');
+    const check = () => {
+      document.getElementById('btn-next').disabled =
+        !(nom.value.trim() && tel.value.trim().length >= 9);
+    };
+    nom.addEventListener('input', check);
+    tel.addEventListener('input', check);
+    document.getElementById('btn-next').textContent = 'Confirmer ma réservation ✓';
+  } else if (currentStep === 3) {
+    confirmReservation();
+  }
+}
+
+// ─── CONFIRMATION FINALE ───
+async function confirmReservation() {
+  const btn = document.getElementById('btn-next');
+  const originalText = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = '⏳ Enregistrement...';
+
+  const nom = document.getElementById('client-nom').value.trim();
+  const tel = document.getElementById('client-tel').value.trim();
+  const note = document.getElementById('client-note').value.trim();
+  const dateRdv = `${reservation.date}T${reservation.heure}:00`;
+
+  const { data, error } = await WAQQTI.supabase
+    .from('reservations')
+    .insert({
+      salon_id: reservation.salonId,
+      employe_id: reservation.employeId,
+      prestation_id: reservation.prestationId,
+      prestation_nom: reservation.prestation,
+      duree_minutes: reservation.duree,
+      prix: reservation.prix,
+      client_nom: nom,
+      client_telephone: WAQQTI.formatPhone(tel),
+      date_rdv: dateRdv,
+      notes: note || null,
+      statut: 'confirme',
+      source: 'public',
+    })
+    .select()
+    .single();
+
+  if (error) {
+    alert('Erreur : ' + error.message);
+    btn.disabled = false;
+    btn.textContent = originalText;
+    return;
+  }
+
+  goToStep(4);
+  document.getElementById('recap-bar').classList.remove('visible');
+  document.getElementById('confirm-prest').textContent = reservation.prestation;
+  document.getElementById('confirm-date').textContent = reservation.dateLabel;
+  document.getElementById('confirm-heure').textContent = reservation.heure;
+  document.getElementById('confirm-emp').textContent = reservation.employeNom || 'Premier disponible';
+  document.getElementById('confirm-prix').textContent = reservation.prix.toLocaleString('fr') + ' DA';
+}
+
+// Init
+generateDates();
+window.addEventListener('load', async () => {
+  await new Promise(r => setTimeout(r, 300));
+  if (window.WAQQTI) initSalon();
+});
+document.getElementById('btn-next').disabled = true;
+</script>
+</body>
+</html>
