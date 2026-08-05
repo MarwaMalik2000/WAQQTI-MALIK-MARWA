@@ -47,11 +47,50 @@
       'form.telephone': 'Téléphone',
       'form.note': 'Note (facultatif)',
       'pro.agenda': 'Agenda',
+      'pro.acomptes': 'Acomptes',
       'pro.clients': 'Clients',
       'pro.prestations': 'Prestations',
       'pro.equipe': 'Équipe',
       'pro.parametres': 'Paramètres',
-      'pro.abonnement': 'Abonnement'
+      'pro.abonnement': 'Abonnement',
+      'common.ou': '— ou —',
+      'common.langue': 'العربية',
+      'nav.annuaire': 'Annuaire des salons',
+      'nav.fonctions': 'Fonctionnalités',
+      'nav.formules': 'Formules',
+      'nav.comment': 'Comment ça marche',
+      'nav.espace_client': 'Espace client',
+      'nav.essai': 'Essai gratuit 30j →',
+      'hero.badge': 'Première plateforme beauté en Algérie',
+      'hero.titre': 'Votre salon, <em>réservé</em><br/>en ligne 24h/24',
+      'hero.p': 'Waqqti connecte vos clients à votre salon automatiquement. Confirmations SMS, agenda intelligent, zéro appel manqué. Commencez gratuitement pendant 30 jours.',
+      'hero.cta1': 'Démarrer gratuitement →',
+      'hero.cta2': 'Voir comment ça marche',
+      'sec.fonctions': 'Tout ce dont votre salon a besoin,<br/>dans une seule app',
+      'sec.formules': 'Des formules pour chaque salon',
+      'sec.comment': 'Opérationnel en 24 heures',
+      'sec.contact': 'Prêt(e) à moderniser votre salon ?',
+      'book.retour': '← Retour',
+      'book.aide': '💬 Aide WhatsApp',
+      'book.step1': 'Prestation',
+      'book.step2': 'Date & heure',
+      'book.step3': 'Coordonnées',
+      'book.step4': 'Confirmation',
+      'book.choix_prestation': 'Choisissez votre prestation',
+      'book.choix_prestation_sub': 'Sélectionnez le service souhaité',
+      'book.choix_date': 'Choisissez la date',
+      'book.coordonnees_titre': 'Vos coordonnées',
+      'book.nom_label': 'Nom complet *',
+      'book.tel_label': 'Numéro de téléphone *',
+      'book.continuer': 'Continuer →',
+      'ann.titre': 'Trouvez votre salon',
+      'ann.sous': 'Réservez en ligne chez les meilleurs salons de beauté et coiffure d\'Algérie.',
+      'ann.recherche_ph': '🔍 Nom du salon, ville, adresse…',
+      'ann.rechercher': 'Rechercher',
+      'ann.autour': '📍 Autour de moi',
+      'auth.client': 'Espace client Waqqti',
+      'auth.google': 'Continuer avec Google',
+      'auth.retour_accueil': '← Retour à l\'accueil'
     },
     ar: {
       'nav.reserver': 'احجز',
@@ -76,11 +115,50 @@
       'form.telephone': 'الهاتف',
       'form.note': 'ملاحظة (اختياري)',
       'pro.agenda': 'الأجندة',
+      'pro.acomptes': 'العرابين',
       'pro.clients': 'الزبائن',
       'pro.prestations': 'الخدمات',
       'pro.equipe': 'الفريق',
       'pro.parametres': 'الإعدادات',
-      'pro.abonnement': 'الاشتراك'
+      'pro.abonnement': 'الاشتراك',
+      'common.ou': '— أو —',
+      'common.langue': 'FR',
+      'nav.annuaire': 'دليل الصالونات',
+      'nav.fonctions': 'المميزات',
+      'nav.formules': 'الصيغ',
+      'nav.comment': 'كيف يعمل',
+      'nav.espace_client': 'فضاء الزبون',
+      'nav.essai': 'تجربة مجانية 30 يوم →',
+      'hero.badge': 'أول منصة تجميل في الجزائر',
+      'hero.titre': 'صالونك <em>محجوز</em><br/>عبر الإنترنت 24/24',
+      'hero.p': 'وقتي يربط زبائنك بصالونك تلقائيًا. تأكيدات عبر SMS، أجندة ذكية، دون أي مكالمة فائتة. ابدأ مجانًا لمدة 30 يومًا.',
+      'hero.cta1': 'ابدأ مجانًا →',
+      'hero.cta2': 'شاهد كيف يعمل',
+      'sec.fonctions': 'كل ما يحتاجه صالونك<br/>في تطبيق واحد',
+      'sec.formules': 'صيغ تناسب كل صالون',
+      'sec.comment': 'جاهز خلال 24 ساعة',
+      'sec.contact': 'مستعد لتحديث صالونك؟',
+      'book.retour': '→ رجوع',
+      'book.aide': '💬 مساعدة واتساب',
+      'book.step1': 'الخدمة',
+      'book.step2': 'التاريخ والوقت',
+      'book.step3': 'المعلومات',
+      'book.step4': 'التأكيد',
+      'book.choix_prestation': 'اختر خدمتك',
+      'book.choix_prestation_sub': 'حدد الخدمة المطلوبة',
+      'book.choix_date': 'اختر التاريخ',
+      'book.coordonnees_titre': 'معلوماتك',
+      'book.nom_label': 'الاسم الكامل *',
+      'book.tel_label': 'رقم الهاتف *',
+      'book.continuer': 'متابعة →',
+      'ann.titre': 'اعثر على صالونك',
+      'ann.sous': 'احجز عبر الإنترنت لدى أفضل صالونات التجميل والحلاقة في الجزائر.',
+      'ann.recherche_ph': '🔍 اسم الصالون، المدينة، العنوان…',
+      'ann.rechercher': 'بحث',
+      'ann.autour': '📍 بالقرب مني',
+      'auth.client': 'فضاء زبون وقتي',
+      'auth.google': 'المتابعة عبر Google',
+      'auth.retour_accueil': '→ العودة إلى الرئيسية'
     }
   };
 
@@ -137,11 +215,15 @@
       html.setAttribute('dir', current === 'ar' ? 'rtl' : 'ltr');
     },
 
-    /* Traduit tous les [data-i18n] et [data-i18n-attr] présents */
+    /* Traduit tous les [data-i18n], [data-i18n-html] et [data-i18n-attr] présents */
     apply: function (root) {
       root = root || document;
       root.querySelectorAll('[data-i18n]').forEach(function (el) {
         el.textContent = WQ.t(el.getAttribute('data-i18n'));
+      });
+      // data-i18n-html : la traduction peut contenir du HTML (<br>, <em>…)
+      root.querySelectorAll('[data-i18n-html]').forEach(function (el) {
+        el.innerHTML = WQ.t(el.getAttribute('data-i18n-html'));
       });
       // data-i18n-attr="placeholder:form.nom;title:common.retour"
       root.querySelectorAll('[data-i18n-attr]').forEach(function (el) {
@@ -149,6 +231,20 @@
           var kv = pair.split(':');
           if (kv.length === 2) el.setAttribute(kv[0].trim(), WQ.t(kv[1].trim()));
         });
+      });
+      WQ.wireToggles(root);
+    },
+
+    /* Câble tout bouton [data-lang-toggle] : libellé = langue opposée + clic */
+    wireToggles: function (root) {
+      root = root || document;
+      root.querySelectorAll('[data-lang-toggle]').forEach(function (el) {
+        el.textContent = (current === 'fr') ? 'العربية' : 'FR';
+        el.setAttribute('dir', 'ltr');
+        if (!el._wqWired) {
+          el._wqWired = true;
+          el.addEventListener('click', function () { WQ.toggle(); });
+        }
       });
     },
 
@@ -165,6 +261,15 @@
       return WQ.jourCourt(d) + ' ' + d.getDate() + ' ' + WQ.moisNom(d.getMonth());
     }
   };
+
+  /* Police arabe quand la page passe en RTL (nécessite Tajawal/Amiri chargées) */
+  try {
+    var st = document.createElement('style');
+    st.textContent =
+      '[dir="rtl"]{font-family:"Tajawal","DM Sans",sans-serif}' +
+      '[dir="rtl"] h1,[dir="rtl"] h2,[dir="rtl"] h3,[dir="rtl"] .card-title,[dir="rtl"] .logo,[dir="rtl"] .brand{font-family:"Amiri","Cormorant Garamond",serif}';
+    (document.head || document.documentElement).appendChild(st);
+  } catch (e) {}
 
   /* Applique la direction immédiatement (anti-flash), puis les libellés au chargement */
   WQ.applyDir();
