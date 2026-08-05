@@ -6,7 +6,10 @@
   <title>Salon Yasmine Beauty — Réservation Waqqti</title>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@700&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet"/>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- Moteur de traduction FR / AR (dans le <head>) -->
+  <script src="../assets/i18n.js"></script>
   <script src="../assets/config.js" defer></script>
   <style>
     :root {
@@ -344,8 +347,11 @@
 <!-- ═══════════ HEADER SALON ═══════════ -->
 <div class="header">
   <div class="top-bar">
-    <a href="/">← Retour</a>
-    <a href="https://wa.me/+213549829949" target="_blank">💬 Aide WhatsApp</a>
+    <a href="/" data-i18n="book.retour">← Retour</a>
+    <div style="display:flex;align-items:center;gap:14px">
+      <a href="https://wa.me/+213549829949" target="_blank" data-i18n="book.aide">💬 Aide WhatsApp</a>
+      <button type="button" data-lang-toggle style="font-family:'Tajawal',sans-serif;font-weight:700;background:rgba(255,255,255,.2);color:#fff;border:none;border-radius:50px;padding:6px 14px;cursor:pointer;font-size:13px;backdrop-filter:blur(8px)">العربية</button>
+    </div>
   </div>
 
   <div class="salon-hero">
@@ -369,30 +375,30 @@
   <div class="steps-bar">
     <div class="step-item active" data-step="1">
       <div class="step-num"><span>1</span></div>
-      <div class="step-label">Prestation</div>
+      <div class="step-label" data-i18n="book.step1">Prestation</div>
     </div>
     <span class="step-arrow">→</span>
     <div class="step-item" data-step="2">
       <div class="step-num"><span>2</span></div>
-      <div class="step-label">Date & heure</div>
+      <div class="step-label" data-i18n="book.step2">Date & heure</div>
     </div>
     <span class="step-arrow">→</span>
     <div class="step-item" data-step="3">
       <div class="step-num"><span>3</span></div>
-      <div class="step-label">Coordonnées</div>
+      <div class="step-label" data-i18n="book.step3">Coordonnées</div>
     </div>
     <span class="step-arrow">→</span>
     <div class="step-item" data-step="4">
       <div class="step-num"><span>4</span></div>
-      <div class="step-label">Confirmation</div>
+      <div class="step-label" data-i18n="book.step4">Confirmation</div>
     </div>
   </div>
 
   <!-- ═══════════ ÉTAPE 1 : PRESTATION ═══════════ -->
   <div class="step-content active" id="step-1">
     <div class="card">
-      <h2 class="card-title">Choisissez votre prestation</h2>
-      <p class="card-sub">Sélectionnez le service souhaité</p>
+      <h2 class="card-title" data-i18n="book.choix_prestation">Choisissez votre prestation</h2>
+      <p class="card-sub" data-i18n="book.choix_prestation_sub">Sélectionnez le service souhaité</p>
 
       <div class="prest-categ">Coiffure</div>
       <div class="prest-item" data-id="1" data-name="Coupe + Brushing" data-duration="60" data-price="1800">
@@ -484,7 +490,7 @@
 
     <!-- DATE -->
     <div class="card">
-      <h2 class="card-title">Choisissez la date</h2>
+      <h2 class="card-title" data-i18n="book.choix_date">Choisissez la date</h2>
       <p class="card-sub">Faites défiler pour voir plus de dates</p>
       <div class="dates-row" id="dates-row">
         <!-- Généré en JS -->
@@ -503,16 +509,16 @@
   <!-- ═══════════ ÉTAPE 3 : COORDONNÉES ═══════════ -->
   <div class="step-content" id="step-3">
     <div class="card">
-      <h2 class="card-title">Vos coordonnées</h2>
+      <h2 class="card-title" data-i18n="book.coordonnees_titre">Vos coordonnées</h2>
       <p class="card-sub">Nous enverrons une confirmation par SMS</p>
 
       <div class="form-row">
-        <label>Nom complet *</label>
+        <label data-i18n="book.nom_label">Nom complet *</label>
         <input type="text" id="client-nom" placeholder="Ex: Amina Kaci" required>
       </div>
 
       <div class="form-row">
-        <label>Numéro de téléphone *</label>
+        <label data-i18n="book.tel_label">Numéro de téléphone *</label>
         <input type="tel" id="client-tel" placeholder="0770 12 34 56" required>
         <div class="hint">Nous vous enverrons un SMS de confirmation et un rappel 24h avant</div>
       </div>
@@ -565,7 +571,7 @@
       <div class="recap-label" id="recap-label">Prestation choisie</div>
       <div class="recap-value" id="recap-value">—</div>
     </div>
-    <button class="btn-next" id="btn-next" onclick="nextStep()">
+    <button class="btn-next" id="btn-next" onclick="nextStep()" data-i18n="book.continuer">
       Continuer →
     </button>
   </div>
