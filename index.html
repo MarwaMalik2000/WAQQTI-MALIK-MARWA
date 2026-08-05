@@ -261,7 +261,7 @@
       .step:not(:last-child)::after { display:none }
       .foot-in { grid-template-columns:1fr 1fr }
       .plan.star { transform:none }
-      .nav-links a:not(.btn-nav):not(.lien-pro) { display:none }
+      .nav-links a:not(.btn-nav):not(.lien-pro):not(.lien-client):not([href="/annuaire.html"]) { display:none }
     }
   </style>
 </head>
@@ -676,9 +676,11 @@ z"/>
 </svg>
   </a>
  <div class="nav-links">
+  <a href="/annuaire.html">Annuaire des salons</a>
   <a href="#fonctions">Fonctionnalités</a>
   <a href="#formules">Formules</a>
   <a href="#comment">Comment ça marche</a>
+  <a href="/auth.html" class="lien-client">Espace client</a>
   <a href="/pro/dashboard.html" class="lien-pro" style="font-weight:700; color:var(--or);">Espace Pro</a>
   <a href="#contact" class="btn-nav">Essai gratuit 30j →</a>
 </div>
@@ -1714,6 +1716,9 @@ z"/>
     </div>
     <div class="foot-col">
       <h4>Produit</h4>
+      <a href="/annuaire.html">Annuaire des salons</a>
+      <a href="/auth.html">Espace client</a>
+      <a href="/pro/dashboard.html">Espace Pro</a>
       <a href="#fonctions">Fonctionnalités</a>
       <a href="#formules">Formules & tarifs</a>
       <a href="#comment">Comment ça marche</a>

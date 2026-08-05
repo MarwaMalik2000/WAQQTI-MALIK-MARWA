@@ -104,7 +104,21 @@
 <section id="login">
   <form class="login-card" id="login-form">
     <div class="logo">وقتي</div>
-    <div class="sub">Espace gérant Waqqti</div>
+    <div class="sub" id="login-sub">Espace gérant Waqqti</div>
+
+    <button type="button" class="btn btn-ghost" id="btn-google" style="width:100%;display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:14px">
+      <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+      Continuer avec Google
+    </button>
+    <div style="text-align:center;color:var(--brun-l);font-size:12px;margin-bottom:14px">— ou —</div>
+
+    <!-- Champs inscription (masqués en mode connexion) -->
+    <div class="signup-only hidden">
+      <div class="field-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div class="field"><label>Prénom</label><input type="text" id="su-prenom" placeholder="Amina"/></div>
+        <div class="field"><label>Nom</label><input type="text" id="su-nom" placeholder="Kaci"/></div>
+      </div>
+    </div>
     <div class="field">
       <label>Email</label>
       <input type="email" id="email" autocomplete="username" required placeholder="salon@exemple.dz"/>
@@ -113,8 +127,19 @@
       <label>Mot de passe</label>
       <input type="password" id="password" autocomplete="current-password" required placeholder="••••••••"/>
     </div>
-    <button type="submit" class="btn" style="width:100%">Se connecter</button>
+    <div class="signup-only hidden">
+      <div class="field">
+        <label>Confirmer le mot de passe</label>
+        <input type="password" id="su-confirm" placeholder="••••••••"/>
+      </div>
+    </div>
+
+    <button type="submit" class="btn" id="btn-submit" style="width:100%">Se connecter</button>
     <div class="err" id="login-err"></div>
+    <div style="text-align:center;font-size:13px;margin-top:14px">
+      <span id="toggle-txt">Pas encore de compte ?</span>
+      <a href="#" id="toggle-mode" style="color:var(--or);font-weight:600;text-decoration:none">Créer un compte</a>
+    </div>
   </form>
 </section>
 
@@ -124,6 +149,7 @@
     <div class="brand">وقتي</div>
     <div class="salon-nom" id="side-salon">—</div>
     <div class="nav-item active" data-view="agenda"><span class="ico">📅</span><span data-i18n="pro.agenda">Agenda</span></div>
+    <div class="nav-item" data-view="acomptes"><span class="ico">💳</span><span data-i18n="pro.acomptes">Acomptes</span><span id="badge-acomptes" class="pill or" style="margin-left:6px;display:none"></span></div>
     <div class="nav-item" data-view="clients"><span class="ico">👥</span><span data-i18n="pro.clients">Clients</span></div>
     <div class="nav-item" data-view="prestations"><span class="ico">✂️</span><span data-i18n="pro.prestations">Prestations</span></div>
     <div class="nav-item" data-view="equipe"><span class="ico">🧑‍🤝‍🧑</span><span data-i18n="pro.equipe">Équipe</span></div>
@@ -174,25 +200,58 @@ function boot(){
 }
 document.addEventListener('DOMContentLoaded', boot);
 
+var SIGNUP_MODE = false;
 function bindStatic(){
-  $('login-form').addEventListener('submit', doLogin);
+  $('login-form').addEventListener('submit', doAuthSubmit);
   $('btn-logout').addEventListener('click', doLogout);
+  $('btn-google').addEventListener('click', function(){ WAQQTI.loginGoogle(window.location.href); });
+  $('toggle-mode').addEventListener('click', function(e){ e.preventDefault(); toggleSignup(); });
   document.querySelectorAll('.nav-item').forEach(function(el){
     el.addEventListener('click', function(){ switchView(el.dataset.view); });
   });
 }
 
+function toggleSignup(){
+  SIGNUP_MODE = !SIGNUP_MODE;
+  document.querySelectorAll('.signup-only').forEach(function(el){ el.classList.toggle('hidden', !SIGNUP_MODE); });
+  $('btn-submit').textContent = SIGNUP_MODE ? 'Créer mon compte' : 'Se connecter';
+  $('login-sub').textContent = SIGNUP_MODE ? 'Créer un compte gérant' : 'Espace gérant Waqqti';
+  $('toggle-txt').textContent = SIGNUP_MODE ? 'Déjà un compte ?' : 'Pas encore de compte ?';
+  $('toggle-mode').textContent = SIGNUP_MODE ? 'Se connecter' : 'Créer un compte';
+  $('login-err').textContent = '';
+}
+
 /* ---- Auth ---- */
 function showLogin(){ $('login').classList.remove('hidden'); $('app').classList.add('hidden'); }
+
+function doAuthSubmit(e){ e.preventDefault(); return SIGNUP_MODE ? doSignup(e) : doLogin(e); }
+
 async function doLogin(e){
-  e.preventDefault();
   var err=$('login-err'); err.textContent='';
   var email=$('email').value.trim(), password=$('password').value;
-  var btn=e.target.querySelector('button'); btn.disabled=true; btn.textContent='Connexion…';
+  var btn=$('btn-submit'); btn.disabled=true; btn.textContent='Connexion…';
   var r = await sb().auth.signInWithPassword({ email:email, password:password });
   btn.disabled=false; btn.textContent='Se connecter';
   if(r.error){ err.textContent = '❌ '+ (r.error.message || 'Identifiants invalides'); return; }
   onLogin(r.data.user);
+}
+
+async function doSignup(e){
+  var err=$('login-err'); err.textContent='';
+  var email=$('email').value.trim(), password=$('password').value;
+  var confirm=$('su-confirm').value, nom=$('su-nom').value.trim(), prenom=$('su-prenom').value.trim();
+  if(password.length < 6){ err.textContent='❌ Mot de passe : 6 caractères minimum'; return; }
+  if(password !== confirm){ err.textContent='❌ Les mots de passe ne correspondent pas'; return; }
+  var btn=$('btn-submit'); btn.disabled=true; btn.textContent='Création…';
+  var r = await WAQQTI.inscriptionEmail(email, password, { nom:nom, prenom:prenom });
+  btn.disabled=false; btn.textContent='Créer mon compte';
+  if(r.error){ err.textContent='❌ '+r.error.message; return; }
+  if(r.data && r.data.session){ onLogin(r.data.user); }
+  else {
+    err.style.color='var(--green)';
+    err.textContent='✅ Compte créé. Vérifie ton email pour confirmer, puis connecte-toi.';
+    toggleSignup();
+  }
 }
 async function doLogout(){ await sb().auth.signOut(); location.reload(); }
 
@@ -218,6 +277,7 @@ async function onLogin(user){
   if(!acces.actif){ $('killswitch').classList.remove('hidden'); return; }
 
   switchView('agenda');
+  majBadgeAcomptes();
 }
 
 function renderTrialPill(acces){
@@ -237,7 +297,7 @@ function switchView(view){
   document.querySelectorAll('.nav-item').forEach(function(el){
     el.classList.toggle('active', el.dataset.view===view);
   });
-  ({agenda:viewAgenda,clients:viewClients,prestations:viewPrestations,
+  ({agenda:viewAgenda,acomptes:viewAcomptes,clients:viewClients,prestations:viewPrestations,
     equipe:viewEquipe,parametres:viewParametres,abonnement:viewAbonnement}[view]||viewAgenda)();
 }
 
@@ -285,6 +345,82 @@ async function annulerRdv(id){
   var r=await sb().from('reservations').update({statut:'annule'}).eq('id',id);
   if(r.error) WAQQTI.toast(r.error.message,'error');
   else { WAQQTI.toast('Rendez-vous annulé'); loadAgenda($('agenda-date').value); }
+}
+
+/* ════════════ ACOMPTES (validation des justificatifs) ════════════ */
+async function viewAcomptes(){
+  var main=$('main');
+  main.innerHTML='<div class="page-head"><h1>Acomptes</h1>'+
+    '<div class="toolbar"><select class="inp" id="ac-filtre" style="width:auto">'+
+      '<option value="en_attente">À vérifier</option>'+
+      '<option value="recu">Validés</option>'+
+      '<option value="refuse">Refusés</option>'+
+      '<option value="tous">Tous</option>'+
+    '</select></div></div>'+
+    '<div id="ac-body"><div class="empty">Chargement…</div></div>';
+  $('ac-filtre').addEventListener('change', function(){ loadAcomptes(this.value); });
+  loadAcomptes('en_attente');
+}
+async function loadAcomptes(filtre){
+  var body=$('ac-body'); if(!body) return;
+  var q=sb().from('reservations').select('*')
+    .eq('salon_id',STATE.salon.id)
+    .neq('acompte_statut','non_requis')
+    .order('date_rdv',{ascending:true});
+  if(filtre && filtre!=='tous') q=q.eq('acompte_statut',filtre);
+  var r=await q;
+  if(r.error){ body.innerHTML='<div class="card empty">Erreur : '+esc(r.error.message)+'</div>'; return; }
+  var list=r.data||[];
+  if(!list.length){ body.innerHTML='<div class="card empty">Aucun acompte '+
+    (filtre==='en_attente'?'à vérifier':'')+'.</div>'; return; }
+  var rows=list.map(function(x){
+    var d=new Date(x.date_rdv);
+    var st=x.acompte_statut==='recu'?'<span class="pill green">Validé</span>'
+         :x.acompte_statut==='refuse'?'<span class="pill red">Refusé</span>'
+         :'<span class="pill or">À vérifier</span>';
+    var actions=x.acompte_statut==='en_attente'
+      ? '<button class="btn btn-sm" onclick="statuerAcompte(\''+x.id+'\',\'recu\')">✓ Valider</button> '+
+        '<button class="btn btn-ghost btn-sm" onclick="statuerAcompte(\''+x.id+'\',\'refuse\')">✗ Refuser</button>'
+      : '<button class="btn btn-ghost btn-sm" onclick="statuerAcompte(\''+x.id+'\',\'recu\')">Re-valider</button>';
+    var justif=x.justificatif_url
+      ? '<button class="btn btn-ghost btn-sm" onclick="voirJustif(\''+esc(x.justificatif_url)+'\')">🖼 Voir le reçu</button>'
+      : '<span class="muted">Aucun reçu reçu</span>';
+    return '<tr><td><b>'+d.toLocaleDateString('fr-FR')+'</b><div class="muted">'+
+        d.toTimeString().slice(0,5)+'</div></td>'+
+      '<td>'+esc(x.client_nom)+'<div class="muted" dir="ltr">'+esc(x.client_telephone||'')+'</div></td>'+
+      '<td>'+esc(x.prestation_nom||'—')+'</td>'+
+      '<td><b>'+fmtPrix(x.acompte_montant)+'</b></td>'+
+      '<td>'+justif+'</td>'+
+      '<td>'+st+'</td><td>'+actions+'</td></tr>';
+  }).join('');
+  body.innerHTML='<div class="card"><table><thead><tr><th>RDV</th><th>Client</th>'+
+    '<th>Prestation</th><th>Acompte</th><th>Reçu</th><th>Statut</th><th></th></tr></thead>'+
+    '<tbody>'+rows+'</tbody></table></div>';
+}
+async function statuerAcompte(id, decision){
+  if(decision==='refuse' && !confirm('Refuser ce justificatif ?')) return;
+  var r=await sb().rpc('statuer_acompte',{p_reservation_id:id,p_decision:decision});
+  if(r.error) WAQQTI.toast(r.error.message,'error');
+  else { WAQQTI.toast(decision==='recu'?'Acompte validé ✓':'Justificatif refusé');
+    loadAcomptes($('ac-filtre').value); majBadgeAcomptes(); }
+}
+async function voirJustif(chemin){
+  var url=await WAQQTI.urlSigneeJustificatif(chemin, 3600);
+  if(!url){ WAQQTI.toast('Image indisponible','error'); return; }
+  var ov=document.createElement('div');
+  ov.style.cssText='position:fixed;inset:0;z-index:9999;background:rgba(61,31,0,.9);'+
+    'display:flex;align-items:center;justify-content:center;padding:20px;cursor:zoom-out';
+  ov.innerHTML='<img src="'+url+'" style="max-width:95%;max-height:90vh;border-radius:12px;box-shadow:0 20px 60px rgba(0,0,0,.5)">';
+  ov.addEventListener('click', function(){ ov.remove(); });
+  document.body.appendChild(ov);
+}
+// Compteur d'acomptes en attente (pastille sidebar)
+async function majBadgeAcomptes(){
+  var r=await sb().from('reservations').select('id',{count:'exact',head:true})
+    .eq('salon_id',STATE.salon.id).eq('acompte_statut','en_attente');
+  var b=$('badge-acomptes'); if(!b) return;
+  var n=r.count||0;
+  if(n>0){ b.textContent=n; b.style.display='inline-block'; } else { b.style.display='none'; }
 }
 
 /* ════════════ CLIENTS ════════════ */
@@ -351,6 +487,16 @@ function formPrestation(p){
     '<div class="field"><label>Prix (DA) *</label><input class="inp" type="number" id="p-prix" value="'+(p.prix||0)+'"></div>'+
     '<div class="field"><label>Durée (min) *</label><input class="inp" type="number" id="p-duree" value="'+(p.duree_minutes||30)+'"></div></div>'+
     '<div class="field"><label><input type="checkbox" id="p-actif" '+(p.actif===false?'':'checked')+'> Visible pour les clients</label></div>'+
+    // ── Acompte ──
+    '<div style="border-top:1px solid #F3EADD;margin:6px 0 14px;padding-top:14px">'+
+    '<label style="font-weight:600;font-size:14px"><input type="checkbox" id="p-ac-actif" '+(p.acompte_actif?'checked':'')+' onchange="document.getElementById(\'ac-box\').style.display=this.checked?\'grid\':\'none\'"> Demander un acompte pour cette prestation</label>'+
+    '<div class="field-grid" id="ac-box" style="margin-top:12px;display:'+(p.acompte_actif?'grid':'none')+'">'+
+    '<div class="field"><label>Type d\'acompte</label><select class="inp" id="p-ac-type">'+
+      '<option value="pourcentage"'+(p.acompte_type!=='fixe'?' selected':'')+'>Pourcentage (%)</option>'+
+      '<option value="fixe"'+(p.acompte_type==='fixe'?' selected':'')+'>Montant fixe (DA)</option>'+
+    '</select></div>'+
+    '<div class="field"><label>Valeur</label><input class="inp" type="number" id="p-ac-val" value="'+(p.acompte_valeur!=null?p.acompte_valeur:0)+'" placeholder="20 (%) ou 500 (DA)"></div>'+
+    '</div></div>'+
     '<button class="btn" id="p-save">Enregistrer</button></div>';
   $('p-save').addEventListener('click', function(){ savePrestation(p.id); });
 }
@@ -362,7 +508,10 @@ async function savePrestation(id){
     ordre:parseInt($('p-ordre').value)||0,
     prix:parseFloat($('p-prix').value)||0,
     duree_minutes:parseInt($('p-duree').value)||30,
-    actif:$('p-actif').checked
+    actif:$('p-actif').checked,
+    acompte_actif:$('p-ac-actif').checked,
+    acompte_type:$('p-ac-type').value,
+    acompte_valeur:parseFloat($('p-ac-val').value)||0
   };
   if(!payload.nom){ WAQQTI.toast('Le nom est requis','error'); return; }
   var r = id ? await sb().from('prestations').update(payload).eq('id',id)
@@ -439,8 +588,66 @@ function viewParametres(){
       '<option value="journee"'+(s.mode_reservation==='journee'?' selected':'')+'>À la journée (sans horaire)</option>'+
     '</select></div>'+
     '<div class="field"><label>Nombre de sièges</label><input class="inp" type="number" id="s-sieges" min="1" max="50" value="'+(s.nb_sieges||1)+'"></div></div>'+
-    '<button class="btn" id="s-save">Enregistrer</button></div>';
+    '<button class="btn" id="s-save">Enregistrer</button></div>'+
+
+    // ── Coordonnées de paiement (acompte) ──
+    '<div class="card" style="max-width:600px">'+
+    '<h3 style="font-size:20px;margin-bottom:4px">💳 Coordonnées de paiement</h3>'+
+    '<p class="muted" style="margin-bottom:16px">Affichées au client quand un acompte est demandé.</p>'+
+    '<div class="field-grid">'+
+    '<div class="field"><label>Type</label><select class="inp" id="r-type">'+
+      '<option value="">— Aucun —</option>'+
+      '<option value="baridimob"'+(s.rib_type==='baridimob'?' selected':'')+'>BaridiMob</option>'+
+      '<option value="ccp"'+(s.rib_type==='ccp'?' selected':'')+'>CCP</option>'+
+      '<option value="rib"'+(s.rib_type==='rib'?' selected':'')+'>RIB bancaire</option>'+
+      '<option value="autre"'+(s.rib_type==='autre'?' selected':'')+'>Autre</option>'+
+    '</select></div>'+
+    '<div class="field"><label>Titulaire</label><input class="inp" id="r-titulaire" value="'+esc(s.rib_titulaire||'')+'" placeholder="Nom du bénéficiaire"></div></div>'+
+    '<div class="field-grid">'+
+    '<div class="field"><label>Numéro (CCP / RIB / tél)</label><input class="inp" id="r-numero" dir="ltr" value="'+esc(s.rib_numero||'')+'" placeholder="00799999..."></div>'+
+    '<div class="field"><label>Clé (CCP)</label><input class="inp" id="r-cle" dir="ltr" value="'+esc(s.rib_cle||'')+'" placeholder="00"></div></div>'+
+    '<div class="field"><label>Instructions (optionnel)</label><input class="inp" id="r-instr" value="'+esc(s.rib_instructions||'')+'" placeholder="Ex : Envoyez le reçu après paiement"></div>'+
+    '<button class="btn" id="r-save">Enregistrer les coordonnées</button></div>'+
+
+    // ── Géolocalisation (annuaire "Autour de moi") ──
+    '<div class="card" style="max-width:600px">'+
+    '<h3 style="font-size:20px;margin-bottom:4px">📍 Localisation</h3>'+
+    '<p class="muted" style="margin-bottom:16px">Pour apparaître dans « Autour de moi » de l\'annuaire.</p>'+
+    '<div class="field-grid">'+
+    '<div class="field"><label>Latitude</label><input class="inp" id="g-lat" dir="ltr" value="'+(s.latitude!=null?s.latitude:'')+'" placeholder="36.7538"></div>'+
+    '<div class="field"><label>Longitude</label><input class="inp" id="g-lng" dir="ltr" value="'+(s.longitude!=null?s.longitude:'')+'" placeholder="3.0588"></div></div>'+
+    '<button class="btn btn-ghost btn-sm" type="button" onclick="capterPositionSalon()">📍 Utiliser ma position actuelle</button> '+
+    '<button class="btn" id="g-save" style="margin-top:10px">Enregistrer la position</button></div>';
   $('s-save').addEventListener('click', saveParametres);
+  $('r-save').addEventListener('click', saveRib);
+  $('g-save').addEventListener('click', saveGeo);
+}
+function capterPositionSalon(){
+  if(!navigator.geolocation){ WAQQTI.toast('Géolocalisation indisponible','error'); return; }
+  navigator.geolocation.getCurrentPosition(function(pos){
+    $('g-lat').value=pos.coords.latitude.toFixed(6);
+    $('g-lng').value=pos.coords.longitude.toFixed(6);
+    WAQQTI.toast('Position captée — pense à enregistrer');
+  }, function(){ WAQQTI.toast('Position refusée','error'); });
+}
+async function saveRib(){
+  var payload={
+    rib_type:$('r-type').value||null,
+    rib_titulaire:$('r-titulaire').value.trim()||null,
+    rib_numero:$('r-numero').value.trim()||null,
+    rib_cle:$('r-cle').value.trim()||null,
+    rib_instructions:$('r-instr').value.trim()||null
+  };
+  var r=await sb().from('salons').update(payload).eq('id',STATE.salon.id).select().single();
+  if(r.error){ WAQQTI.toast(r.error.message,'error'); return; }
+  STATE.salon=r.data; WAQQTI.toast('Coordonnées enregistrées');
+}
+async function saveGeo(){
+  var lat=parseFloat($('g-lat').value), lng=parseFloat($('g-lng').value);
+  var payload={ latitude:isNaN(lat)?null:lat, longitude:isNaN(lng)?null:lng };
+  var r=await sb().from('salons').update(payload).eq('id',STATE.salon.id).select().single();
+  if(r.error){ WAQQTI.toast(r.error.message,'error'); return; }
+  STATE.salon=r.data; WAQQTI.toast('Position enregistrée');
 }
 async function saveParametres(){
   var payload={

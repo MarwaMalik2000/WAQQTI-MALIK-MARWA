@@ -96,7 +96,84 @@
   }
 
   /* ---------------------------------------------------------
-     4. EXPORT GLOBAL
+     5. ACOMPTE — calcul du montant à partir de la config prestation
+        prestation.acompte_actif / acompte_type / acompte_valeur
+     --------------------------------------------------------- */
+  function calcAcompte(prestation) {
+    if (!prestation || !prestation.acompte_actif) return 0;
+    var val = Number(prestation.acompte_valeur) || 0;
+    if (prestation.acompte_type === 'fixe') return Math.round(val);
+    return Math.round((Number(prestation.prix) || 0) * val / 100); // pourcentage
+  }
+
+  // Libellé lisible des coordonnées de paiement d'un salon
+  function ribLisible(salon) {
+    if (!salon || !salon.rib_numero) return null;
+    var t = salon.rib_type === 'baridimob' ? 'BaridiMob'
+          : salon.rib_type === 'ccp' ? 'CCP'
+          : salon.rib_type === 'rib' ? 'RIB' : 'Paiement';
+    var cle = salon.rib_cle ? ' · clé ' + salon.rib_cle : '';
+    return t + ' : ' + salon.rib_numero + cle;
+  }
+
+  /* ---------------------------------------------------------
+     6. JUSTIFICATIF — upload dans le bucket 'justificatifs'
+        Chemin : {salon_id}/{reservation_id}.ext  puis attache via RPC.
+        Renvoie { ok:boolean, chemin?:string, error?:string }
+     --------------------------------------------------------- */
+  async function uploadJustificatif(salonId, reservationId, file) {
+    try {
+      var ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
+      var chemin = salonId + '/' + reservationId + '.' + ext;
+      var up = await client.storage.from('justificatifs')
+        .upload(chemin, file, { upsert: true, contentType: file.type || 'image/jpeg' });
+      if (up.error) return { ok: false, error: up.error.message };
+      var rpc = await client.rpc('attacher_justificatif', {
+        p_reservation_id: reservationId, p_chemin: chemin
+      });
+      if (rpc.error) return { ok: false, error: rpc.error.message };
+      return { ok: true, chemin: chemin };
+    } catch (e) { return { ok: false, error: String(e) }; }
+  }
+
+  // URL signée temporaire pour afficher un justificatif (côté gérant connecté).
+  async function urlSigneeJustificatif(chemin, secondes) {
+    var r = await client.storage.from('justificatifs')
+      .createSignedUrl(chemin, secondes || 3600);
+    return r && r.data ? r.data.signedUrl : null;
+  }
+
+  /* ---------------------------------------------------------
+     7. AUTH — connexion Google (OAuth) + inscription email
+     --------------------------------------------------------- */
+  async function loginGoogle(redirectTo) {
+    return client.auth.signInWithOAuth({
+      provider: 'google',
+      options: { redirectTo: redirectTo || window.location.href }
+    });
+  }
+  async function inscriptionEmail(email, password, meta) {
+    // meta = { nom, prenom, telephone } → stockés dans profiles via trigger
+    return client.auth.signUp({
+      email: email, password: password,
+      options: { data: meta || {} }
+    });
+  }
+
+  /* ---------------------------------------------------------
+     8. GÉOLOC — distance Haversine (km) côté navigateur
+     --------------------------------------------------------- */
+  function distanceKm(lat1, lon1, lat2, lon2) {
+    if ([lat1, lon1, lat2, lon2].some(function (x) { return x == null; })) return null;
+    var R = 6371, dLat = (lat2 - lat1) * Math.PI / 180, dLon = (lon2 - lon1) * Math.PI / 180;
+    var a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+      Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  }
+
+  /* ---------------------------------------------------------
+     9. EXPORT GLOBAL
      --------------------------------------------------------- */
   window.WAQQTI = {
     supabase: client,
@@ -105,7 +182,14 @@
     displayPhone: displayPhone,
     formatPrix: formatPrix,
     toast: toast,
-    verifierAcces: verifierAcces
+    verifierAcces: verifierAcces,
+    calcAcompte: calcAcompte,
+    ribLisible: ribLisible,
+    uploadJustificatif: uploadJustificatif,
+    urlSigneeJustificatif: urlSigneeJustificatif,
+    loginGoogle: loginGoogle,
+    inscriptionEmail: inscriptionEmail,
+    distanceKm: distanceKm
   };
 
   document.dispatchEvent(new CustomEvent('wq:ready'));

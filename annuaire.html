@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Annuaire des salons — Waqqti</title>
+  <meta name="theme-color" content="#F68423"/>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="assets/config.js" defer></script>
+  <style>
+    :root{--or:#F68423;--or-dk:#D26F1A;--cream:#FDEFE2;--cream2:#F5E2CC;--brun:#3D1F00;--brun-l:#7A5030;--green:#2D9E5F}
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--brun);min-height:100vh}
+    a{color:inherit;text-decoration:none}
+    .header{background:linear-gradient(135deg,var(--or),var(--or-dk));color:#fff;padding:26px 5% 60px;position:relative}
+    .header::after{content:'';position:absolute;bottom:-1px;left:0;right:0;height:26px;background:var(--cream);clip-path:polygon(0 100%,100% 100%,100% 0,0 70%)}
+    .top{max-width:1000px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;font-size:14px}
+    .brand{font-family:'Cormorant Garamond',serif;font-size:30px;font-weight:700}
+    .header h1{font-family:'Cormorant Garamond',serif;font-size:34px;max-width:1000px;margin:22px auto 4px}
+    .header p{max-width:1000px;margin:0 auto;opacity:.92;font-size:15px}
+    .wrap{max-width:1000px;margin:-34px auto 40px;padding:0 5%;position:relative;z-index:2}
+    .searchbar{background:#fff;border-radius:18px;padding:16px;box-shadow:0 8px 30px rgba(246,132,35,.15);display:flex;gap:10px;flex-wrap:wrap}
+    .searchbar input{flex:1;min-width:180px;padding:13px 16px;border:1.5px solid var(--cream2);border-radius:12px;font-size:15px;font-family:inherit}
+    .searchbar input:focus{outline:none;border-color:var(--or);box-shadow:0 0 0 4px rgba(246,132,35,.1)}
+    .btn{padding:13px 20px;background:var(--or);color:#fff;border:none;border-radius:12px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap;transition:.2s}
+    .btn:hover{background:var(--or-dk)}
+    .btn-ghost{background:var(--cream);color:var(--brun)}
+    .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;margin-top:20px}
+    .salon{background:#fff;border-radius:16px;padding:20px;box-shadow:0 4px 20px rgba(246,132,35,.08);border:1px solid #F0E7DA;display:flex;flex-direction:column;transition:.2s}
+    .salon:hover{transform:translateY(-3px);box-shadow:0 10px 34px rgba(246,132,35,.16)}
+    .salon .av{width:52px;height:52px;border-radius:14px;background:var(--or);color:#fff;display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:700;margin-bottom:12px}
+    .salon h3{font-family:'Cormorant Garamond',serif;font-size:22px;margin-bottom:4px}
+    .salon .meta{font-size:13px;color:var(--brun-l);margin-bottom:4px}
+    .salon .dist{font-size:12px;color:var(--green);font-weight:600;margin-bottom:12px}
+    .pill{display:inline-block;padding:3px 10px;border-radius:50px;font-size:11px;font-weight:600;background:#FFE5D0;color:var(--or-dk);margin-bottom:12px;text-transform:capitalize}
+    .salon .go{margin-top:auto;text-align:center;padding:11px;background:var(--or);color:#fff;border-radius:10px;font-weight:600;font-size:14px}
+    .salon .go:hover{background:var(--or-dk)}
+    .empty{text-align:center;color:var(--brun-l);padding:50px 20px}
+    @media(max-width:600px){.searchbar{flex-direction:column}.btn{width:100%}}
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="top">
+      <a href="/" class="brand">وقتي</a>
+      <div><a href="/auth.html">Espace client</a> · <a href="/pro/dashboard.html">Espace Pro</a></div>
+    </div>
+    <h1>Trouvez votre salon</h1>
+    <p>Réservez en ligne chez les meilleurs salons de beauté et coiffure d'Algérie.</p>
+  </div>
+
+  <div class="wrap">
+    <div class="searchbar">
+      <input type="text" id="q" placeholder="🔍 Nom du salon, ville, adresse…"/>
+      <button class="btn" id="btn-search">Rechercher</button>
+      <button class="btn btn-ghost" id="btn-geo">📍 Autour de moi</button>
+    </div>
+    <div id="results" class="grid"><div class="empty">Chargement des salons…</div></div>
+  </div>
+
+<script>
+function sb(){ return window.WAQQTI && window.WAQQTI.supabase; }
+function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){
+  return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+
+function render(list){
+  var box=document.getElementById('results');
+  if(!list || !list.length){ box.innerHTML='<div class="empty">Aucun salon trouvé.</div>'; return; }
+  box.innerHTML=list.map(function(s){
+    var dist = (s.distance!=null) ? '<div class="dist">📍 à '+s.distance.toFixed(1)+' km</div>' : '';
+    return '<div class="salon">'+
+      '<div class="av">'+esc((s.nom||'?').charAt(0).toUpperCase())+'</div>'+
+      '<span class="pill">'+esc(s.formule)+'</span>'+
+      '<h3>'+esc(s.nom)+'</h3>'+
+      '<div class="meta">📍 '+esc(s.adresse||s.wilaya||'Algérie')+'</div>'+
+      dist+
+      '<a class="go" href="/client/salon.html?s='+encodeURIComponent(s.slug)+'">Réserver →</a>'+
+      '</div>';
+  }).join('');
+}
+
+async function chargerTous(search){
+  var box=document.getElementById('results');
+  box.innerHTML='<div class="empty">Recherche…</div>';
+  var r=await sb().rpc('annuaire_salons',{ p_search: search||null });
+  if(r.error){ box.innerHTML='<div class="empty">Erreur : '+esc(r.error.message)+'</div>'; return; }
+  render(r.data);
+}
+
+async function autourDeMoi(){
+  var box=document.getElementById('results');
+  if(!navigator.geolocation){ box.innerHTML='<div class="empty">Géolocalisation indisponible sur cet appareil.</div>'; return; }
+  box.innerHTML='<div class="empty">📍 Localisation en cours…</div>';
+  navigator.geolocation.getCurrentPosition(async function(pos){
+    var r=await sb().rpc('salons_proches',{
+      p_lat:pos.coords.latitude, p_lng:pos.coords.longitude, p_limit:30 });
+    if(r.error){ box.innerHTML='<div class="empty">Erreur : '+esc(r.error.message)+'</div>'; return; }
+    if(!r.data || !r.data.length){
+      box.innerHTML='<div class="empty">Aucun salon géolocalisé pour l\'instant près de vous.</div>'; return; }
+    render(r.data);
+  }, function(){
+    box.innerHTML='<div class="empty">Localisation refusée. Utilisez la recherche par nom/ville.</div>';
+  });
+}
+
+function boot(){
+  if(!sb()){ return setTimeout(boot,60); }
+  document.getElementById('btn-search').addEventListener('click', function(){ chargerTous(document.getElementById('q').value.trim()); });
+  document.getElementById('q').addEventListener('keydown', function(e){ if(e.key==='Enter') chargerTous(this.value.trim()); });
+  document.getElementById('btn-geo').addEventListener('click', autourDeMoi);
+  chargerTous('');
+}
+document.addEventListener('DOMContentLoaded', boot);
+</script>
+</body>
+</html>

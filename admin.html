@@ -236,6 +236,7 @@ function renderSalons(salons) {
         <div class="salon-actions">
           <button class="icon-btn" onclick="copyLink('${s.slug}')">📋 Lien</button>
           <button class="icon-btn" onclick="changeFormule('${s.id}', '${s.formule}')">⚡ Formule</button>
+          <button class="icon-btn" onclick="lierGerant('${s.id}', '${s.nom.replace(/'/g,'')}')">👤 Gérant</button>
         </div>
       </div>
     `;
@@ -255,6 +256,17 @@ function filterSalons(q) {
 function copyLink(slug) {
   navigator.clipboard.writeText(`https://waqqti.com/${slug}`);
   WAQQTI.toast('Lien copié !');
+}
+
+// Lier un salon à un compte gérant (le gérant doit s'être inscrit via /pro/dashboard.html)
+async function lierGerant(id, nom) {
+  const email = prompt(`Lier le salon « ${nom} » à un compte gérant.\n\nEmail du gérant (il doit déjà s'être inscrit) :`);
+  if (!email) return;
+  const { error } = await WAQQTI.supabase.rpc('lier_salon_owner', {
+    p_salon_id: id, p_email: email.trim()
+  });
+  if (error) WAQQTI.toast(error.message, 'error');
+  else { WAQQTI.toast('Salon lié à ' + email); loadSalons(); }
 }
 
 async function changeFormule(id, current) {
