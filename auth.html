@@ -40,11 +40,12 @@
   </style>
 </head>
 <body>
+  <a href="#" title="Retour" aria-label="Retour" onclick="if(history.length>1){history.back()}else{location.href='/'}return false;" style="position:fixed;top:16px;left:16px;z-index:1000;width:44px;height:44px;border-radius:50%;background:#fff;color:#3D1F00;display:flex;align-items:center;justify-content:center;font-size:22px;text-decoration:none;box-shadow:0 4px 14px rgba(0,0,0,.18)">←</a>
   <form class="card" id="auth-card">
     <div style="text-align:right;margin-bottom:-8px">
       <button type="button" data-lang-toggle style="font-family:'Tajawal',sans-serif;font-weight:700;background:var(--cream);color:var(--brun);border:none;border-radius:50px;padding:5px 13px;cursor:pointer;font-size:12px">العربية</button>
     </div>
-    <div class="logo"><img src="/assets/logo.svg" alt="Waqqti" style="height:60px;width:auto;display:block;margin:0 auto"/></div>
+    <div class="logo"><img src="/assets/logo.svg" alt="Waqqti" style="height:82px;width:auto;display:block;margin:0 auto"/></div>
     <div class="sub" id="sub" data-i18n="auth.client">Espace client Waqqti</div>
 
     <button type="button" class="btn btn-google" id="btn-google">
