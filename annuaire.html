@@ -35,6 +35,8 @@
     .salon h3{font-family:'Cormorant Garamond',serif;font-size:22px;margin-bottom:4px}
     .salon .meta{font-size:13px;color:var(--brun-l);margin-bottom:4px}
     .salon .dist{font-size:12px;color:var(--green);font-weight:600;margin-bottom:12px}
+    .salon .note{font-size:14px;margin-bottom:8px}
+    .salon .note .muted,.muted{color:#B79B82;font-weight:400}
     .pill{display:inline-block;padding:3px 10px;border-radius:50px;font-size:11px;font-weight:600;background:#FFE5D0;color:var(--or-dk);margin-bottom:12px;text-transform:capitalize}
     .salon .go{margin-top:auto;text-align:center;padding:11px;background:var(--or);color:#fff;border-radius:10px;font-weight:600;font-size:14px}
     .salon .go:hover{background:var(--or-dk)}
@@ -73,16 +75,24 @@
 function sb(){ return window.WAQQTI && window.WAQQTI.supabase; }
 function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){
   return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+function stars(n){ n=Math.round(Number(n)||0); var s=''; for(var i=1;i<=5;i++) s+=(i<=n?'★':'☆'); return '<span style="color:#F6A623;letter-spacing:1px">'+s+'</span>'; }
+function newLabel(){ return (window.WQ&&WQ.t&&WQ.t('ann.nouveau')!=='ann.nouveau')?WQ.t('ann.nouveau'):'✨ Nouveau'; }
 
 function render(list){
   var box=document.getElementById('results');
   if(!list || !list.length){ box.innerHTML='<div class="empty">Aucun salon trouvé.</div>'; return; }
   box.innerHTML=list.map(function(s){
     var dist = (s.distance!=null) ? '<div class="dist">📍 à '+s.distance.toFixed(1)+' km</div>' : '';
+    var note = (s.nb_avis>0)
+      ? '<div class="note">'+stars(s.note_moyenne)+' <b><bdi dir="ltr">'+Number(s.note_moyenne).toFixed(1)+'</bdi></b> <span class="muted">(<bdi dir="ltr">'+s.nb_avis+'</bdi>)</span></div>'
+      : '<div class="note muted" style="color:#B79B82">'+esc(newLabel())+'</div>';
     return '<div class="salon">'+
-      '<div class="av">'+esc((s.nom||'?').charAt(0).toUpperCase())+'</div>'+
+      '<div class="av"'+(s.logo_url?' style="padding:0;overflow:hidden"':'')+'>'+
+        (s.logo_url?'<img src="'+esc(s.logo_url)+'" alt="" style="width:100%;height:100%;object-fit:cover">':esc((s.nom||'?').charAt(0).toUpperCase()))+
+      '</div>'+
       '<span class="pill">'+esc(s.formule)+'</span>'+
       '<h3>'+esc(s.nom)+'</h3>'+
+      note+
       '<div class="meta">📍 '+esc(s.adresse||s.wilaya||'Algérie')+'</div>'+
       dist+
       '<a class="go" href="/client/salon.html?s='+encodeURIComponent(s.slug)+'">Réserver →</a>'+
