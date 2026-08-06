@@ -116,6 +116,14 @@
           </div>
         </div>
 
+        <div class="form-row">
+          <label>Mode de réservation</label>
+          <select id="new-mode">
+            <option value="creneau">Par créneau (jour + heure)</option>
+            <option value="journee">À la journée (jour seulement, sans heure)</option>
+          </select>
+        </div>
+
         <button type="submit" class="btn" style="width:100%">Créer le salon</button>
       </form>
 
@@ -161,10 +169,11 @@ document.getElementById('create-form').addEventListener('submit', async e => {
   const payload = {
     nom:      document.getElementById('new-nom').value.trim(),
     slug:     document.getElementById('new-slug').value.trim(),
-    telephone: document.getElementById('new-tel').value.trim() || null,
+    telephone: document.getElementById('new-tel').value.trim() ? WAQQTI.formatPhone(document.getElementById('new-tel').value.trim()) : null,
     wilaya:   document.getElementById('new-wilaya').value.trim() || null,
     adresse:  document.getElementById('new-adresse').value.trim() || null,
     formule:  document.getElementById('new-formule').value,
+    mode_reservation: document.getElementById('new-mode').value,
     nb_sieges: parseInt(document.getElementById('new-sieges').value) || 1,
   };
 
