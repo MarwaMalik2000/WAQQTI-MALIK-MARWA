@@ -67,6 +67,9 @@
 
     <button type="submit" class="btn" id="submit">Se connecter</button>
     <div class="err" id="err"></div>
+    <div id="forgot-wrap" style="text-align:center;margin-top:8px">
+      <a href="#" id="forgot" style="color:var(--brun-l);font-size:13px;text-decoration:none">Mot de passe oublié ?</a>
+    </div>
     <div class="toggle"><span id="toggle-txt">Pas encore de compte ?</span>
       <a href="#" id="toggle">Créer un compte</a></div>
     <a class="home" href="/" data-i18n="auth.retour_accueil">← Retour à l'accueil</a>
@@ -103,6 +106,7 @@ var SIGNUP=false;
 function toggleMode(){
   SIGNUP=!SIGNUP;
   document.querySelectorAll('.signup-only').forEach(function(el){ el.classList.toggle('hidden',!SIGNUP); });
+  document.getElementById('forgot-wrap').classList.toggle('hidden', SIGNUP);
   document.getElementById('submit').textContent = SIGNUP?'Créer mon compte':'Se connecter';
   document.getElementById('sub').textContent = SIGNUP?'Créer un compte client':'Espace client Waqqti';
   document.getElementById('toggle-txt').textContent = SIGNUP?'Déjà un compte ?':'Pas encore de compte ?';
@@ -155,6 +159,22 @@ async function onSubmit(e){
   }
 }
 
+// Mot de passe oublié → envoie un email de réinitialisation vers reset.html
+async function forgotPassword(e){
+  if(e) e.preventDefault();
+  var err=document.getElementById('err');
+  var email=document.getElementById('email').value.trim();
+  if(!email){ err.style.color='var(--red)'; err.textContent='Entrez d\'abord votre email ci-dessus.'; return; }
+  var link=document.getElementById('forgot'); link.textContent='Envoi…';
+  var r=await sb().auth.resetPasswordForEmail(email, {
+    redirectTo: new URL('reset.html', window.location.href).href
+  });
+  link.textContent='Mot de passe oublié ?';
+  if(r.error){ err.style.color='var(--red)'; err.textContent='❌ '+r.error.message; return; }
+  err.style.color='var(--green)';
+  err.textContent='✅ Email de réinitialisation envoyé à '+email+'. Vérifiez votre boîte (et les spams).';
+}
+
 // Affiche l'écran « email de confirmation envoyé »
 var PENDING_EMAIL='';
 function showConfirmSent(email){
@@ -180,6 +200,7 @@ function boot(){
   if(!sb()){ return setTimeout(boot,60); }
   document.getElementById('auth-card').addEventListener('submit', onSubmit);
   document.getElementById('toggle').addEventListener('click', function(e){ e.preventDefault(); toggleMode(); });
+  document.getElementById('forgot').addEventListener('click', forgotPassword);
   document.getElementById('btn-google').addEventListener('click', function(){ WAQQTI.loginGoogle(window.location.href); });
   document.getElementById('btn-logout').addEventListener('click', async function(){ await sb().auth.signOut(); location.reload(); });
   document.getElementById('cs-resend').addEventListener('click', resendConfirmation);
