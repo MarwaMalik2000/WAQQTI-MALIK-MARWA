@@ -3,308 +3,197 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Admin Waqqti</title>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+  <title>Espace client — Waqqti</title>
+  <meta name="theme-color" content="#F68423"/>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=DM+Sans:wght@300;400;500;600&family=Amiri:wght@700&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet"/>
+  <script src="assets/i18n.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="assets/config.js" defer></script>
   <style>
-    :root { --or:#F68423; --or-dk:#D26F1A; --cream:#FDEFE2; --cream2:#F5E2CC; --brun:#3D1F00; --brun-l:#7A5030; --green:#2D9E5F; --red:#E0454C; --blue:#4A6FE0 }
-    *,*::before,*::after { margin:0; padding:0; box-sizing:border-box }
-    body { font-family:'DM Sans',sans-serif; background:#FAF7F3; color:var(--brun); padding:30px }
-    .container { max-width:1100px; margin:0 auto }
-    h1 { font-family:'Cormorant Garamond',serif; font-size:36px; color:var(--brun); margin-bottom:6px }
-    .sub { color:var(--brun-l); margin-bottom:30px }
-    .grid { display:grid; grid-template-columns:1fr 1fr; gap:24px }
-    .card { background:#fff; border-radius:18px; padding:28px; box-shadow:0 2px 16px rgba(0,0,0,.04); border:1px solid #EEE7DC }
-    .card h2 { font-family:'Cormorant Garamond',serif; font-size:22px; margin-bottom:18px; color:var(--brun) }
-    .form-row { margin-bottom:14px }
-    .form-row label { display:block; font-size:13px; font-weight:600; margin-bottom:5px; color:var(--brun) }
-    .form-row input, .form-row select { width:100%; padding:11px 14px; border:1.5px solid #F5E2CC; border-radius:10px; font-size:14px; font-family:inherit }
-    .form-row input:focus, .form-row select:focus { outline:none; border-color:var(--or); box-shadow:0 0 0 4px rgba(246,132,35,.1) }
-    .form-flex { display:flex; gap:10px }
-    .form-flex > div { flex:1 }
-    .btn { padding:12px 22px; background:var(--or); color:#fff; border:none; border-radius:50px; font-size:14px; font-weight:600; cursor:pointer; font-family:inherit; transition:all .2s }
-    .btn:hover:not(:disabled) { background:var(--or-dk) }
-    .btn:disabled { opacity:.5 }
-    .salon-list { max-height:600px; overflow-y:auto }
-    .salon-item { padding:14px; border:1px solid #EEE7DC; border-radius:12px; margin-bottom:10px; display:flex; align-items:center; gap:12px }
-    .salon-item-info { flex:1 }
-    .salon-name { font-weight:600; font-size:14px }
-    .salon-meta { font-size:12px; color:var(--brun-l); margin-top:2px }
-    .badge { padding:3px 9px; border-radius:50px; font-size:11px; font-weight:600 }
-    .badge.trial { background:#FFF4E0; color:#B47700 }
-    .badge.essentielle { background:#E0EAFF; color:#3050C0 }
-    .badge.confort { background:#FFE5D0; color:var(--or-dk) }
-    .badge.premium { background:#F0E0FF; color:#7530C0 }
-    .salon-actions { display:flex; gap:6px }
-    .icon-btn { padding:6px 12px; background:var(--cream); border:none; border-radius:8px; cursor:pointer; font-size:12px; font-family:inherit }
-    .icon-btn:hover { background:var(--cream2) }
-    .alert { padding:12px; border-radius:10px; font-size:13px; margin-bottom:14px; display:none }
-    .alert.show { display:block }
-    .alert.success { background:#E6F7EE; color:#1A7A4A; border:1px solid #A8E0C0 }
-    .alert.error { background:#FEE; color:#C03; border:1px solid #FCC }
-    .link-output { background:var(--cream); padding:12px; border-radius:8px; font-family:monospace; font-size:13px; margin-top:8px; word-break:break-all; display:none }
-    .link-output.show { display:block }
-    .stats { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:24px }
-    .stat { background:#fff; padding:18px; border-radius:14px; border:1px solid #EEE7DC; text-align:center }
-    .stat-val { font-family:'Cormorant Garamond',serif; font-size:30px; font-weight:700; color:var(--or) }
-    .stat-lbl { font-size:12px; color:var(--brun-l); margin-top:2px }
+    :root{--or:#F68423;--or-dk:#D26F1A;--cream:#FDEFE2;--cream2:#F5E2CC;--brun:#3D1F00;--brun-l:#7A5030;--green:#2D9E5F;--red:#E0454C}
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:'DM Sans',sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center;
+      padding:20px;background:linear-gradient(135deg,var(--or),var(--or-dk));color:var(--brun)}
+    .card{background:#fff;border-radius:22px;padding:36px 30px;width:100%;max-width:400px;box-shadow:0 20px 60px rgba(0,0,0,.25)}
+    .logo{font-family:'Cormorant Garamond',serif;font-size:42px;font-weight:700;color:var(--or);text-align:center}
+    .sub{text-align:center;color:var(--brun-l);font-size:14px;margin-bottom:24px}
+    .field{margin-bottom:13px}
+    .field label{display:block;font-size:13px;font-weight:600;margin-bottom:5px}
+    .field input{width:100%;padding:12px 14px;border:1.5px solid var(--cream2);border-radius:11px;font-size:14px;font-family:inherit}
+    .field input:focus{outline:none;border-color:var(--or);box-shadow:0 0 0 4px rgba(246,132,35,.1)}
+    .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .btn{padding:12px 20px;background:var(--or);color:#fff;border:none;border-radius:50px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;width:100%;transition:.2s}
+    .btn:hover:not(:disabled){background:var(--or-dk)}
+    .btn:disabled{opacity:.5}
+    .btn-google{background:#fff;color:var(--brun);border:1.5px solid var(--cream2);display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:14px}
+    .btn-google:hover{background:var(--cream)}
+    .sep{text-align:center;color:var(--brun-l);font-size:12px;margin-bottom:14px}
+    .err{font-size:13px;margin-top:12px;min-height:16px;text-align:center}
+    .toggle{text-align:center;font-size:13px;margin-top:16px}
+    .toggle a{color:var(--or);font-weight:600;text-decoration:none}
+    .hidden{display:none!important}
+    .home{display:block;text-align:center;margin-top:16px;font-size:13px;color:var(--brun-l);text-decoration:none}
+    /* écran connecté */
+    #account .big{width:64px;height:64px;border-radius:50%;background:var(--or);color:#fff;display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:30px;font-weight:700;margin:0 auto 14px}
+    #account h2{font-family:'Cormorant Garamond',serif;text-align:center;font-size:26px;margin-bottom:4px}
+    #account .em{text-align:center;color:var(--brun-l);font-size:14px;margin-bottom:22px}
   </style>
 </head>
 <body>
-
-<div class="container">
-  <h1>👑 Admin Waqqti</h1>
-  <p class="sub">Créer et gérer les comptes salons</p>
-
-  <div class="stats">
-    <div class="stat"><div class="stat-val" id="stat-total">—</div><div class="stat-lbl">Salons total</div></div>
-    <div class="stat"><div class="stat-val" id="stat-trial">—</div><div class="stat-lbl">En essai</div></div>
-    <div class="stat"><div class="stat-val" id="stat-paid">—</div><div class="stat-lbl">Abonnés</div></div>
-  </div>
-
-  <div class="grid">
-
-    <!-- CRÉATION SALON -->
-    <div class="card">
-      <h2>+ Nouveau salon partenaire</h2>
-
-      <div class="alert" id="create-alert"></div>
-
-      <form id="create-form">
-        <div class="form-row">
-          <label>Nom du salon *</label>
-          <input type="text" id="new-nom" placeholder="Salon Yasmine Beauty" required>
-        </div>
-
-        <div class="form-row">
-          <label>Slug URL * <small style="color:var(--brun-l);font-weight:400">(waqqti.com/<span id="slug-preview">slug</span>)</small></label>
-          <input type="text" id="new-slug" placeholder="yasmine-beauty" required pattern="[a-z0-9-]+">
-        </div>
-
-        <div class="form-flex">
-          <div class="form-row">
-            <label>Téléphone</label>
-            <input type="tel" id="new-tel" placeholder="0770 12 34 56">
-          </div>
-          <div class="form-row">
-            <label>Wilaya</label>
-            <input type="text" id="new-wilaya" placeholder="Alger">
-          </div>
-        </div>
-
-        <div class="form-row">
-          <label>Adresse</label>
-          <input type="text" id="new-adresse" placeholder="Rue Didouche Mourad, Alger Centre">
-        </div>
-
-        <div class="form-flex">
-          <div class="form-row">
-            <label>Formule</label>
-            <select id="new-formule">
-              <option value="trial">Essai 30j (gratuit)</option>
-              <option value="essentielle">Essentielle</option>
-              <option value="confort">Confort</option>
-              <option value="premium">Premium</option>
-            </select>
-          </div>
-          <div class="form-row">
-            <label>Nb sièges (Essentielle)</label>
-            <input type="number" id="new-sieges" value="1" min="1" max="20">
-          </div>
-        </div>
-
-        <button type="submit" class="btn" style="width:100%">Créer le salon</button>
-      </form>
-
-      <div class="link-output" id="result-link"></div>
+  <form class="card" id="auth-card">
+    <div style="text-align:right;margin-bottom:-8px">
+      <button type="button" data-lang-toggle style="font-family:'Tajawal',sans-serif;font-weight:700;background:var(--cream);color:var(--brun);border:none;border-radius:50px;padding:5px 13px;cursor:pointer;font-size:12px">العربية</button>
     </div>
+    <div class="logo">وقتي</div>
+    <div class="sub" id="sub" data-i18n="auth.client">Espace client Waqqti</div>
 
-    <!-- LISTE SALONS -->
-    <div class="card">
-      <h2>📋 Salons partenaires</h2>
-      <input type="text" id="search" placeholder="🔍 Rechercher..."
-             style="width:100%; padding:10px 14px; border:1.5px solid #F5E2CC; border-radius:10px; font-size:14px; margin-bottom:14px; font-family:inherit"
-             oninput="filterSalons(this.value)">
-      <div class="salon-list" id="salon-list">
-        <div style="text-align:center; padding:30px; color:var(--brun-l)">Chargement...</div>
+    <button type="button" class="btn btn-google" id="btn-google">
+      <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+      <span data-i18n="auth.google">Continuer avec Google</span>
+    </button>
+    <div class="sep" data-i18n="common.ou">— ou —</div>
+
+    <div class="signup-only hidden">
+      <div class="grid2">
+        <div class="field"><label>Prénom</label><input type="text" id="prenom" placeholder="Amina"/></div>
+        <div class="field"><label>Nom</label><input type="text" id="nom" placeholder="Kaci"/></div>
       </div>
     </div>
+    <div class="field"><label>Email</label><input type="email" id="email" required placeholder="vous@exemple.dz"/></div>
+    <div class="field"><label>Mot de passe</label><input type="password" id="password" required placeholder="••••••••"/></div>
+    <div class="signup-only hidden">
+      <div class="field"><label>Confirmer le mot de passe</label><input type="password" id="confirm" placeholder="••••••••"/></div>
+    </div>
 
+    <button type="submit" class="btn" id="submit">Se connecter</button>
+    <div class="err" id="err"></div>
+    <div class="toggle"><span id="toggle-txt">Pas encore de compte ?</span>
+      <a href="#" id="toggle">Créer un compte</a></div>
+    <a class="home" href="/" data-i18n="auth.retour_accueil">← Retour à l'accueil</a>
+  </form>
+
+  <!-- Écran connecté -->
+  <div class="card hidden" id="account">
+    <div class="big" id="ac-init">?</div>
+    <h2 id="ac-name">Bienvenue</h2>
+    <div class="em" id="ac-email"></div>
+    <a class="btn" href="/annuaire.html" style="display:block;text-align:center;margin-bottom:12px">Trouver un salon →</a>
+    <button class="btn btn-google" id="btn-logout">Se déconnecter</button>
+    <a class="home" href="/" data-i18n="auth.retour_accueil">← Retour à l'accueil</a>
   </div>
-</div>
+
+  <!-- Écran « email de confirmation envoyé » -->
+  <div class="card hidden" id="confirm-sent" style="text-align:center">
+    <div class="big" style="background:var(--cream);color:var(--or);font-size:34px">📧</div>
+    <h2 style="font-family:'Cormorant Garamond',serif;font-size:26px;margin-bottom:8px">Vérifiez votre boîte mail</h2>
+    <p style="color:var(--brun-l);font-size:14px;line-height:1.6;margin-bottom:6px">
+      Un email de confirmation a été envoyé à<br><b id="cs-email" style="color:var(--brun)"></b>.</p>
+    <p style="color:var(--brun-l);font-size:14px;line-height:1.6;margin-bottom:20px">
+      Cliquez sur le lien dans l'email pour activer votre compte, puis revenez vous connecter.</p>
+    <button class="btn" id="cs-resend" style="display:block;width:100%;margin-bottom:10px">Renvoyer l'email</button>
+    <button class="btn btn-google" id="cs-back" style="width:100%">Retour à la connexion</button>
+    <div id="cs-status" style="font-size:13px;margin-top:12px;min-height:16px"></div>
+    <a class="home" href="/" data-i18n="auth.retour_accueil">← Retour à l'accueil</a>
+  </div>
 
 <script>
-let allSalons = [];
+function sb(){ return window.WAQQTI && window.WAQQTI.supabase; }
+var SIGNUP=false;
 
-// Auto-générer le slug
-document.getElementById('new-nom').addEventListener('input', e => {
-  const slug = e.target.value.toLowerCase()
-    .normalize('NFD').replace(/[̀-ͯ]/g, '')
-    .replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
-  document.getElementById('new-slug').value = slug;
-  document.getElementById('slug-preview').textContent = slug || 'slug';
-});
+function toggleMode(){
+  SIGNUP=!SIGNUP;
+  document.querySelectorAll('.signup-only').forEach(function(el){ el.classList.toggle('hidden',!SIGNUP); });
+  document.getElementById('submit').textContent = SIGNUP?'Créer mon compte':'Se connecter';
+  document.getElementById('sub').textContent = SIGNUP?'Créer un compte client':'Espace client Waqqti';
+  document.getElementById('toggle-txt').textContent = SIGNUP?'Déjà un compte ?':'Pas encore de compte ?';
+  document.getElementById('toggle').textContent = SIGNUP?'Se connecter':'Créer un compte';
+  document.getElementById('err').textContent='';
+}
 
-document.getElementById('new-slug').addEventListener('input', e => {
-  document.getElementById('slug-preview').textContent = e.target.value || 'slug';
-});
+async function showAccount(user){
+  var prof=null;
+  var r=await sb().from('profiles').select('*').eq('id',user.id).maybeSingle();
+  if(!r.error) prof=r.data;
+  document.getElementById('auth-card').classList.add('hidden');
+  document.getElementById('account').classList.remove('hidden');
+  var prenom=(prof&&prof.prenom)|| (user.user_metadata&&user.user_metadata.prenom) || '';
+  var nom=(prof&&prof.nom)|| (user.user_metadata&&user.user_metadata.nom) || '';
+  var label=(prenom+' '+nom).trim() || user.email;
+  document.getElementById('ac-init').textContent=(label.charAt(0)||'?').toUpperCase();
+  document.getElementById('ac-name').textContent='Bonjour '+(prenom||label)+' 👋';
+  document.getElementById('ac-email').textContent=user.email;
+}
 
-// CRÉATION SALON
-document.getElementById('create-form').addEventListener('submit', async e => {
+async function onSubmit(e){
   e.preventDefault();
-  const alert = document.getElementById('create-alert');
-  alert.className = 'alert';
-
-  const payload = {
-    nom:      document.getElementById('new-nom').value.trim(),
-    slug:     document.getElementById('new-slug').value.trim(),
-    telephone: document.getElementById('new-tel').value.trim() || null,
-    wilaya:   document.getElementById('new-wilaya').value.trim() || null,
-    adresse:  document.getElementById('new-adresse').value.trim() || null,
-    formule:  document.getElementById('new-formule').value,
-    nb_sieges: parseInt(document.getElementById('new-sieges').value) || 1,
-  };
-
-  const { data, error } = await WAQQTI.supabase
-    .from('salons').insert(payload).select().single();
-
-  if (error) {
-    alert.className = 'alert show error';
-    alert.textContent = '❌ ' + error.message;
-    return;
-  }
-
-  alert.className = 'alert show success';
-  alert.textContent = '✅ Salon créé avec succès !';
-
-  // Afficher le lien
-  const link = document.getElementById('result-link');
-  link.className = 'link-output show';
-  link.innerHTML = `
-    <strong>Lien public à envoyer au salon :</strong><br>
-    <span style="color:var(--or)">https://waqqti.com/${data.slug}</span><br><br>
-    <strong>Message WhatsApp prêt à envoyer :</strong><br>
-    <em>Bonjour ${data.nom}, votre espace Waqqti est prêt ! 🎉<br>
-    Votre lien de réservation : https://waqqti.com/${data.slug}<br>
-    Envoyez-moi vos prestations pour qu'on les ajoute.</em>
-  `;
-
-  document.getElementById('create-form').reset();
-  loadSalons();
-});
-
-// CHARGER LES SALONS
-async function loadSalons() {
-  const { data, error } = await WAQQTI.supabase
-    .from('salons').select('*').order('created_at', { ascending: false });
-
-  if (error) { console.error(error); return; }
-
-  allSalons = data || [];
-
-  // Stats
-  document.getElementById('stat-total').textContent = allSalons.length;
-  document.getElementById('stat-trial').textContent = allSalons.filter(s => s.formule === 'trial').length;
-  document.getElementById('stat-paid').textContent = allSalons.filter(s => ['essentielle','confort','premium'].includes(s.formule)).length;
-
-  renderSalons(allSalons);
-}
-
-function renderSalons(salons) {
-  const list = document.getElementById('salon-list');
-  if (!salons.length) {
-    list.innerHTML = '<div style="text-align:center; padding:30px; color:var(--brun-l)">Aucun salon</div>';
-    return;
-  }
-
-  list.innerHTML = salons.map(s => {
-    const daysLeft = s.trial_end_date ? Math.ceil((new Date(s.trial_end_date) - new Date()) / 86400000) : null;
-    const trialInfo = s.formule === 'trial' && daysLeft !== null
-      ? ` · ${daysLeft > 0 ? daysLeft + 'j restants' : 'EXPIRÉ'}`
-      : '';
-    return `
-      <div class="salon-item">
-        <div class="salon-item-info">
-          <div class="salon-name">${s.nom}</div>
-          <div class="salon-meta">
-            <span class="badge ${s.formule}">${s.formule}</span>
-            ${trialInfo} · ${s.wilaya || '—'}
-          </div>
-          <div class="salon-meta" style="margin-top:4px; font-family:monospace">/${s.slug}</div>
-        </div>
-        <div class="salon-actions">
-          <button class="icon-btn" onclick="copyLink('${s.slug}')">📋 Lien</button>
-          <button class="icon-btn" onclick="changeFormule('${s.id}', '${s.formule}')">⚡ Formule</button>
-          <button class="icon-btn" onclick="lierGerant('${s.id}', '${s.nom.replace(/'/g,'')}')">👤 Gérant</button>
-        </div>
-      </div>
-    `;
-  }).join('');
-}
-
-function filterSalons(q) {
-  q = q.toLowerCase();
-  const filtered = allSalons.filter(s =>
-    s.nom.toLowerCase().includes(q) ||
-    s.slug.toLowerCase().includes(q) ||
-    (s.wilaya || '').toLowerCase().includes(q)
-  );
-  renderSalons(filtered);
-}
-
-function copyLink(slug) {
-  navigator.clipboard.writeText(`https://waqqti.com/${slug}`);
-  WAQQTI.toast('Lien copié !');
-}
-
-// Lier un salon à un compte gérant (le gérant doit s'être inscrit via /pro/dashboard.html)
-async function lierGerant(id, nom) {
-  const email = prompt(`Lier le salon « ${nom} » à un compte gérant.\n\nEmail du gérant (il doit déjà s'être inscrit) :`);
-  if (!email) return;
-  const { error } = await WAQQTI.supabase.rpc('lier_salon_owner', {
-    p_salon_id: id, p_email: email.trim()
-  });
-  if (error) WAQQTI.toast(error.message, 'error');
-  else { WAQQTI.toast('Salon lié à ' + email); loadSalons(); }
-}
-
-async function changeFormule(id, current) {
-  const formules = ['trial', 'essentielle', 'confort', 'premium'];
-  const choix = prompt(`Changer la formule (actuelle: ${current})\n\n1 = trial\n2 = essentielle\n3 = confort\n4 = premium`);
-  if (!choix || !['1','2','3','4'].includes(choix)) return;
-
-  const newFormule = formules[parseInt(choix) - 1];
-  const { error } = await WAQQTI.supabase
-    .from('salons').update({ formule: newFormule }).eq('id', id);
-
-  if (error) WAQQTI.toast(error.message, 'error');
-  else { WAQQTI.toast(`Formule changée : ${newFormule}`); loadSalons(); }
-}
-
-window.addEventListener('load', async () => {
-  await new Promise(r => setTimeout(r, 300));
-  if (!window.WAQQTI) return;
-
-  // 1. Vérifie si tu es déjà connecté
-  const { data: { session } } = await WAQQTI.supabase.auth.getSession();
-
-  if (!session) {
-    // 2. Sinon, on te demande tes identifiants
-    const email = prompt("Email Administrateur :");
-    const password = prompt("Mot de passe :");
-    const { error } = await WAQQTI.supabase.auth.signInWithPassword({ email: email, password: password });
-
-    if (error) {
-      alert("Erreur de connexion : " + error.message);
-      return;
+  var err=document.getElementById('err'); err.style.color='var(--red)'; err.textContent='';
+  var email=document.getElementById('email').value.trim();
+  var password=document.getElementById('password').value;
+  var btn=document.getElementById('submit');
+  if(SIGNUP){
+    var confirm=document.getElementById('confirm').value;
+    var nom=document.getElementById('nom').value.trim();
+    var prenom=document.getElementById('prenom').value.trim();
+    if(password.length<6){ err.textContent='Mot de passe : 6 caractères minimum'; return; }
+    if(password!==confirm){ err.textContent='Les mots de passe ne correspondent pas'; return; }
+    btn.disabled=true; btn.textContent='Création…';
+    var s=await WAQQTI.inscriptionEmail(email,password,{nom:nom,prenom:prenom});
+    btn.disabled=false; btn.textContent='Créer mon compte';
+    if(s.error){ err.textContent=s.error.message; return; }
+    if(s.data && s.data.session){ showAccount(s.data.user); }
+    else { showConfirmSent(email); }        // email à confirmer → page dédiée
+  } else {
+    btn.disabled=true; btn.textContent='Connexion…';
+    var l=await sb().auth.signInWithPassword({email:email,password:password});
+    btn.disabled=false; btn.textContent='Se connecter';
+    if(l.error){
+      // Email pas encore confirmé → renvoyer vers la page de confirmation
+      if(/not confirmed|confirm/i.test(l.error.message||'')){ showConfirmSent(email); return; }
+      err.textContent=l.error.message; return;
     }
+    showAccount(l.data.user);
   }
+}
 
-  // 3. Charger la liste des salons
-  loadSalons();
-});
+// Affiche l'écran « email de confirmation envoyé »
+var PENDING_EMAIL='';
+function showConfirmSent(email){
+  PENDING_EMAIL=email;
+  document.getElementById('auth-card').classList.add('hidden');
+  document.getElementById('account').classList.add('hidden');
+  var cs=document.getElementById('confirm-sent');
+  cs.classList.remove('hidden');
+  document.getElementById('cs-email').textContent=email;
+  document.getElementById('cs-status').textContent='';
+}
+async function resendConfirmation(){
+  var st=document.getElementById('cs-status');
+  var btn=document.getElementById('cs-resend');
+  btn.disabled=true; btn.textContent='Envoi…';
+  var r=await sb().auth.resend({ type:'signup', email:PENDING_EMAIL });
+  btn.disabled=false; btn.textContent='Renvoyer l\'email';
+  if(r.error){ st.style.color='var(--red)'; st.textContent='❌ '+r.error.message; }
+  else { st.style.color='var(--green)'; st.textContent='✅ Email renvoyé. Pensez à vérifier vos spams.'; }
+}
+
+function boot(){
+  if(!sb()){ return setTimeout(boot,60); }
+  document.getElementById('auth-card').addEventListener('submit', onSubmit);
+  document.getElementById('toggle').addEventListener('click', function(e){ e.preventDefault(); toggleMode(); });
+  document.getElementById('btn-google').addEventListener('click', function(){ WAQQTI.loginGoogle(window.location.href); });
+  document.getElementById('btn-logout').addEventListener('click', async function(){ await sb().auth.signOut(); location.reload(); });
+  document.getElementById('cs-resend').addEventListener('click', resendConfirmation);
+  document.getElementById('cs-back').addEventListener('click', function(){
+    document.getElementById('confirm-sent').classList.add('hidden');
+    document.getElementById('auth-card').classList.remove('hidden');
+    if(SIGNUP) toggleMode();
+  });
+  sb().auth.getSession().then(function(res){
+    var session=res && res.data && res.data.session;
+    if(session && session.user) showAccount(session.user);
+  });
+}
+document.addEventListener('DOMContentLoaded', boot);
 </script>
-
 </body>
 </html>
