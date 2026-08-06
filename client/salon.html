@@ -576,6 +576,14 @@
     </div>
   </div>
 
+  <!-- ═══════════ AVIS CLIENTS ═══════════ -->
+  <div class="card" id="avis-section" style="margin-top:18px;display:none">
+    <h2 class="card-title" data-i18n="book.avis_titre">Avis clients</h2>
+    <div id="avis-resume" style="margin-bottom:6px"></div>
+    <div id="avis-form-zone" style="margin:14px 0 6px"></div>
+    <div id="avis-list"></div>
+  </div>
+
   <div class="waqqti-footer" data-i18n-html="book.footer">
     Réservation propulsée par <a href="https://www.waqqti.com" target="_blank">Waqqti</a> · La référence beauté en Algérie
   </div>
@@ -766,9 +774,13 @@ async function initSalon() {
   const hOuv = (salon.heure_ouverture || '09:00').slice(0,5).replace(':','h');
   const hFer = (salon.heure_fermeture || '19:00').slice(0,5).replace(':','h');
   const hStr = (salon.mode_reservation === 'journee') ? '' : `<span>⏰ ${hOuv}–${hFer}</span>`;
+  const rStr = (salon.nb_avis > 0)
+    ? `<span title="${salon.nb_avis} avis">⭐ <bdi dir="ltr">${Number(salon.note_moyenne).toFixed(1)}</bdi> (<bdi dir="ltr">${salon.nb_avis}</bdi>)</span>`
+    : '';
   meta.innerHTML = `
     <span>📍 ${salon.adresse || 'Algérie'}</span>
     ${hStr}
+    ${rStr}
   `;
   const av = document.querySelector('.salon-avatar');
   if (salon.logo_url) { av.innerHTML = '<img src="'+salon.logo_url+'" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:24px">'; }
@@ -776,6 +788,9 @@ async function initSalon() {
 
   // Galerie du salon
   renderSalonGallery(salon.photos);
+
+  // Avis clients
+  loadAvis(salon);
 
   // Reprendre une réservation en cours (mémorisée) pour ce salon
   const savedId = getSavedResaId();
@@ -858,6 +873,108 @@ function lbStep(d){
   document.getElementById('lb-img').src = pics[window.__lbIdx];
 }
 function closeLightbox(){ const ov=document.getElementById('gal-lightbox'); if(ov) ov.style.display='none'; }
+function openReviewPhoto(u){ window.__galPics=[u]; openLightbox(0); }
+
+/* ═══════════ AVIS CLIENTS ═══════════ */
+function escHtml(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
+function starHtml(n){ n=Math.round(Number(n)||0); var s=''; for(var i=1;i<=5;i++) s+=(i<=n?'★':'☆'); return s; }
+
+async function loadAvis(salon){
+  const sec=document.getElementById('avis-section'); if(!sec) return;
+  sec.style.display='block';
+  const resume=document.getElementById('avis-resume');
+  const listEl=document.getElementById('avis-list');
+  if(salon.nb_avis>0){
+    resume.innerHTML='<span style="color:#F6A623;font-size:20px;letter-spacing:2px">'+starHtml(salon.note_moyenne)+'</span> '+
+      '<b><bdi dir="ltr">'+Number(salon.note_moyenne).toFixed(1)+'</bdi></b> · <bdi dir="ltr">'+salon.nb_avis+'</bdi> '+T('book.avis_count','avis');
+  } else {
+    resume.innerHTML='<p style="color:var(--brun-l)">'+T('book.avis_aucun','Aucun avis pour le moment. Soyez le premier après votre visite !')+'</p>';
+  }
+  const r=await WAQQTI.supabase.from('avis').select('*').eq('salon_id',salon.id)
+    .order('created_at',{ascending:false}).limit(50);
+  const avis=(r.data)||[];
+  listEl.innerHTML=avis.map(function(a){
+    const d=new Date(a.created_at);
+    const photo=a.photo_url
+      ? '<img src="'+a.photo_url+'" loading="lazy" onclick="openReviewPhoto(\''+a.photo_url+'\')" style="margin-top:8px;width:92px;height:92px;border-radius:10px;object-fit:cover;cursor:pointer;border:1px solid #F0E7DA">'
+      : '';
+    const meta=(a.prestation_nom?escHtml(a.prestation_nom)+' · ':'')+'<bdi dir="ltr">'+d.toLocaleDateString('fr')+'</bdi>';
+    return '<div style="border-top:1px solid #F0E7DA;padding:14px 0">'+
+      '<div style="display:flex;justify-content:space-between;align-items:center;gap:10px">'+
+        '<b>'+escHtml(a.auteur_nom||T('book.avis_client','Client'))+'</b>'+
+        '<span style="color:#F6A623;letter-spacing:1px;white-space:nowrap">'+starHtml(a.note)+'</span>'+
+      '</div>'+
+      '<div style="font-size:12px;color:var(--brun-l)">'+meta+'</div>'+
+      (a.commentaire?'<p style="margin-top:6px">'+escHtml(a.commentaire)+'</p>':'')+
+      photo+
+    '</div>';
+  }).join('');
+  await buildAvisForm(salon);
+}
+
+async function buildAvisForm(salon){
+  const zone=document.getElementById('avis-form-zone'); if(!zone) return;
+  const sess=await WAQQTI.supabase.auth.getSession();
+  const uid=(sess&&sess.data&&sess.data.session)?sess.data.session.user.id:null;
+  if(!uid){
+    zone.innerHTML='<div style="background:var(--cream);border-radius:12px;padding:14px;font-size:14px">'+
+      T('book.avis_login','Connectez-vous et réservez pour laisser un avis.')+' '+
+      '<a href="/auth.html" style="color:var(--or);font-weight:600">'+T('book.avis_login_cta','Se connecter')+'</a></div>';
+    return;
+  }
+  const rr=await WAQQTI.supabase.rpc('mes_resa_a_noter',{p_salon_id:salon.id});
+  const resas=(rr.data)||[];
+  if(!resas.length){
+    zone.innerHTML='<div style="background:var(--cream);border-radius:12px;padding:14px;font-size:14px;color:var(--brun-l)">'+
+      T('book.avis_apres','Vous pourrez laisser un avis après votre rendez-vous.')+'</div>';
+    return;
+  }
+  const opts=resas.map(function(x){var d=new Date(x.date_rdv);
+    return '<option value="'+x.id+'">'+escHtml(x.prestation_nom||'Prestation')+' — '+d.toLocaleDateString('fr')+'</option>';}).join('');
+  const inp='width:100%;padding:11px;border:1.5px solid var(--cream2);border-radius:10px;font-family:inherit;font-size:14px';
+  zone.innerHTML=
+    '<div style="background:var(--cream);border-radius:14px;padding:16px">'+
+    '<div style="font-weight:700;margin-bottom:12px">'+T('book.avis_form_titre','Laissez votre avis')+'</div>'+
+    '<label style="font-size:13px;font-weight:600;display:block;margin-bottom:4px">'+T('book.avis_prestation','Votre prestation')+'</label>'+
+    '<select id="av-resa" style="'+inp+';margin-bottom:12px">'+opts+'</select>'+
+    '<div id="av-stars" style="font-size:32px;color:#F6A623;letter-spacing:5px;cursor:pointer;margin-bottom:12px;user-select:none">'+
+      [1,2,3,4,5].map(function(i){return '<span data-v="'+i+'" onclick="setAvisNote('+i+')">☆</span>';}).join('')+'</div>'+
+    '<textarea id="av-comment" rows="3" placeholder="'+T('book.avis_comment_ph','Racontez votre expérience…')+'" style="'+inp+';margin-bottom:12px;resize:vertical"></textarea>'+
+    '<label style="font-size:13px;font-weight:600;display:block;margin-bottom:6px">'+T('book.avis_photo','Photo (facultatif)')+'</label>'+
+    '<input type="file" id="av-photo" accept="image/*" style="font-size:13px;width:100%;margin-bottom:14px">'+
+    '<button type="button" class="btn-next" id="av-submit" style="width:100%;justify-content:center" onclick="soumettreAvis(\''+salon.id+'\')">'+T('book.avis_envoyer','Publier mon avis')+'</button>'+
+    '<div id="av-status" style="font-size:13px;margin-top:8px"></div>'+
+    '</div>';
+  window.__avisNote=0;
+}
+function setAvisNote(n){
+  window.__avisNote=n;
+  document.querySelectorAll('#av-stars span').forEach(function(sp){
+    sp.textContent=(parseInt(sp.getAttribute('data-v'))<=n)?'★':'☆';
+  });
+}
+async function soumettreAvis(salonId){
+  const st=document.getElementById('av-status');
+  const note=window.__avisNote||0;
+  if(note<1){ st.style.color='#c0392b'; st.textContent=T('book.avis_note_requise','Choisissez une note (étoiles).'); return; }
+  const resaId=document.getElementById('av-resa').value;
+  const comment=document.getElementById('av-comment').value.trim();
+  const btn=document.getElementById('av-submit'); btn.disabled=true; btn.textContent='⏳';
+  let photoUrl=null;
+  const pf=document.getElementById('av-photo');
+  if(pf && pf.files && pf.files[0]){
+    const up=await WAQQTI.uploadAvisPhoto(salonId, pf.files[0]);
+    if(up.ok) photoUrl=up.url;
+    else { st.style.color='#c0392b'; st.textContent='❌ '+up.error; btn.disabled=false; btn.textContent=T('book.avis_envoyer','Publier mon avis'); return; }
+  }
+  const r=await WAQQTI.supabase.rpc('creer_avis',{
+    p_reservation_id:resaId, p_note:note, p_commentaire:comment||null, p_photo_url:photoUrl, p_auteur_nom:null });
+  if(r.error){ st.style.color='#c0392b'; st.textContent='❌ '+r.error.message; btn.disabled=false; btn.textContent=T('book.avis_envoyer','Publier mon avis'); return; }
+  st.style.color='var(--green)'; st.textContent='✓ '+T('book.avis_merci','Merci pour votre avis !');
+  const fresh=await WAQQTI.supabase.from('salons').select('*').eq('id',salonId).single();
+  if(fresh.data){ reservation.salon=fresh.data; await loadAvis(fresh.data); }
+}
+document.addEventListener('wq:langchange', function(){ if(reservation.salon) loadAvis(reservation.salon); });
 
 async function loadPrestations(salonId) {
   const { data: prestations } = await WAQQTI.supabase
