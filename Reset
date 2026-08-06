@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Nouveau mot de passe — Waqqti</title>
+  <meta name="theme-color" content="#F68423"/>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="assets/config.js" defer></script>
+  <style>
+    :root{--or:#F68423;--or-dk:#D26F1A;--cream:#FDEFE2;--cream2:#F5E2CC;--brun:#3D1F00;--brun-l:#7A5030;--green:#2D9E5F;--red:#E0454C}
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:'DM Sans',sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center;
+      padding:20px;background:linear-gradient(135deg,var(--or),var(--or-dk));color:var(--brun)}
+    .card{background:#fff;border-radius:22px;padding:36px 30px;width:100%;max-width:400px;box-shadow:0 20px 60px rgba(0,0,0,.25);text-align:center}
+    .logo{font-family:'Cormorant Garamond',serif;font-size:42px;font-weight:700;color:var(--or)}
+    h2{font-family:'Cormorant Garamond',serif;font-size:24px;margin:4px 0 6px}
+    p{color:var(--brun-l);font-size:14px;line-height:1.6;margin-bottom:20px}
+    .field{margin-bottom:13px;text-align:left}
+    .field label{display:block;font-size:13px;font-weight:600;margin-bottom:5px}
+    .field input{width:100%;padding:12px 14px;border:1.5px solid var(--cream2);border-radius:11px;font-size:14px;font-family:inherit}
+    .field input:focus{outline:none;border-color:var(--or);box-shadow:0 0 0 4px rgba(246,132,35,.1)}
+    .btn{padding:12px 20px;background:var(--or);color:#fff;border:none;border-radius:50px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;width:100%;transition:.2s}
+    .btn:hover:not(:disabled){background:var(--or-dk)}
+    .btn:disabled{opacity:.5}
+    .msg{font-size:13px;margin-top:12px;min-height:16px}
+    .home{display:block;margin-top:16px;font-size:13px;color:var(--brun-l);text-decoration:none}
+    .hidden{display:none!important}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="logo">وقتي</div>
+
+    <!-- Formulaire nouveau mot de passe -->
+    <div id="form-zone" class="hidden">
+      <h2>Nouveau mot de passe</h2>
+      <p>Choisissez un nouveau mot de passe pour votre compte.</p>
+      <form id="pw-form">
+        <div class="field"><label>Nouveau mot de passe</label><input type="password" id="pw1" required placeholder="••••••••"/></div>
+        <div class="field"><label>Confirmer</label><input type="password" id="pw2" required placeholder="••••••••"/></div>
+        <button type="submit" class="btn" id="pw-save">Enregistrer</button>
+        <div class="msg" id="pw-msg" style="color:var(--red)"></div>
+      </form>
+    </div>
+
+    <!-- Lien invalide / expiré -->
+    <div id="invalid-zone" class="hidden">
+      <h2>Lien invalide</h2>
+      <p>Ce lien de réinitialisation est invalide ou a expiré. Refaites une demande depuis l'espace client.</p>
+      <a class="btn" href="/auth.html" style="display:block">Retour à la connexion</a>
+    </div>
+
+    <!-- Succès -->
+    <div id="done-zone" class="hidden">
+      <h2>Mot de passe mis à jour ✅</h2>
+      <p>Votre mot de passe a bien été modifié. Vous pouvez maintenant vous connecter.</p>
+      <a class="btn" href="/auth.html" style="display:block">Se connecter</a>
+    </div>
+
+    <div id="loading">Chargement…</div>
+    <a class="home" href="/">← Retour à l'accueil</a>
+  </div>
+
+<script>
+function sb(){ return window.WAQQTI && window.WAQQTI.supabase; }
+var RECOVERY_OK = false;
+
+function show(zone){
+  ['form-zone','invalid-zone','done-zone'].forEach(function(z){
+    document.getElementById(z).classList.toggle('hidden', z!==zone);
+  });
+  document.getElementById('loading').classList.add('hidden');
+}
+
+function boot(){
+  if(!sb()){ return setTimeout(boot, 60); }
+
+  // Le lien de l'email crée une session de type "recovery" (détectée dans l'URL)
+  sb().auth.onAuthStateChange(function(event){
+    if(event === 'PASSWORD_RECOVERY'){ RECOVERY_OK = true; show('form-zone'); }
+  });
+
+  // Filet de sécurité : si une session existe déjà au chargement, on autorise
+  setTimeout(function(){
+    sb().auth.getSession().then(function(res){
+      var s = res && res.data && res.data.session;
+      if(s){ RECOVERY_OK = true; show('form-zone'); }
+      else if(!RECOVERY_OK){ show('invalid-zone'); }
+    });
+  }, 800);
+
+  document.getElementById('pw-form').addEventListener('submit', async function(e){
+    e.preventDefault();
+    var msg=document.getElementById('pw-msg'); msg.style.color='var(--red)'; msg.textContent='';
+    var p1=document.getElementById('pw1').value, p2=document.getElementById('pw2').value;
+    if(p1.length<6){ msg.textContent='Mot de passe : 6 caractères minimum'; return; }
+    if(p1!==p2){ msg.textContent='Les mots de passe ne correspondent pas'; return; }
+    var btn=document.getElementById('pw-save'); btn.disabled=true; btn.textContent='Enregistrement…';
+    var r=await sb().auth.updateUser({ password:p1 });
+    btn.disabled=false; btn.textContent='Enregistrer';
+    if(r.error){ msg.textContent='❌ '+r.error.message; return; }
+    show('done-zone');
+  });
+}
+document.addEventListener('DOMContentLoaded', boot);
+</script>
+</body>
+</html>
