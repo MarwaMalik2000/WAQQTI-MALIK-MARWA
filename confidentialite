@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Politique de confidentialité — Waqqti</title>
+  <meta name="theme-color" content="#F68423"/>
+  <link rel="icon" href="/assets/logo.svg"/>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    :root{--or:#F68423;--or-dk:#D26F1A;--cream:#FDEFE2;--brun:#3D1F00;--brun-l:#7A5030}
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:'DM Sans',sans-serif;background:#FBF7F2;color:var(--brun);line-height:1.7}
+    .top{background:linear-gradient(135deg,var(--or),var(--or-dk));color:#fff;padding:22px 6%}
+    .top-in{max-width:820px;margin:0 auto;display:flex;align-items:center;gap:14px}
+    .top a.back{color:#fff;font-size:22px;text-decoration:none;background:rgba(255,255,255,.2);width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center}
+    .top img{height:46px;filter:brightness(0) invert(1)}
+    main{max-width:820px;margin:0 auto;padding:40px 6% 80px}
+    h1{font-family:'Cormorant Garamond',serif;font-size:38px;margin-bottom:6px}
+    .maj{color:var(--brun-l);font-size:14px;margin-bottom:30px}
+    h2{font-family:'Cormorant Garamond',serif;font-size:24px;margin:28px 0 8px;color:var(--brun)}
+    p,li{font-size:15px;color:#4a3420;margin-bottom:8px}
+    ul{padding-left:22px;margin-bottom:8px}
+    a{color:var(--or-dk)}
+    .note{background:var(--cream);border-left:3px solid var(--or);padding:12px 16px;border-radius:0 10px 10px 0;font-size:14px;color:var(--brun-l);margin-top:24px}
+    footer{text-align:center;padding:24px;color:var(--brun-l);font-size:13px}
+  </style>
+</head>
+<body>
+  <div class="top"><div class="top-in">
+    <a href="#" class="back" title="Retour" onclick="if(history.length>1){history.back()}else{location.href='/'}return false;">←</a>
+    <a href="/"><img src="/assets/logo.svg" alt="Waqqti"/></a>
+  </div></div>
+  <main>
+    <h1>Politique de confidentialité</h1>
+    <p class="maj">Dernière mise à jour : 2026</p>
+
+    <p>Waqqti (« nous ») attache une grande importance à la protection de vos données personnelles. Cette politique explique quelles données nous collectons, pourquoi, et quels sont vos droits.</p>
+
+    <h2>1. Données que nous collectons</h2>
+    <ul>
+      <li><strong>Lors d'une réservation :</strong> votre nom, votre numéro de téléphone, et les informations du rendez-vous (salon, prestation, date, éventuel justificatif de paiement d'acompte).</li>
+      <li><strong>Lors de la création d'un compte client :</strong> nom, prénom et adresse email (via inscription ou connexion Google).</li>
+      <li><strong>Salons partenaires :</strong> nom du salon, adresse, téléphone, coordonnées de paiement.</li>
+    </ul>
+
+    <h2>2. Utilisation des données</h2>
+    <ul>
+      <li>Permettre et gérer vos rendez-vous auprès du salon choisi.</li>
+      <li>Vous envoyer des confirmations et rappels (WhatsApp, email).</li>
+      <li>Permettre au salon de gérer son agenda et ses clients.</li>
+      <li>Vérifier les justificatifs d'acompte lorsque cela s'applique.</li>
+    </ul>
+
+    <h2>3. Partage des données</h2>
+    <p>Les informations de votre réservation sont partagées uniquement avec le <strong>salon concerné</strong>, afin qu'il puisse honorer votre rendez-vous. Nous ne vendons jamais vos données à des tiers.</p>
+    <p>Nos prestataires techniques (hébergement de la base de données, envoi de messages) traitent les données pour notre compte et sous confidentialité.</p>
+
+    <h2>4. Conservation</h2>
+    <p>Vos données sont conservées le temps nécessaire au service, puis supprimées ou anonymisées sur demande.</p>
+
+    <h2>5. Sécurité</h2>
+    <p>Les données sont hébergées de manière sécurisée et l'accès est restreint. Les justificatifs de paiement sont stockés dans un espace privé, accessible uniquement au salon concerné.</p>
+
+    <h2>6. Vos droits</h2>
+    <p>Vous pouvez demander l'accès, la rectification ou la suppression de vos données en nous contactant à <a href="mailto:contact@waqqti.com">contact@waqqti.com</a>.</p>
+
+    <h2>7. Contact</h2>
+    <p>Pour toute question relative à cette politique : <a href="mailto:contact@waqqti.com">contact@waqqti.com</a>.</p>
+
+    <div class="note">Ce document est un modèle de base. Pour une mise en conformité complète, faites-le relire par un professionnel du droit.</div>
+  </main>
+  <footer>© 2026 Waqqti · <a href="/">Accueil</a> · <a href="/cgu.html">CGU</a> · <a href="/mentions.html">Mentions légales</a></footer>
+</body>
+</html>
