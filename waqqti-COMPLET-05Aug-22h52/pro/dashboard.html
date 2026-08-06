@@ -4,6 +4,7 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Espace gérant — Waqqti</title>
+  <link rel="icon" href="/assets/logo.svg"/>
   <meta name="theme-color" content="#F68423"/>
   <link rel="manifest" href="../manifest.json"/>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=DM+Sans:wght@300;400;500;600;700&family=Amiri:wght@700&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet"/>
@@ -133,50 +134,32 @@
 <!-- ═══════════ LOGIN ═══════════ -->
 <section id="login">
   <form class="login-card" id="login-form">
-    <div class="logo">وقتي</div>
-    <div class="sub" id="login-sub">Espace gérant Waqqti</div>
+    <div class="logo"><img src="/assets/logo.svg" alt="Waqqti" style="height:82px;width:auto;display:block;margin:0 auto"/></div>
+    <div class="sub" id="login-sub" data-i18n="pro.login_sub">Espace gérant Waqqti</div>
 
-    <button type="button" class="btn btn-ghost" id="btn-google" style="width:100%;display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:14px">
-      <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
-      Continuer avec Google
-    </button>
-    <div style="text-align:center;color:var(--brun-l);font-size:12px;margin-bottom:14px">— ou —</div>
-
-    <!-- Champs inscription (masqués en mode connexion) -->
-    <div class="signup-only hidden">
-      <div class="field-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-        <div class="field"><label>Prénom</label><input type="text" id="su-prenom" placeholder="Amina"/></div>
-        <div class="field"><label>Nom</label><input type="text" id="su-nom" placeholder="Kaci"/></div>
-      </div>
-    </div>
     <div class="field">
-      <label>Email</label>
+      <label data-i18n="pro.email">Email</label>
       <input type="email" id="email" autocomplete="username" required placeholder="salon@exemple.dz"/>
     </div>
     <div class="field">
-      <label>Mot de passe</label>
+      <label data-i18n="pro.password">Mot de passe</label>
       <input type="password" id="password" autocomplete="current-password" required placeholder="••••••••"/>
     </div>
-    <div class="signup-only hidden">
-      <div class="field">
-        <label>Confirmer le mot de passe</label>
-        <input type="password" id="su-confirm" placeholder="••••••••"/>
-      </div>
-    </div>
 
-    <button type="submit" class="btn" id="btn-submit" style="width:100%">Se connecter</button>
+    <button type="submit" class="btn" id="btn-submit" style="width:100%" data-i18n="pro.connexion">Se connecter</button>
     <div class="err" id="login-err"></div>
-    <div style="text-align:center;font-size:13px;margin-top:14px">
-      <span id="toggle-txt">Pas encore de compte ?</span>
-      <a href="#" id="toggle-mode" style="color:var(--or);font-weight:600;text-decoration:none">Créer un compte</a>
-    </div>
+    <p class="muted" style="text-align:center;font-size:12px;margin-top:14px">
+      <span data-i18n="pro.support_txt">Identifiants fournis par Waqqti. Un souci de connexion ?</span>
+      <a href="https://wa.me/213549829949" target="_blank" style="color:var(--or);font-weight:600;text-decoration:none" data-i18n="pro.support_link">Contacter le support</a>
+    </p>
   </form>
 </section>
 
 <!-- ═══════════ APP ═══════════ -->
 <div id="app" class="hidden">
   <aside class="sidebar">
-    <div class="brand">وقتي</div>
+    <a href="#" title="Retour" aria-label="Retour" onclick="if(history.length>1){history.back()}else{location.href='/'}return false;" style="color:#D8C6B4;text-decoration:none;font-size:13px;font-weight:600;padding:0 8px 12px;display:inline-flex;align-items:center;gap:6px;white-space:nowrap" data-i18n="pro.retour">← Retour</a>
+    <div class="brand"><img src="/assets/logo.svg" alt="Waqqti" style="height:60px;width:auto;filter:brightness(0) invert(1)"/></div>
     <div class="salon-nom" id="side-salon">—</div>
     <div class="nav-item active" data-view="agenda"><span class="ico">📅</span><span data-i18n="pro.agenda">Agenda</span></div>
     <div class="nav-item" data-view="acomptes"><span class="ico">💳</span><span data-i18n="pro.acomptes">Acomptes</span><span id="badge-acomptes" class="pill or" style="margin-left:6px;display:none"></span></div>
@@ -188,7 +171,7 @@
     <div class="spacer"></div>
     <div class="trial-pill" id="trial-pill"></div>
     <button type="button" data-lang-toggle class="btn btn-ghost btn-sm" style="margin-bottom:8px;font-family:'Tajawal',sans-serif;font-weight:700">العربية</button>
-    <button class="btn btn-ghost btn-sm" id="btn-logout">Se déconnecter</button>
+    <button class="btn btn-ghost btn-sm" id="btn-logout" data-i18n="pro.deconnexion">Se déconnecter</button>
   </aside>
 
   <main class="main" id="main"><div class="empty">Chargement…</div></main>
@@ -198,11 +181,11 @@
 <div id="killswitch" class="hidden">
   <div class="ks-card">
     <div class="big">🔒</div>
-    <h2>Votre essai est terminé</h2>
-    <p id="ks-msg">Votre période d'essai de 30 jours est arrivée à échéance.
+    <h2 data-i18n="pro.ks_titre">Votre essai est terminé</h2>
+    <p id="ks-msg" data-i18n="pro.ks_txt">Votre période d'essai de 30 jours est arrivée à échéance.
        Pour réactiver votre espace et continuer à recevoir des réservations,
        contactez-nous pour choisir votre formule.</p>
-    <a class="btn" href="https://wa.me/213549829949" target="_blank" rel="noopener">Réactiver mon compte via WhatsApp</a>
+    <a class="btn" href="https://wa.me/213549829949" target="_blank" rel="noopener" data-i18n="pro.ks_btn">Réactiver mon compte via WhatsApp</a>
   </div>
 </div>
 
@@ -217,7 +200,11 @@ function sb(){ return window.WAQQTI && window.WAQQTI.supabase; }
 function $(id){ return document.getElementById(id); }
 function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){
   return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
-function fmtPrix(n){ return window.WAQQTI ? WAQQTI.formatPrix(n) : (n+' DA'); }
+// Prix isolé en LTR (évite l'inversion des chiffres en arabe)
+function fmtPrix(n){ var v = window.WAQQTI ? WAQQTI.formatPrix(n) : (n+' DA'); return '<bdi dir="ltr">'+v+'</bdi>'; }
+// Enveloppe LTR générique (heures, dates, téléphones)
+function ltr(s){ return '<bdi dir="ltr">'+s+'</bdi>'; }
+function T(k, fr){ if(window.WQ && WQ.t){ var v=WQ.t(k); if(v && v!==k) return v; } return fr; }
 
 /* ---- Démarrage : attendre config.js puis vérifier la session ---- */
 function boot(){
@@ -231,74 +218,50 @@ function boot(){
 }
 document.addEventListener('DOMContentLoaded', boot);
 
-var SIGNUP_MODE = false;
 function bindStatic(){
-  $('login-form').addEventListener('submit', doAuthSubmit);
+  $('login-form').addEventListener('submit', doLogin);
   $('btn-logout').addEventListener('click', doLogout);
-  $('btn-google').addEventListener('click', function(){ WAQQTI.loginGoogle(window.location.href); });
-  $('toggle-mode').addEventListener('click', function(e){ e.preventDefault(); toggleSignup(); });
   document.querySelectorAll('.nav-item').forEach(function(el){
     el.addEventListener('click', function(){ switchView(el.dataset.view); });
   });
+  // Re-rendre la vue courante quand la langue change (contenu généré en JS)
+  document.addEventListener('wq:langchange', function(){ if(STATE.salon) switchView(STATE.view); });
 }
 
-function toggleSignup(){
-  SIGNUP_MODE = !SIGNUP_MODE;
-  document.querySelectorAll('.signup-only').forEach(function(el){ el.classList.toggle('hidden', !SIGNUP_MODE); });
-  $('btn-submit').textContent = SIGNUP_MODE ? 'Créer mon compte' : 'Se connecter';
-  $('login-sub').textContent = SIGNUP_MODE ? 'Créer un compte gérant' : 'Espace gérant Waqqti';
-  $('toggle-txt').textContent = SIGNUP_MODE ? 'Déjà un compte ?' : 'Pas encore de compte ?';
-  $('toggle-mode').textContent = SIGNUP_MODE ? 'Se connecter' : 'Créer un compte';
-  $('login-err').textContent = '';
-}
-
-/* ---- Auth ---- */
+/* ---- Auth (email + mot de passe uniquement — comptes créés par Waqqti) ---- */
 function showLogin(){ $('login').classList.remove('hidden'); $('app').classList.add('hidden'); }
 
-function doAuthSubmit(e){ e.preventDefault(); return SIGNUP_MODE ? doSignup(e) : doLogin(e); }
-
 async function doLogin(e){
-  var err=$('login-err'); err.textContent='';
+  if(e) e.preventDefault();
+  var err=$('login-err'); err.style.color='var(--red)'; err.textContent='';
   var email=$('email').value.trim(), password=$('password').value;
-  var btn=$('btn-submit'); btn.disabled=true; btn.textContent='Connexion…';
+  var btn=$('btn-submit'); btn.disabled=true; btn.textContent=T('pro.connexion_load','Connexion…');
   var r = await sb().auth.signInWithPassword({ email:email, password:password });
-  btn.disabled=false; btn.textContent='Se connecter';
-  if(r.error){ err.textContent = '❌ '+ (r.error.message || 'Identifiants invalides'); return; }
+  btn.disabled=false; btn.textContent=T('pro.connexion','Se connecter');
+  if(r.error){ err.textContent = '❌ '+ (r.error.message || T('pro.identifiants_invalides','Identifiants invalides')); return; }
   onLogin(r.data.user);
-}
-
-async function doSignup(e){
-  var err=$('login-err'); err.textContent='';
-  var email=$('email').value.trim(), password=$('password').value;
-  var confirm=$('su-confirm').value, nom=$('su-nom').value.trim(), prenom=$('su-prenom').value.trim();
-  if(password.length < 6){ err.textContent='❌ Mot de passe : 6 caractères minimum'; return; }
-  if(password !== confirm){ err.textContent='❌ Les mots de passe ne correspondent pas'; return; }
-  var btn=$('btn-submit'); btn.disabled=true; btn.textContent='Création…';
-  var r = await WAQQTI.inscriptionEmail(email, password, { nom:nom, prenom:prenom });
-  btn.disabled=false; btn.textContent='Créer mon compte';
-  if(r.error){ err.textContent='❌ '+r.error.message; return; }
-  if(r.data && r.data.session){ onLogin(r.data.user); }
-  else {
-    err.style.color='var(--green)';
-    err.textContent='✅ Compte créé. Vérifie ton email pour confirmer, puis connecte-toi.';
-    toggleSignup();
-  }
 }
 async function doLogout(){ await sb().auth.signOut(); location.reload(); }
 
 async function onLogin(user){
   STATE.user = user;
-  $('login').classList.add('hidden');
-  $('app').classList.remove('hidden');
   // Charger le salon du gérant (RLS : owner = auth.uid())
   var r = await sb().from('salons').select('*').eq('owner', user.id).limit(1).maybeSingle();
   if(r.error || !r.data){
-    $('main').innerHTML = '<div class="card"><h2>Aucun salon associé</h2>'+
-      '<p class="muted" style="margin-top:8px">Ce compte n\'est rattaché à aucun salon. '+
-      'Contacte l\'administrateur Waqqti pour lier ton salon à cet email.</p></div>';
-    $('side-salon').textContent = user.email;
+    // Ce compte n'est rattaché à aucun salon → PAS un compte pro.
+    // On garde l'écran de connexion (on n'ouvre pas le dashboard) et on explique.
+    showLogin();
+    var err=$('login-err'); err.style.color='var(--red)';
+    err.innerHTML = 'Ce compte (<b>'+esc(user.email)+'</b>) n\'est pas rattaché à un salon.<br>'+
+      'L\'espace pro est réservé aux gérants.<br>'+
+      '<a href="/auth.html" style="color:var(--or);font-weight:700;text-decoration:none">← Aller à l\'espace client</a>'+
+      ' &nbsp;·&nbsp; <a href="#" id="switch-account" style="color:var(--brun-l);font-weight:600;text-decoration:none">Changer de compte</a>';
+    var sw=$('switch-account');
+    if(sw) sw.addEventListener('click', async function(e){ e.preventDefault(); await sb().auth.signOut(); location.reload(); });
     return;
   }
+  $('login').classList.add('hidden');
+  $('app').classList.remove('hidden');
   STATE.salon = r.data;
   $('side-salon').textContent = r.data.nom;
 
@@ -314,10 +277,10 @@ async function onLogin(user){
 function renderTrialPill(acces){
   var el=$('trial-pill');
   if(STATE.salon.formule==='trial' && acces.jours_restants!=null){
-    el.innerHTML = 'Essai gratuit<br><b>'+acces.jours_restants+' jours restants</b>';
+    el.innerHTML = T('pro.essai_gratuit','Essai gratuit')+'<br><b>'+ltr(acces.jours_restants+' '+T('pro.jours_restants','jours restants'))+'</b>';
     el.style.display='block';
   } else if(STATE.salon.formule!=='trial'){
-    el.innerHTML = 'Formule<br><b style="text-transform:capitalize">'+esc(STATE.salon.formule)+'</b>';
+    el.innerHTML = T('pro.formule','Formule')+'<br><b>'+T('pro.f_'+STATE.salon.formule, esc(STATE.salon.formule))+'</b>';
     el.style.display='block';
   } else { el.style.display='none'; }
 }
@@ -332,15 +295,84 @@ function switchView(view){
     equipe:viewEquipe,parametres:viewParametres,abonnement:viewAbonnement}[view]||viewAgenda)();
 }
 
-/* ════════════ AGENDA ════════════ */
+/* ════════════ AGENDA (Jour / Mois) ════════════ */
 async function viewAgenda(){
   var main=$('main');
   var today=new Date().toISOString().slice(0,10);
-  main.innerHTML = '<div class="page-head"><h1>Agenda</h1>'+
-    '<input type="date" class="inp" id="agenda-date" style="width:auto" value="'+today+'"></div>'+
-    '<div id="agenda-body"><div class="empty">Chargement…</div></div>';
+  var geoBanner=(!STATE.salon.latitude||!STATE.salon.longitude)
+    ? '<div class="card" style="background:#FFF6EE;border:1px solid var(--or-lt);display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">'+
+      '<span>📍 '+T('pro.geo_txt','Renseignez votre position pour apparaître dans « Autour de moi » de l\'annuaire.')+'</span>'+
+      '<button class="btn btn-sm" onclick="switchView(\'parametres\')">'+T('pro.geo_btn','Ajouter ma position')+'</button></div>'
+    : '';
+  main.innerHTML = geoBanner + '<div class="page-head"><h1>'+T('pro.agenda','Agenda')+'</h1>'+
+    '<div class="toolbar">'+
+      '<button class="btn btn-sm" id="tab-jour">'+T('pro.jour','Jour')+'</button>'+
+      '<button class="btn btn-ghost btn-sm" id="tab-mois">'+T('pro.mois','Mois')+'</button>'+
+    '</div></div>'+
+    '<div id="agenda-controls"></div>'+
+    '<div id="agenda-body"><div class="empty">'+T('common.chargement','Chargement…')+'</div></div>';
+  $('tab-jour').addEventListener('click', function(){ showJour(today); });
+  $('tab-mois').addEventListener('click', function(){ var d=new Date(); showMois(d.getFullYear(), d.getMonth()); });
+  showJour(today);
+}
+function showJour(dateStr){
+  $('tab-jour').className='btn btn-sm'; $('tab-mois').className='btn btn-ghost btn-sm';
+  $('agenda-controls').innerHTML='<input type="date" class="inp" id="agenda-date" style="width:auto" value="'+dateStr+'">';
   $('agenda-date').addEventListener('change', function(){ loadAgenda(this.value); });
-  loadAgenda(today);
+  loadAgenda(dateStr);
+}
+var MOIS_NOMS=['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
+function showMois(y,m){
+  $('tab-jour').className='btn btn-ghost btn-sm'; $('tab-mois').className='btn btn-sm';
+  $('agenda-controls').innerHTML='<div class="toolbar" style="justify-content:center;margin-bottom:14px">'+
+    '<button class="btn btn-ghost btn-sm" id="m-prev">◀</button>'+
+    '<b style="min-width:170px;text-align:center;font-size:17px;font-family:\'Cormorant Garamond\',serif">'+(window.WQ?WQ.moisNom(m):MOIS_NOMS[m])+' '+y+'</b>'+
+    '<button class="btn btn-ghost btn-sm" id="m-next">▶</button></div>';
+  $('m-prev').addEventListener('click', function(){ var d=new Date(y,m-1,1); showMois(d.getFullYear(),d.getMonth()); });
+  $('m-next').addEventListener('click', function(){ var d=new Date(y,m+1,1); showMois(d.getFullYear(),d.getMonth()); });
+  loadMois(y,m);
+}
+async function loadMois(y,m){
+  var body=$('agenda-body'); if(!body) return;
+  body.innerHTML='<div class="empty">'+T('common.chargement','Chargement…')+'</div>';
+  var start=new Date(y,m,1).toISOString().slice(0,10)+'T00:00:00';
+  var end=new Date(y,m+1,0).toISOString().slice(0,10)+'T23:59:59';
+  var r=await sb().from('reservations').select('date_rdv,prix,statut')
+    .eq('salon_id',STATE.salon.id).gte('date_rdv',start).lte('date_rdv',end);
+  if(r.error){ body.innerHTML='<div class="card empty">Erreur : '+esc(r.error.message)+'</div>'; return; }
+  var byDay={};
+  (r.data||[]).forEach(function(x){
+    if(x.statut==='annule') return;
+    var d=new Date(x.date_rdv).getDate();
+    if(!byDay[d]) byDay[d]={n:0,ca:0};
+    byDay[d].n++; byDay[d].ca+=Number(x.prix||0);
+  });
+  var totalN=0, totalCA=0;
+  Object.keys(byDay).forEach(function(k){ totalN+=byDay[k].n; totalCA+=byDay[k].ca; });
+  var jours=[1,2,3,4,5,6,0].map(function(d){return T('pro.j'+d,['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'][d]);});
+  var startDow=(new Date(y,m,1).getDay()+6)%7; // Lundi=0
+  var nbDays=new Date(y,m+1,0).getDate();
+  var todayStr=new Date().toDateString();
+  var cells='';
+  for(var i=0;i<startDow;i++) cells+='<div></div>';
+  for(var day=1;day<=nbDays;day++){
+    var info=byDay[day];
+    var dateISO=new Date(y,m,day).toLocaleDateString('en-CA'); // YYYY-MM-DD local
+    var isToday=new Date(y,m,day).toDateString()===todayStr;
+    cells+='<div onclick="showJour(\''+dateISO+'\')" style="cursor:pointer;border:1px solid var(--line);border-radius:10px;padding:8px;min-height:66px;transition:.12s;'+
+      (isToday?'box-shadow:inset 0 0 0 2px var(--or);':'')+(info?'background:#FFF6EE;':'background:#fff;')+'">'+
+      '<div style="font-weight:600;font-size:13px;color:'+(isToday?'var(--or-dk)':'var(--brun)')+'">'+day+'</div>'+
+      (info?'<div style="font-size:12px;color:var(--or-dk);font-weight:700;margin-top:6px">'+info.n+' '+T('pro.rdv_court','RDV')+'</div>'+
+             '<div style="font-size:11px;color:var(--brun-l)">'+fmtPrix(info.ca)+'</div>':'')+
+      '</div>';
+  }
+  var head='<div class="stat-grid"><div class="stat"><div class="v">'+totalN+'</div><div class="l">'+T('pro.rdv_mois','RDV ce mois')+'</div></div>'+
+    '<div class="stat"><div class="v">'+fmtPrix(totalCA)+'</div><div class="l">'+T('pro.ca_mois','CA du mois')+'</div></div></div>';
+  body.innerHTML=head+'<div class="card">'+
+    '<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:6px">'+
+    jours.map(function(j){return '<div style="text-align:center;font-size:11px;color:var(--brun-l);font-weight:700">'+j+'</div>';}).join('')+'</div>'+
+    '<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px">'+cells+'</div>'+
+    '<p class="muted" style="text-align:center;margin-top:12px">'+T('pro.clic_jour','Cliquez sur un jour pour voir le détail.')+'</p></div>';
 }
 async function loadAgenda(jour){
   var body=$('agenda-body'); if(!body) return;
@@ -354,41 +386,55 @@ async function loadAgenda(jour){
   var actifs=list.filter(function(x){return x.statut!=='annule';});
   var ca=actifs.reduce(function(s,x){return s+Number(x.prix||0);},0);
   var head='<div class="stat-grid">'+
-    '<div class="stat"><div class="v">'+actifs.length+'</div><div class="l">RDV du jour</div></div>'+
-    '<div class="stat"><div class="v">'+fmtPrix(ca)+'</div><div class="l">CA prévu</div></div>'+
-    '<div class="stat"><div class="v">'+list.filter(function(x){return x.statut==='annule';}).length+'</div><div class="l">Annulés</div></div></div>';
-  if(!list.length){ body.innerHTML=head+'<div class="card empty">Aucun rendez-vous ce jour.</div>'; return; }
+    '<div class="stat"><div class="v">'+actifs.length+'</div><div class="l">'+T('pro.rdv_jour','RDV du jour')+'</div></div>'+
+    '<div class="stat"><div class="v">'+fmtPrix(ca)+'</div><div class="l">'+T('pro.ca_prevu','CA prévu')+'</div></div>'+
+    '<div class="stat"><div class="v">'+list.filter(function(x){return x.statut==='annule';}).length+'</div><div class="l">'+T('pro.annules','Annulés')+'</div></div></div>';
+  if(!list.length){ body.innerHTML=head+'<div class="card empty">'+T('pro.aucun_rdv','Aucun rendez-vous ce jour.')+'</div>'; return; }
   var rows=list.map(function(x){
     var h=new Date(x.date_rdv).toTimeString().slice(0,5);
-    var st=x.statut==='annule'?'<span class="pill red">Annulé</span>'
-         :x.statut==='termine'?'<span class="pill gray">Terminé</span>'
-         :'<span class="pill green">Confirmé</span>';
-    return '<tr><td><b>'+h+'</b></td><td>'+esc(x.prestation_nom||'—')+'</td>'+
+    var st=x.statut==='annule'?'<span class="pill red">'+T('pro.st_annule','Annulé')+'</span>'
+         :x.statut==='termine'?'<span class="pill gray">'+T('pro.st_termine','Terminé')+'</span>'
+         :'<span class="pill green">'+T('pro.st_confirme','Confirmé')+'</span>';
+    // Indicateur d'acompte directement dans l'agenda
+    var ac=x.acompte_statut==='en_attente'?' <span class="pill or">💳 '+T('pro.ac_verifier','à vérifier')+'</span>'
+         :x.acompte_statut==='recu'?' <span class="pill green">💳 '+T('pro.ac_paye','payé')+'</span>'
+         :x.acompte_statut==='refuse'?' <span class="pill red">💳 '+T('pro.ac_refuse','refusé')+'</span>':'';
+    // Actions seulement si le RDV est encore actif
+    var actions=(x.statut==='confirme')
+      ? '<button class="btn btn-sm" onclick="terminerRdv(\''+x.id+'\')">'+T('pro.terminer','Terminer')+'</button> '+
+        '<button class="btn btn-ghost btn-sm" onclick="annulerRdv(\''+x.id+'\')">'+T('common.annuler','Annuler')+'</button>'
+      : '<span class="muted">—</span>';
+    return '<tr><td><b>'+ltr(h)+'</b></td><td>'+esc(x.prestation_nom||'—')+'</td>'+
       '<td>'+esc(x.client_nom)+'<div class="muted" dir="ltr">'+esc(x.client_telephone||'')+'</div></td>'+
-      '<td>'+fmtPrix(x.prix)+'</td><td>'+st+'</td>'+
-      '<td><button class="btn btn-ghost btn-sm" onclick="annulerRdv(\''+x.id+'\')">Annuler</button></td></tr>';
+      '<td>'+fmtPrix(x.prix)+'</td><td>'+st+ac+'</td>'+
+      '<td>'+actions+'</td></tr>';
   }).join('');
-  body.innerHTML=head+'<div class="card"><table><thead><tr><th>Heure</th><th>Prestation</th>'+
-    '<th>Client</th><th>Prix</th><th>Statut</th><th></th></tr></thead><tbody>'+rows+'</tbody></table></div>';
+  body.innerHTML=head+'<div class="card"><table><thead><tr><th>'+T('pro.th_heure','Heure')+'</th><th>'+T('pro.th_prestation','Prestation')+'</th>'+
+    '<th>'+T('pro.th_client','Client')+'</th><th>'+T('pro.th_prix','Prix')+'</th><th>'+T('pro.th_statut','Statut')+'</th><th></th></tr></thead><tbody>'+rows+'</tbody></table></div>';
 }
 async function annulerRdv(id){
-  if(!confirm('Annuler ce rendez-vous ?')) return;
+  if(!confirm(T('pro.confirm_annuler','Annuler ce rendez-vous ?'))) return;
   var r=await sb().from('reservations').update({statut:'annule'}).eq('id',id);
   if(r.error) WAQQTI.toast(r.error.message,'error');
-  else { WAQQTI.toast('Rendez-vous annulé'); loadAgenda($('agenda-date').value); }
+  else { WAQQTI.toast(T('pro.toast_annule','Rendez-vous annulé')); loadAgenda($('agenda-date').value); }
+}
+async function terminerRdv(id){
+  var r=await sb().from('reservations').update({statut:'termine'}).eq('id',id);
+  if(r.error) WAQQTI.toast(r.error.message,'error');
+  else { WAQQTI.toast(T('pro.toast_termine','Rendez-vous terminé ✓')); loadAgenda($('agenda-date').value); }
 }
 
 /* ════════════ ACOMPTES (validation des justificatifs) ════════════ */
 async function viewAcomptes(){
   var main=$('main');
-  main.innerHTML='<div class="page-head"><h1>Acomptes</h1>'+
+  main.innerHTML='<div class="page-head"><h1>'+T('pro.acomptes','Acomptes')+'</h1>'+
     '<div class="toolbar"><select class="inp" id="ac-filtre" style="width:auto">'+
-      '<option value="en_attente">À vérifier</option>'+
-      '<option value="recu">Validés</option>'+
-      '<option value="refuse">Refusés</option>'+
-      '<option value="tous">Tous</option>'+
+      '<option value="en_attente">'+T('pro.filtre_verifier','À vérifier')+'</option>'+
+      '<option value="recu">'+T('pro.filtre_valides','Validés')+'</option>'+
+      '<option value="refuse">'+T('pro.filtre_refuses','Refusés')+'</option>'+
+      '<option value="tous">'+T('pro.filtre_tous','Tous')+'</option>'+
     '</select></div></div>'+
-    '<div id="ac-body"><div class="empty">Chargement…</div></div>';
+    '<div id="ac-body"><div class="empty">'+T('common.chargement','Chargement…')+'</div></div>';
   $('ac-filtre').addEventListener('change', function(){ loadAcomptes(this.value); });
   loadAcomptes('en_attente');
 }
@@ -402,42 +448,41 @@ async function loadAcomptes(filtre){
   var r=await q;
   if(r.error){ body.innerHTML='<div class="card empty">Erreur : '+esc(r.error.message)+'</div>'; return; }
   var list=r.data||[];
-  if(!list.length){ body.innerHTML='<div class="card empty">Aucun acompte '+
-    (filtre==='en_attente'?'à vérifier':'')+'.</div>'; return; }
+  if(!list.length){ body.innerHTML='<div class="card empty">'+T('pro.aucun_acompte','Aucun acompte à vérifier.')+'</div>'; return; }
   var rows=list.map(function(x){
     var d=new Date(x.date_rdv);
-    var st=x.acompte_statut==='recu'?'<span class="pill green">Validé</span>'
-         :x.acompte_statut==='refuse'?'<span class="pill red">Refusé</span>'
-         :'<span class="pill or">À vérifier</span>';
+    var st=x.acompte_statut==='recu'?'<span class="pill green">'+T('pro.ac_valide','Validé')+'</span>'
+         :x.acompte_statut==='refuse'?'<span class="pill red">'+T('pro.ac_refuse','refusé')+'</span>'
+         :'<span class="pill or">'+T('pro.filtre_verifier','À vérifier')+'</span>';
     var actions=x.acompte_statut==='en_attente'
-      ? '<button class="btn btn-sm" onclick="statuerAcompte(\''+x.id+'\',\'recu\')">✓ Valider</button> '+
-        '<button class="btn btn-ghost btn-sm" onclick="statuerAcompte(\''+x.id+'\',\'refuse\')">✗ Refuser</button>'
-      : '<button class="btn btn-ghost btn-sm" onclick="statuerAcompte(\''+x.id+'\',\'recu\')">Re-valider</button>';
+      ? '<button class="btn btn-sm" onclick="statuerAcompte(\''+x.id+'\',\'recu\')">'+T('pro.valider','✓ Valider')+'</button> '+
+        '<button class="btn btn-ghost btn-sm" onclick="statuerAcompte(\''+x.id+'\',\'refuse\')">'+T('pro.refuser','✗ Refuser')+'</button>'
+      : '<button class="btn btn-ghost btn-sm" onclick="statuerAcompte(\''+x.id+'\',\'recu\')">'+T('pro.revalider','Re-valider')+'</button>';
     var justif=x.justificatif_url
-      ? '<button class="btn btn-ghost btn-sm" onclick="voirJustif(\''+esc(x.justificatif_url)+'\')">🖼 Voir le reçu</button>'
-      : '<span class="muted">Aucun reçu reçu</span>';
-    return '<tr><td><b>'+d.toLocaleDateString('fr-FR')+'</b><div class="muted">'+
-        d.toTimeString().slice(0,5)+'</div></td>'+
+      ? '<button class="btn btn-ghost btn-sm" onclick="voirJustif(\''+esc(x.justificatif_url)+'\')">'+T('pro.voir_recu','🖼 Voir le reçu')+'</button>'
+      : '<span class="muted">'+T('pro.aucun_recu','Aucun reçu reçu')+'</span>';
+    return '<tr><td><b>'+ltr(d.toLocaleDateString('fr-FR'))+'</b><div class="muted">'+
+        ltr(d.toTimeString().slice(0,5))+'</div></td>'+
       '<td>'+esc(x.client_nom)+'<div class="muted" dir="ltr">'+esc(x.client_telephone||'')+'</div></td>'+
       '<td>'+esc(x.prestation_nom||'—')+'</td>'+
       '<td><b>'+fmtPrix(x.acompte_montant)+'</b></td>'+
       '<td>'+justif+'</td>'+
       '<td>'+st+'</td><td>'+actions+'</td></tr>';
   }).join('');
-  body.innerHTML='<div class="card"><table><thead><tr><th>RDV</th><th>Client</th>'+
-    '<th>Prestation</th><th>Acompte</th><th>Reçu</th><th>Statut</th><th></th></tr></thead>'+
+  body.innerHTML='<div class="card"><table><thead><tr><th>'+T('pro.th_rdv','RDV')+'</th><th>'+T('pro.th_client','Client')+'</th>'+
+    '<th>'+T('pro.th_prestation','Prestation')+'</th><th>'+T('pro.th_acompte','Acompte')+'</th><th>'+T('pro.th_recu','Reçu')+'</th><th>'+T('pro.th_statut','Statut')+'</th><th></th></tr></thead>'+
     '<tbody>'+rows+'</tbody></table></div>';
 }
 async function statuerAcompte(id, decision){
-  if(decision==='refuse' && !confirm('Refuser ce justificatif ?')) return;
+  if(decision==='refuse' && !confirm(T('pro.confirm_refuser','Refuser ce justificatif ?'))) return;
   var r=await sb().rpc('statuer_acompte',{p_reservation_id:id,p_decision:decision});
   if(r.error) WAQQTI.toast(r.error.message,'error');
-  else { WAQQTI.toast(decision==='recu'?'Acompte validé ✓':'Justificatif refusé');
+  else { WAQQTI.toast(decision==='recu'?T('pro.toast_valide','Acompte validé ✓'):T('pro.toast_refuse','Justificatif refusé'));
     loadAcomptes($('ac-filtre').value); majBadgeAcomptes(); }
 }
 async function voirJustif(chemin){
   var url=await WAQQTI.urlSigneeJustificatif(chemin, 3600);
-  if(!url){ WAQQTI.toast('Image indisponible','error'); return; }
+  if(!url){ WAQQTI.toast(T('pro.img_indispo','Image indisponible'),'error'); return; }
   var ov=document.createElement('div');
   ov.style.cssText='position:fixed;inset:0;z-index:9999;background:rgba(61,31,0,.9);'+
     'display:flex;align-items:center;justify-content:center;padding:20px;cursor:zoom-out';
@@ -457,7 +502,9 @@ async function majBadgeAcomptes(){
 /* ════════════ CLIENTS ════════════ */
 async function viewClients(){
   var main=$('main');
-  main.innerHTML='<div class="page-head"><h1>Clients</h1></div><div id="cl-body"><div class="empty">Chargement…</div></div>';
+  main.innerHTML='<div class="page-head"><h1>'+T('pro.clients','Clients')+'</h1>'+
+    '<input class="inp" id="cl-search" placeholder="'+T('pro.rechercher_client','🔍 Rechercher un client…')+'" style="width:auto" oninput="filterClients(this.value)"></div>'+
+    '<div id="cl-body"><div class="empty">'+T('common.chargement','Chargement…')+'</div></div>';
   var r=await sb().from('reservations').select('client_nom,client_telephone,date_rdv,prix')
     .eq('salon_id',STATE.salon.id).order('date_rdv',{ascending:false});
   if(r.error){ $('cl-body').innerHTML='<div class="card empty">Erreur.</div>'; return; }
@@ -469,24 +516,31 @@ async function viewClients(){
     if(x.date_rdv>map[k].dernier) map[k].dernier=x.date_rdv;
   });
   var clients=Object.values(map).sort(function(a,b){return b.visites-a.visites;});
-  if(!clients.length){ $('cl-body').innerHTML='<div class="card empty">Aucun client pour l\'instant.</div>'; return; }
+  if(!clients.length){ $('cl-body').innerHTML='<div class="card empty">'+T('pro.aucun_client','Aucun client pour l\'instant.')+'</div>'; return; }
   var rows=clients.map(function(c){
-    return '<tr><td><b>'+esc(c.nom)+'</b></td><td dir="ltr">'+esc(c.tel||'—')+'</td>'+
+    var s=((c.nom||'')+' '+(c.tel||'')).toLowerCase();
+    return '<tr data-s="'+esc(s)+'"><td><b>'+esc(c.nom)+'</b></td><td dir="ltr">'+esc(c.tel||'—')+'</td>'+
       '<td>'+c.visites+'</td><td>'+fmtPrix(c.total)+'</td>'+
-      '<td class="muted">'+new Date(c.dernier).toLocaleDateString('fr-FR')+'</td></tr>';
+      '<td class="muted">'+ltr(new Date(c.dernier).toLocaleDateString('fr-FR'))+'</td></tr>';
   }).join('');
   $('cl-body').innerHTML='<div class="stat-grid"><div class="stat"><div class="v">'+clients.length+
-    '</div><div class="l">Clients uniques</div></div></div>'+
-    '<div class="card"><table><thead><tr><th>Nom</th><th>Téléphone</th><th>Visites</th>'+
-    '<th>Total</th><th>Dernier RDV</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
+    '</div><div class="l">'+T('pro.clients_uniques','Clients uniques')+'</div></div></div>'+
+    '<div class="card"><table><thead><tr><th>'+T('pro.th_nom','Nom')+'</th><th>'+T('pro.th_telephone','Téléphone')+'</th><th>'+T('pro.th_visites','Visites')+'</th>'+
+    '<th>'+T('pro.th_total','Total')+'</th><th>'+T('pro.th_dernier','Dernier RDV')+'</th></tr></thead><tbody id="cl-tbody">'+rows+'</tbody></table></div>';
+}
+function filterClients(q){
+  q=(q||'').toLowerCase();
+  document.querySelectorAll('#cl-tbody tr').forEach(function(tr){
+    tr.style.display = tr.getAttribute('data-s').indexOf(q)>=0 ? '' : 'none';
+  });
 }
 
 /* ════════════ PRESTATIONS ════════════ */
 async function viewPrestations(){
   var main=$('main');
-  main.innerHTML='<div class="page-head"><h1>Prestations</h1>'+
-    '<button class="btn" onclick="formPrestation()">+ Ajouter</button></div>'+
-    '<div id="pr-body"><div class="empty">Chargement…</div></div>';
+  main.innerHTML='<div class="page-head"><h1>'+T('pro.prestations','Prestations')+'</h1>'+
+    '<button class="btn" onclick="formPrestation()">'+T('pro.ajouter','+ Ajouter')+'</button></div>'+
+    '<div id="pr-body"><div class="empty">'+T('common.chargement','Chargement…')+'</div></div>';
   loadPrestations();
 }
 async function loadPrestations(){
@@ -494,41 +548,42 @@ async function loadPrestations(){
     .order('ordre',{ascending:true});
   var b=$('pr-body'); if(!b) return;
   var list=r.data||[];
-  if(!list.length){ b.innerHTML='<div class="card empty">Aucune prestation. Ajoute ta première prestation.</div>'; return; }
+  if(!list.length){ b.innerHTML='<div class="card empty">'+T('pro.aucune_prestation','Aucune prestation. Ajoute ta première prestation.')+'</div>'; return; }
   b.innerHTML='<div class="card">'+list.map(function(p){
+    var acBadge=p.acompte_actif?' <span class="pill or">💳 '+ltr(p.acompte_type==='fixe'?fmtPrix(p.acompte_valeur):(p.acompte_valeur+'%'))+'</span>':'';
     return '<div class="row"><div><b>'+esc(p.nom)+'</b>'+
-      (p.actif?'':' <span class="pill gray">masquée</span>')+
-      '<div class="muted">'+esc(p.categorie||'')+' · '+p.duree_minutes+' min</div></div>'+
+      (p.actif?'':' <span class="pill gray">'+T('pro.masquee','masquée')+'</span>')+acBadge+
+      '<div class="muted">'+esc(p.categorie||'')+' · '+p.duree_minutes+' '+T('pro.min','min')+'</div></div>'+
       '<div class="toolbar"><b>'+fmtPrix(p.prix)+'</b>'+
-      '<button class="btn btn-ghost btn-sm" onclick=\'formPrestation('+JSON.stringify(p)+')\'>Modifier</button>'+
+      '<button class="btn btn-ghost btn-sm" onclick=\'formPrestation('+JSON.stringify(p)+')\'>'+T('pro.modifier','Modifier')+'</button>'+
       '<button class="btn btn-ghost btn-sm" onclick="delPrestation(\''+p.id+'\')">🗑</button></div></div>';
   }).join('')+'</div>';
 }
 function formPrestation(p){
   p=p||{}; var isEdit=!!p.id;
   var main=$('main');
-  main.innerHTML='<div class="page-head"><h1>'+(isEdit?'Modifier':'Nouvelle')+' prestation</h1>'+
-    '<button class="btn btn-ghost" onclick="viewPrestations()">← Retour</button></div>'+
+  main.innerHTML='<div class="page-head"><h1>'+(isEdit?T('pro.modifier_prestation','Modifier prestation'):T('pro.nouvelle_prestation','Nouvelle prestation'))+'</h1>'+
+    '<button class="btn btn-ghost" onclick="viewPrestations()">'+T('pro.retour','← Retour')+'</button></div>'+
     '<div class="card" style="max-width:560px">'+
-    '<div class="field"><label>Nom *</label><input class="inp" id="p-nom" value="'+esc(p.nom||'')+'"></div>'+
+    '<div class="field"><label>'+T('pro.th_nom','Nom')+' *</label><input class="inp" id="p-nom" value="'+esc(p.nom||'')+'"></div>'+
     '<div class="field-grid">'+
-    '<div class="field"><label>Catégorie</label><input class="inp" id="p-cat" value="'+esc(p.categorie||'Général')+'"></div>'+
-    '<div class="field"><label>Ordre</label><input class="inp" type="number" id="p-ordre" value="'+(p.ordre||0)+'"></div></div>'+
+    '<div class="field"><label>'+T('pro.f_categorie','Catégorie')+'</label><input class="inp" id="p-cat" value="'+esc(p.categorie||'Général')+'"></div>'+
+    '<div class="field"><label>'+T('pro.f_ordre','Ordre')+'</label><input class="inp" type="number" id="p-ordre" value="'+(p.ordre||0)+'"></div></div>'+
     '<div class="field-grid">'+
-    '<div class="field"><label>Prix (DA) *</label><input class="inp" type="number" id="p-prix" value="'+(p.prix||0)+'"></div>'+
-    '<div class="field"><label>Durée (min) *</label><input class="inp" type="number" id="p-duree" value="'+(p.duree_minutes||30)+'"></div></div>'+
-    '<div class="field"><label><input type="checkbox" id="p-actif" '+(p.actif===false?'':'checked')+'> Visible pour les clients</label></div>'+
+    '<div class="field"><label>'+T('pro.f_prix','Prix (DA)')+' *</label><input class="inp" type="number" id="p-prix" value="'+(p.prix||0)+'"></div>'+
+    '<div class="field"><label>'+T('pro.f_duree','Durée (min)')+' *</label><input class="inp" type="number" id="p-duree" value="'+(p.duree_minutes||30)+'"></div></div>'+
+    '<div class="field"><label><input type="checkbox" id="p-actif" '+(p.actif===false?'':'checked')+'> '+T('pro.f_visible','Visible pour les clients')+'</label></div>'+
     // ── Acompte ──
     '<div style="border-top:1px solid #F3EADD;margin:6px 0 14px;padding-top:14px">'+
-    '<label style="font-weight:600;font-size:14px"><input type="checkbox" id="p-ac-actif" '+(p.acompte_actif?'checked':'')+' onchange="document.getElementById(\'ac-box\').style.display=this.checked?\'grid\':\'none\'"> Demander un acompte pour cette prestation</label>'+
+    '<label style="font-weight:600;font-size:14px"><input type="checkbox" id="p-ac-actif" '+(p.acompte_actif?'checked':'')+' onchange="document.getElementById(\'ac-box\').style.display=this.checked?\'grid\':\'none\'"> '+T('pro.f_ac_demander','Demander un acompte pour cette prestation')+'</label>'+
     '<div class="field-grid" id="ac-box" style="margin-top:12px;display:'+(p.acompte_actif?'grid':'none')+'">'+
-    '<div class="field"><label>Type d\'acompte</label><select class="inp" id="p-ac-type">'+
-      '<option value="pourcentage"'+(p.acompte_type!=='fixe'?' selected':'')+'>Pourcentage (%)</option>'+
-      '<option value="fixe"'+(p.acompte_type==='fixe'?' selected':'')+'>Montant fixe (DA)</option>'+
+    '<div class="field"><label>'+T('pro.f_ac_type','Type d\'acompte')+'</label><select class="inp" id="p-ac-type">'+
+      '<option value="pourcentage"'+(p.acompte_type!=='fixe'?' selected':'')+'>'+T('pro.f_ac_pct','Pourcentage (%)')+'</option>'+
+      '<option value="fixe"'+(p.acompte_type==='fixe'?' selected':'')+'>'+T('pro.f_ac_fixe','Montant fixe (DA)')+'</option>'+
     '</select></div>'+
-    '<div class="field"><label>Valeur</label><input class="inp" type="number" id="p-ac-val" value="'+(p.acompte_valeur!=null?p.acompte_valeur:0)+'" placeholder="20 (%) ou 500 (DA)"></div>'+
+    '<div class="field"><label>'+T('pro.f_ac_valeur','Valeur')+'</label><input class="inp" type="number" id="p-ac-val" value="'+(p.acompte_valeur!=null?p.acompte_valeur:0)+'" placeholder="20 (%) / 500 (DA)"></div>'+
     '</div></div>'+
-    '<button class="btn" id="p-save">Enregistrer</button></div>';
+    '<button class="btn" id="p-save">'+T('common.enregistrer','Enregistrer')+'</button></div>';
   $('p-save').addEventListener('click', function(){ savePrestation(p.id); });
 }
 async function savePrestation(id){
@@ -544,122 +599,157 @@ async function savePrestation(id){
     acompte_type:$('p-ac-type').value,
     acompte_valeur:parseFloat($('p-ac-val').value)||0
   };
-  if(!payload.nom){ WAQQTI.toast('Le nom est requis','error'); return; }
+  if(!payload.nom){ WAQQTI.toast(T('pro.nom_requis','Le nom est requis'),'error'); return; }
   var r = id ? await sb().from('prestations').update(payload).eq('id',id)
              : await sb().from('prestations').insert(payload);
   if(r.error) WAQQTI.toast(r.error.message,'error');
-  else { WAQQTI.toast('Prestation enregistrée'); viewPrestations(); }
+  else { WAQQTI.toast(T('pro.toast_prest_ok','Prestation enregistrée')); viewPrestations(); }
 }
 async function delPrestation(id){
-  if(!confirm('Supprimer cette prestation ?')) return;
+  if(!confirm(T('pro.confirm_del_prest','Supprimer cette prestation ?'))) return;
   var r=await sb().from('prestations').delete().eq('id',id);
-  if(r.error) WAQQTI.toast(r.error.message,'error'); else { WAQQTI.toast('Supprimée'); loadPrestations(); }
+  if(r.error) WAQQTI.toast(r.error.message,'error'); else { WAQQTI.toast(T('pro.toast_supprimee','Supprimée')); loadPrestations(); }
 }
 
 /* ════════════ ÉQUIPE ════════════ */
 async function viewEquipe(){
   var main=$('main');
   var locked=!['confort','premium'].includes(STATE.salon.formule) && STATE.salon.formule!=='trial';
-  main.innerHTML='<div class="page-head"><h1>Équipe</h1>'+
-    '<button class="btn" onclick="formEmploye()">+ Ajouter</button></div>'+
-    (locked?'<div class="card"><span class="pill or">Formule Confort+</span> '+
-       '<span class="muted">Les profils d\'employés sont visibles par les clients à partir de la formule Confort.</span></div>':'')+
-    '<div id="eq-body"><div class="empty">Chargement…</div></div>';
+  main.innerHTML='<div class="page-head"><h1>'+T('pro.equipe','Équipe')+'</h1>'+
+    '<button class="btn" onclick="formEmploye()">'+T('pro.ajouter','+ Ajouter')+'</button></div>'+
+    (locked?'<div class="card"><span class="pill or">Confort+</span> '+
+       '<span class="muted">'+T('pro.equipe_confort','Les profils d\'employés sont visibles par les clients à partir de la formule Confort.')+'</span></div>':'')+
+    '<div id="eq-body"><div class="empty">'+T('common.chargement','Chargement…')+'</div></div>';
   loadEquipe();
 }
 async function loadEquipe(){
   var r=await sb().from('employes').select('*').eq('salon_id',STATE.salon.id).order('ordre',{ascending:true});
   var b=$('eq-body'); if(!b) return; var list=r.data||[];
-  if(!list.length){ b.innerHTML='<div class="card empty">Aucun membre. Ajoute ton équipe.</div>'; return; }
+  if(!list.length){ b.innerHTML='<div class="card empty">'+T('pro.aucun_membre','Aucun membre. Ajoute ton équipe.')+'</div>'; return; }
   b.innerHTML='<div class="card">'+list.map(function(e){
-    return '<div class="row"><div><b>'+esc(e.nom)+'</b>'+(e.actif?'':' <span class="pill gray">inactif</span>')+'</div>'+
+    return '<div class="row"><div><b>'+esc(e.nom)+'</b>'+(e.actif?'':' <span class="pill gray">'+T('pro.inactif','inactif')+'</span>')+'</div>'+
       '<div class="toolbar">'+
-      '<button class="btn btn-ghost btn-sm" onclick=\'formEmploye('+JSON.stringify(e)+')\'>Modifier</button>'+
+      '<button class="btn btn-ghost btn-sm" onclick=\'formEmploye('+JSON.stringify(e)+')\'>'+T('pro.modifier','Modifier')+'</button>'+
       '<button class="btn btn-ghost btn-sm" onclick="delEmploye(\''+e.id+'\')">🗑</button></div></div>';
   }).join('')+'</div>';
 }
 function formEmploye(e){
   e=e||{}; var main=$('main');
-  main.innerHTML='<div class="page-head"><h1>'+(e.id?'Modifier':'Nouveau')+' membre</h1>'+
-    '<button class="btn btn-ghost" onclick="viewEquipe()">← Retour</button></div>'+
+  main.innerHTML='<div class="page-head"><h1>'+(e.id?T('pro.modifier_membre','Modifier membre'):T('pro.nouveau_membre','Nouveau membre'))+'</h1>'+
+    '<button class="btn btn-ghost" onclick="viewEquipe()">'+T('pro.retour','← Retour')+'</button></div>'+
     '<div class="card" style="max-width:460px">'+
-    '<div class="field"><label>Nom *</label><input class="inp" id="e-nom" value="'+esc(e.nom||'')+'"></div>'+
-    '<div class="field"><label>Ordre</label><input class="inp" type="number" id="e-ordre" value="'+(e.ordre||0)+'"></div>'+
-    '<div class="field"><label><input type="checkbox" id="e-actif" '+(e.actif===false?'':'checked')+'> Actif</label></div>'+
-    '<button class="btn" id="e-save">Enregistrer</button></div>';
+    '<div class="field"><label>'+T('pro.th_nom','Nom')+' *</label><input class="inp" id="e-nom" value="'+esc(e.nom||'')+'"></div>'+
+    '<div class="field"><label>'+T('pro.f_ordre','Ordre')+'</label><input class="inp" type="number" id="e-ordre" value="'+(e.ordre||0)+'"></div>'+
+    '<div class="field"><label><input type="checkbox" id="e-actif" '+(e.actif===false?'':'checked')+'> '+T('pro.f_actif','Actif')+'</label></div>'+
+    '<button class="btn" id="e-save">'+T('common.enregistrer','Enregistrer')+'</button></div>';
   $('e-save').addEventListener('click', function(){ saveEmploye(e.id); });
 }
 async function saveEmploye(id){
   var payload={salon_id:STATE.salon.id,nom:$('e-nom').value.trim(),
     ordre:parseInt($('e-ordre').value)||0,actif:$('e-actif').checked};
-  if(!payload.nom){ WAQQTI.toast('Le nom est requis','error'); return; }
+  if(!payload.nom){ WAQQTI.toast(T('pro.nom_requis','Le nom est requis'),'error'); return; }
   var r= id ? await sb().from('employes').update(payload).eq('id',id)
             : await sb().from('employes').insert(payload);
-  if(r.error) WAQQTI.toast(r.error.message,'error'); else { WAQQTI.toast('Enregistré'); viewEquipe(); }
+  if(r.error) WAQQTI.toast(r.error.message,'error'); else { WAQQTI.toast(T('pro.toast_enregistre','Enregistré')); viewEquipe(); }
 }
 async function delEmploye(id){
-  if(!confirm('Supprimer ce membre ?')) return;
+  if(!confirm(T('pro.confirm_del_membre','Supprimer ce membre ?'))) return;
   var r=await sb().from('employes').delete().eq('id',id);
-  if(r.error) WAQQTI.toast(r.error.message,'error'); else { WAQQTI.toast('Supprimé'); loadEquipe(); }
+  if(r.error) WAQQTI.toast(r.error.message,'error'); else { WAQQTI.toast(T('pro.toast_supprimee','Supprimée')); loadEquipe(); }
 }
 
 /* ════════════ PARAMÈTRES ════════════ */
 function viewParametres(){
   var s=STATE.salon, main=$('main');
-  main.innerHTML='<div class="page-head"><h1>Paramètres</h1></div>'+
+  main.innerHTML='<div class="page-head"><h1>'+T('pro.parametres','Paramètres')+'</h1></div>'+
     '<div class="card" style="max-width:600px">'+
-    '<div class="field"><label>Nom du salon</label><input class="inp" id="s-nom" value="'+esc(s.nom||'')+'"></div>'+
+    '<div class="field"><label>'+T('pro.p_nom_salon','Nom du salon')+'</label><input class="inp" id="s-nom" value="'+esc(s.nom||'')+'"></div>'+
     '<div class="field-grid">'+
-    '<div class="field"><label>Wilaya</label><input class="inp" id="s-wilaya" value="'+esc(s.wilaya||'')+'"></div>'+
-    '<div class="field"><label>Téléphone</label><input class="inp" id="s-tel" dir="ltr" value="'+esc(s.telephone||'')+'"></div></div>'+
-    '<div class="field"><label>Adresse</label><input class="inp" id="s-adr" value="'+esc(s.adresse||'')+'"></div>'+
+    '<div class="field"><label>'+T('pro.p_wilaya','Wilaya')+'</label><input class="inp" id="s-wilaya" value="'+esc(s.wilaya||'')+'"></div>'+
+    '<div class="field"><label>'+T('pro.p_telephone','Téléphone')+'</label><input class="inp" id="s-tel" dir="ltr" value="'+esc(s.telephone||'')+'"></div></div>'+
+    '<div class="field"><label>'+T('pro.p_adresse','Adresse')+'</label><input class="inp" id="s-adr" value="'+esc(s.adresse||'')+'"></div>'+
     '<div class="field-grid">'+
-    '<div class="field"><label>Mode de réservation</label><select class="inp" id="s-mode">'+
-      '<option value="creneau"'+(s.mode_reservation==='creneau'?' selected':'')+'>Par créneau horaire</option>'+
-      '<option value="journee"'+(s.mode_reservation==='journee'?' selected':'')+'>À la journée (sans horaire)</option>'+
+    '<div class="field"><label>'+T('pro.p_mode','Mode de réservation')+'</label><select class="inp" id="s-mode">'+
+      '<option value="creneau"'+(s.mode_reservation==='creneau'?' selected':'')+'>'+T('pro.p_mode_creneau','Par créneau horaire')+'</option>'+
+      '<option value="journee"'+(s.mode_reservation==='journee'?' selected':'')+'>'+T('pro.p_mode_journee','À la journée (sans horaire)')+'</option>'+
     '</select></div>'+
-    '<div class="field"><label>Nombre de sièges</label><input class="inp" type="number" id="s-sieges" min="1" max="50" value="'+(s.nb_sieges||1)+'"></div></div>'+
-    '<button class="btn" id="s-save">Enregistrer</button></div>'+
+    '<div class="field"><label>'+T('pro.p_sieges','Nombre de sièges')+'</label><input class="inp" type="number" id="s-sieges" min="1" max="50" value="'+(s.nb_sieges||1)+'"></div></div>'+
+    '<button class="btn" id="s-save">'+T('common.enregistrer','Enregistrer')+'</button></div>'+
 
     // ── Coordonnées de paiement (acompte) ──
     '<div class="card" style="max-width:600px">'+
-    '<h3 style="font-size:20px;margin-bottom:4px">💳 Coordonnées de paiement</h3>'+
-    '<p class="muted" style="margin-bottom:16px">Affichées au client quand un acompte est demandé.</p>'+
+    '<h3 style="font-size:20px;margin-bottom:4px">'+T('pro.p_paiement','💳 Coordonnées de paiement')+'</h3>'+
+    '<p class="muted" style="margin-bottom:16px">'+T('pro.p_paiement_sub','Affichées au client quand un acompte est demandé.')+'</p>'+
     '<div class="field-grid">'+
-    '<div class="field"><label>Type</label><select class="inp" id="r-type">'+
-      '<option value="">— Aucun —</option>'+
+    '<div class="field"><label>'+T('pro.p_type','Type')+'</label><select class="inp" id="r-type">'+
+      '<option value="">'+T('pro.p_aucun','— Aucun —')+'</option>'+
       '<option value="baridimob"'+(s.rib_type==='baridimob'?' selected':'')+'>BaridiMob</option>'+
       '<option value="ccp"'+(s.rib_type==='ccp'?' selected':'')+'>CCP</option>'+
-      '<option value="rib"'+(s.rib_type==='rib'?' selected':'')+'>RIB bancaire</option>'+
+      '<option value="rib"'+(s.rib_type==='rib'?' selected':'')+'>RIB</option>'+
       '<option value="autre"'+(s.rib_type==='autre'?' selected':'')+'>Autre</option>'+
     '</select></div>'+
-    '<div class="field"><label>Titulaire</label><input class="inp" id="r-titulaire" value="'+esc(s.rib_titulaire||'')+'" placeholder="Nom du bénéficiaire"></div></div>'+
+    '<div class="field"><label>'+T('pro.p_titulaire','Titulaire')+'</label><input class="inp" id="r-titulaire" value="'+esc(s.rib_titulaire||'')+'"></div></div>'+
     '<div class="field-grid">'+
-    '<div class="field"><label>Numéro (CCP / RIB / tél)</label><input class="inp" id="r-numero" dir="ltr" value="'+esc(s.rib_numero||'')+'" placeholder="00799999..."></div>'+
-    '<div class="field"><label>Clé (CCP)</label><input class="inp" id="r-cle" dir="ltr" value="'+esc(s.rib_cle||'')+'" placeholder="00"></div></div>'+
-    '<div class="field"><label>Instructions (optionnel)</label><input class="inp" id="r-instr" value="'+esc(s.rib_instructions||'')+'" placeholder="Ex : Envoyez le reçu après paiement"></div>'+
-    '<button class="btn" id="r-save">Enregistrer les coordonnées</button></div>'+
+    '<div class="field"><label>'+T('pro.p_numero','Numéro (CCP / RIB / tél)')+'</label><input class="inp" id="r-numero" dir="ltr" value="'+esc(s.rib_numero||'')+'" placeholder="00799999..."></div>'+
+    '<div class="field"><label>'+T('pro.p_cle','Clé (CCP)')+'</label><input class="inp" id="r-cle" dir="ltr" value="'+esc(s.rib_cle||'')+'" placeholder="00"></div></div>'+
+    '<div class="field"><label>'+T('pro.p_instructions','Instructions (optionnel)')+'</label><input class="inp" id="r-instr" value="'+esc(s.rib_instructions||'')+'"></div>'+
+    '<button class="btn" id="r-save">'+T('pro.p_save_coord','Enregistrer les coordonnées')+'</button></div>'+
+
+    // ── Horaires & disponibilités ──
+    '<div class="card" style="max-width:600px">'+
+    '<h3 style="font-size:20px;margin-bottom:4px">'+T('pro.p_horaires','🕐 Horaires & disponibilités')+'</h3>'+
+    '<p class="muted" style="margin-bottom:16px">'+T('pro.p_horaires_sub','Définissent les créneaux proposés aux clients (mode « par créneau »).')+'</p>'+
+    '<div class="field-grid">'+
+    '<div class="field"><label>'+T('pro.p_ouverture','Ouverture')+'</label><input class="inp" type="time" id="h-ouv" value="'+((s.heure_ouverture||'09:00').slice(0,5))+'"></div>'+
+    '<div class="field"><label>'+T('pro.p_fermeture','Fermeture')+'</label><input class="inp" type="time" id="h-fer" value="'+((s.heure_fermeture||'19:00').slice(0,5))+'"></div></div>'+
+    '<div class="field-grid">'+
+    '<div class="field"><label>'+T('pro.p_pause_debut','Pause — début (optionnel)')+'</label><input class="inp" type="time" id="h-pd" value="'+((s.pause_debut||'').slice(0,5))+'"></div>'+
+    '<div class="field"><label>'+T('pro.p_pause_fin','Pause — fin')+'</label><input class="inp" type="time" id="h-pf" value="'+((s.pause_fin||'').slice(0,5))+'"></div></div>'+
+    '<div class="field"><label>'+T('pro.p_intervalle','Intervalle entre créneaux')+'</label><select class="inp" id="h-int">'+
+      [15,20,30,45,60].map(function(v){return '<option value="'+v+'"'+(((s.intervalle_creneaux||30)==v)?' selected':'')+'>'+v+' '+T('pro.min','min')+'</option>';}).join('')+
+    '</select></div>'+
+    '<div class="field"><label>'+T('pro.p_jours_fermeture','Jours de fermeture')+'</label><div style="display:flex;flex-wrap:wrap;gap:12px;margin-top:6px">'+
+      [0,1,2,3,4,5,6].map(function(i){var ch=(s.jours_fermes||[]).indexOf(i)>=0;return '<label style="font-weight:500;font-size:13px;display:flex;align-items:center;gap:5px;cursor:pointer"><input type="checkbox" class="h-jour" value="'+i+'"'+(ch?' checked':'')+'> '+T('pro.j'+i,['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'][i])+'</label>';}).join('')+
+    '</div></div>'+
+    '<button class="btn" id="h-save">'+T('pro.p_save_horaires','Enregistrer les horaires')+'</button></div>'+
 
     // ── Géolocalisation (annuaire "Autour de moi") ──
     '<div class="card" style="max-width:600px">'+
-    '<h3 style="font-size:20px;margin-bottom:4px">📍 Localisation</h3>'+
-    '<p class="muted" style="margin-bottom:16px">Pour apparaître dans « Autour de moi » de l\'annuaire.</p>'+
+    '<h3 style="font-size:20px;margin-bottom:4px">'+T('pro.p_localisation','📍 Localisation')+'</h3>'+
+    '<p class="muted" style="margin-bottom:16px">'+T('pro.p_localisation_sub','Pour apparaître dans « Autour de moi » de l\'annuaire.')+'</p>'+
     '<div class="field-grid">'+
     '<div class="field"><label>Latitude</label><input class="inp" id="g-lat" dir="ltr" value="'+(s.latitude!=null?s.latitude:'')+'" placeholder="36.7538"></div>'+
     '<div class="field"><label>Longitude</label><input class="inp" id="g-lng" dir="ltr" value="'+(s.longitude!=null?s.longitude:'')+'" placeholder="3.0588"></div></div>'+
-    '<button class="btn btn-ghost btn-sm" type="button" onclick="capterPositionSalon()">📍 Utiliser ma position actuelle</button> '+
-    '<button class="btn" id="g-save" style="margin-top:10px">Enregistrer la position</button></div>';
+    '<button class="btn btn-ghost btn-sm" type="button" onclick="capterPositionSalon()">'+T('pro.p_utiliser_position','📍 Utiliser ma position actuelle')+'</button> '+
+    '<button class="btn" id="g-save" style="margin-top:10px">'+T('pro.p_save_position','Enregistrer la position')+'</button></div>';
   $('s-save').addEventListener('click', saveParametres);
   $('r-save').addEventListener('click', saveRib);
   $('g-save').addEventListener('click', saveGeo);
+  $('h-save').addEventListener('click', saveHoraires);
+}
+async function saveHoraires(){
+  var jours=[];
+  document.querySelectorAll('.h-jour:checked').forEach(function(c){ jours.push(parseInt(c.value)); });
+  var payload={
+    heure_ouverture:$('h-ouv').value||'09:00',
+    heure_fermeture:$('h-fer').value||'19:00',
+    pause_debut:$('h-pd').value||null,
+    pause_fin:$('h-pf').value||null,
+    intervalle_creneaux:parseInt($('h-int').value)||30,
+    jours_fermes:jours
+  };
+  if(payload.heure_fermeture<=payload.heure_ouverture){ WAQQTI.toast(T('pro.fermeture_apres','La fermeture doit être après l\'ouverture'),'error'); return; }
+  var r=await sb().from('salons').update(payload).eq('id',STATE.salon.id).select().single();
+  if(r.error){ WAQQTI.toast(r.error.message,'error'); return; }
+  STATE.salon=r.data; WAQQTI.toast(T('pro.toast_horaires','Horaires enregistrés ✓'));
 }
 function capterPositionSalon(){
-  if(!navigator.geolocation){ WAQQTI.toast('Géolocalisation indisponible','error'); return; }
+  if(!navigator.geolocation){ WAQQTI.toast(T('pro.geoloc_indispo','Géolocalisation indisponible'),'error'); return; }
   navigator.geolocation.getCurrentPosition(function(pos){
     $('g-lat').value=pos.coords.latitude.toFixed(6);
     $('g-lng').value=pos.coords.longitude.toFixed(6);
-    WAQQTI.toast('Position captée — pense à enregistrer');
-  }, function(){ WAQQTI.toast('Position refusée','error'); });
+    WAQQTI.toast(T('pro.toast_position_captee','Position captée — pense à enregistrer'));
+  }, function(){ WAQQTI.toast(T('pro.position_refusee','Position refusée'),'error'); });
 }
 async function saveRib(){
   var payload={
@@ -671,25 +761,25 @@ async function saveRib(){
   };
   var r=await sb().from('salons').update(payload).eq('id',STATE.salon.id).select().single();
   if(r.error){ WAQQTI.toast(r.error.message,'error'); return; }
-  STATE.salon=r.data; WAQQTI.toast('Coordonnées enregistrées');
+  STATE.salon=r.data; WAQQTI.toast(T('pro.toast_coord','Coordonnées enregistrées'));
 }
 async function saveGeo(){
   var lat=parseFloat($('g-lat').value), lng=parseFloat($('g-lng').value);
   var payload={ latitude:isNaN(lat)?null:lat, longitude:isNaN(lng)?null:lng };
   var r=await sb().from('salons').update(payload).eq('id',STATE.salon.id).select().single();
   if(r.error){ WAQQTI.toast(r.error.message,'error'); return; }
-  STATE.salon=r.data; WAQQTI.toast('Position enregistrée');
+  STATE.salon=r.data; WAQQTI.toast(T('pro.toast_position','Position enregistrée'));
 }
 async function saveParametres(){
   var payload={
     nom:$('s-nom').value.trim(), wilaya:$('s-wilaya').value.trim()||null,
-    telephone:$('s-tel').value.trim()||null, adresse:$('s-adr').value.trim()||null,
+    telephone:$('s-tel').value.trim()?WAQQTI.formatPhone($('s-tel').value.trim()):null, adresse:$('s-adr').value.trim()||null,
     mode_reservation:$('s-mode').value, nb_sieges:parseInt($('s-sieges').value)||1
   };
   var r=await sb().from('salons').update(payload).eq('id',STATE.salon.id).select().single();
   if(r.error){ WAQQTI.toast(r.error.message,'error'); return; }
   STATE.salon=r.data; $('side-salon').textContent=r.data.nom;
-  WAQQTI.toast('Paramètres enregistrés');
+  WAQQTI.toast(T('pro.toast_param','Paramètres enregistrés'));
 }
 
 /* ════════════ ABONNEMENT ════════════ */
@@ -697,22 +787,22 @@ async function viewAbonnement(){
   var s=STATE.salon, main=$('main');
   var acces=await WAQQTI.verifierAcces(s);
   var formules=[
-    {k:'essentielle',t:'Essentielle',d:'Réservation par sièges, SMS limités'},
-    {k:'confort',t:'Confort',d:'Profils employés, SMS illimités, choix de l\'employé'},
-    {k:'premium',t:'Premium',d:'Agendas individuels, acompte, mise en avant, community manager'}
+    {k:'essentielle',t:T('pro.f_essentielle','Essentielle'),d:T('pro.d_essentielle','Réservation par sièges, SMS limités')},
+    {k:'confort',t:T('pro.f_confort','Confort'),d:T('pro.d_confort','Profils employés, SMS illimités, choix de l\'employé')},
+    {k:'premium',t:T('pro.f_premium','Premium'),d:T('pro.d_premium','Agendas individuels, acompte, mise en avant, community manager')}
   ];
   var etat = s.formule==='trial'
-    ? '<span class="pill or">Essai — '+(acces.jours_restants!=null?acces.jours_restants+' j restants':'')+'</span>'
-    : '<span class="pill green" style="text-transform:capitalize">'+esc(s.formule)+'</span>';
-  main.innerHTML='<div class="page-head"><h1>Abonnement</h1></div>'+
-    '<div class="card"><div class="row"><div><b>Formule actuelle</b><div class="muted">Gérée par Waqqti</div></div>'+etat+'</div></div>'+
-    '<div class="card"><h3 style="font-size:20px;margin-bottom:10px">Les formules</h3>'+
+    ? '<span class="pill or">'+T('pro.essai','Essai')+' — '+(acces.jours_restants!=null?ltr(acces.jours_restants+' '+T('pro.j_restants','j restants')):'')+'</span>'
+    : '<span class="pill green">'+T('pro.f_'+s.formule, esc(s.formule))+'</span>';
+  main.innerHTML='<div class="page-head"><h1>'+T('pro.abonnement','Abonnement')+'</h1></div>'+
+    '<div class="card"><div class="row"><div><b>'+T('pro.formule_actuelle','Formule actuelle')+'</b><div class="muted">'+T('pro.geree_waqqti','Gérée par Waqqti')+'</div></div>'+etat+'</div></div>'+
+    '<div class="card"><h3 style="font-size:20px;margin-bottom:10px">'+T('pro.les_formules','Les formules')+'</h3>'+
     formules.map(function(f){
       return '<div class="row"><div><b>'+f.t+'</b><div class="muted">'+f.d+'</div></div>'+
-        (s.formule===f.k?'<span class="pill green">Active</span>':'')+'</div>';
+        (s.formule===f.k?'<span class="pill green">'+T('pro.active','Active')+'</span>':'')+'</div>';
     }).join('')+
-    '<p class="muted" style="margin-top:14px">Pour changer de formule, contacte ton conseiller Waqqti.</p>'+
-    '<a class="btn" style="margin-top:10px;display:inline-block" href="https://wa.me/213549829949" target="_blank" rel="noopener">Contacter Waqqti</a></div>';
+    '<p class="muted" style="margin-top:14px">'+T('pro.changer_formule','Pour changer de formule, contacte ton conseiller Waqqti.')+'</p>'+
+    '<a class="btn" style="margin-top:10px;display:inline-block" href="https://wa.me/213549829949" target="_blank" rel="noopener">'+T('pro.contacter_waqqti','Contacter Waqqti')+'</a></div>';
 }
 </script>
 </body>
