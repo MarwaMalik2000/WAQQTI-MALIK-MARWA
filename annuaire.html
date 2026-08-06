@@ -44,7 +44,10 @@
 <body>
   <div class="header">
     <div class="top">
-      <a href="/" class="brand"><img src="/assets/logo.svg" alt="Waqqti" style="height:46px;width:auto;filter:brightness(0) invert(1);display:block"/></a>
+      <div style="display:flex;align-items:center;gap:12px">
+        <a href="#" title="Retour" aria-label="Retour" onclick="if(history.length>1){history.back()}else{location.href='/'}return false;" style="color:#fff;font-size:22px;text-decoration:none;background:rgba(255,255,255,.2);width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0">←</a>
+        <a href="/" class="brand"><img src="/assets/logo.svg" alt="Waqqti" style="height:60px;width:auto;filter:brightness(0) invert(1);display:block"/></a>
+      </div>
       <div style="display:flex;align-items:center;gap:12px">
         <a href="/auth.html" data-i18n="nav.espace_client">Espace client</a>
         <a href="/pro/dashboard.html" data-i18n="nav.espace_pro">Espace Pro</a>
