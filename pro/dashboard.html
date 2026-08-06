@@ -133,7 +133,7 @@
 <!-- ═══════════ LOGIN ═══════════ -->
 <section id="login">
   <form class="login-card" id="login-form">
-    <div class="logo">وقتي</div>
+    <div class="logo"><img src="/assets/logo.svg" alt="Waqqti" style="height:60px;width:auto;display:block;margin:0 auto"/></div>
     <div class="sub" id="login-sub">Espace gérant Waqqti</div>
 
     <div class="field">
@@ -157,7 +157,7 @@
 <!-- ═══════════ APP ═══════════ -->
 <div id="app" class="hidden">
   <aside class="sidebar">
-    <div class="brand">وقتي</div>
+    <div class="brand"><img src="/assets/logo.svg" alt="Waqqti" style="height:44px;width:auto;filter:brightness(0) invert(1)"/></div>
     <div class="salon-nom" id="side-salon">—</div>
     <div class="nav-item active" data-view="agenda"><span class="ico">📅</span><span data-i18n="pro.agenda">Agenda</span></div>
     <div class="nav-item" data-view="acomptes"><span class="ico">💳</span><span data-i18n="pro.acomptes">Acomptes</span><span id="badge-acomptes" class="pill or" style="margin-left:6px;display:none"></span></div>
@@ -318,10 +318,19 @@ async function loadAgenda(jour){
     var st=x.statut==='annule'?'<span class="pill red">Annulé</span>'
          :x.statut==='termine'?'<span class="pill gray">Terminé</span>'
          :'<span class="pill green">Confirmé</span>';
+    // Indicateur d'acompte directement dans l'agenda
+    var ac=x.acompte_statut==='en_attente'?' <span class="pill or">💳 à vérifier</span>'
+         :x.acompte_statut==='recu'?' <span class="pill green">💳 payé</span>'
+         :x.acompte_statut==='refuse'?' <span class="pill red">💳 refusé</span>':'';
+    // Actions seulement si le RDV est encore actif
+    var actions=(x.statut==='confirme')
+      ? '<button class="btn btn-sm" onclick="terminerRdv(\''+x.id+'\')">Terminer</button> '+
+        '<button class="btn btn-ghost btn-sm" onclick="annulerRdv(\''+x.id+'\')">Annuler</button>'
+      : '<span class="muted">—</span>';
     return '<tr><td><b>'+h+'</b></td><td>'+esc(x.prestation_nom||'—')+'</td>'+
       '<td>'+esc(x.client_nom)+'<div class="muted" dir="ltr">'+esc(x.client_telephone||'')+'</div></td>'+
-      '<td>'+fmtPrix(x.prix)+'</td><td>'+st+'</td>'+
-      '<td><button class="btn btn-ghost btn-sm" onclick="annulerRdv(\''+x.id+'\')">Annuler</button></td></tr>';
+      '<td>'+fmtPrix(x.prix)+'</td><td>'+st+ac+'</td>'+
+      '<td>'+actions+'</td></tr>';
   }).join('');
   body.innerHTML=head+'<div class="card"><table><thead><tr><th>Heure</th><th>Prestation</th>'+
     '<th>Client</th><th>Prix</th><th>Statut</th><th></th></tr></thead><tbody>'+rows+'</tbody></table></div>';
@@ -331,6 +340,11 @@ async function annulerRdv(id){
   var r=await sb().from('reservations').update({statut:'annule'}).eq('id',id);
   if(r.error) WAQQTI.toast(r.error.message,'error');
   else { WAQQTI.toast('Rendez-vous annulé'); loadAgenda($('agenda-date').value); }
+}
+async function terminerRdv(id){
+  var r=await sb().from('reservations').update({statut:'termine'}).eq('id',id);
+  if(r.error) WAQQTI.toast(r.error.message,'error');
+  else { WAQQTI.toast('Rendez-vous terminé ✓'); loadAgenda($('agenda-date').value); }
 }
 
 /* ════════════ ACOMPTES (validation des justificatifs) ════════════ */
