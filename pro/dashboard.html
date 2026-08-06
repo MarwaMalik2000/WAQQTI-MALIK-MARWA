@@ -288,15 +288,79 @@ function switchView(view){
     equipe:viewEquipe,parametres:viewParametres,abonnement:viewAbonnement}[view]||viewAgenda)();
 }
 
-/* ════════════ AGENDA ════════════ */
+/* ════════════ AGENDA (Jour / Mois) ════════════ */
 async function viewAgenda(){
   var main=$('main');
   var today=new Date().toISOString().slice(0,10);
   main.innerHTML = '<div class="page-head"><h1>Agenda</h1>'+
-    '<input type="date" class="inp" id="agenda-date" style="width:auto" value="'+today+'"></div>'+
+    '<div class="toolbar">'+
+      '<button class="btn btn-sm" id="tab-jour">Jour</button>'+
+      '<button class="btn btn-ghost btn-sm" id="tab-mois">Mois</button>'+
+    '</div></div>'+
+    '<div id="agenda-controls"></div>'+
     '<div id="agenda-body"><div class="empty">Chargement…</div></div>';
+  $('tab-jour').addEventListener('click', function(){ showJour(today); });
+  $('tab-mois').addEventListener('click', function(){ var d=new Date(); showMois(d.getFullYear(), d.getMonth()); });
+  showJour(today);
+}
+function showJour(dateStr){
+  $('tab-jour').className='btn btn-sm'; $('tab-mois').className='btn btn-ghost btn-sm';
+  $('agenda-controls').innerHTML='<input type="date" class="inp" id="agenda-date" style="width:auto" value="'+dateStr+'">';
   $('agenda-date').addEventListener('change', function(){ loadAgenda(this.value); });
-  loadAgenda(today);
+  loadAgenda(dateStr);
+}
+var MOIS_NOMS=['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
+function showMois(y,m){
+  $('tab-jour').className='btn btn-ghost btn-sm'; $('tab-mois').className='btn btn-sm';
+  $('agenda-controls').innerHTML='<div class="toolbar" style="justify-content:center;margin-bottom:14px">'+
+    '<button class="btn btn-ghost btn-sm" id="m-prev">◀</button>'+
+    '<b style="min-width:170px;text-align:center;font-size:17px;font-family:\'Cormorant Garamond\',serif">'+MOIS_NOMS[m]+' '+y+'</b>'+
+    '<button class="btn btn-ghost btn-sm" id="m-next">▶</button></div>';
+  $('m-prev').addEventListener('click', function(){ var d=new Date(y,m-1,1); showMois(d.getFullYear(),d.getMonth()); });
+  $('m-next').addEventListener('click', function(){ var d=new Date(y,m+1,1); showMois(d.getFullYear(),d.getMonth()); });
+  loadMois(y,m);
+}
+async function loadMois(y,m){
+  var body=$('agenda-body'); if(!body) return;
+  body.innerHTML='<div class="empty">Chargement…</div>';
+  var start=new Date(y,m,1).toISOString().slice(0,10)+'T00:00:00';
+  var end=new Date(y,m+1,0).toISOString().slice(0,10)+'T23:59:59';
+  var r=await sb().from('reservations').select('date_rdv,prix,statut')
+    .eq('salon_id',STATE.salon.id).gte('date_rdv',start).lte('date_rdv',end);
+  if(r.error){ body.innerHTML='<div class="card empty">Erreur : '+esc(r.error.message)+'</div>'; return; }
+  var byDay={};
+  (r.data||[]).forEach(function(x){
+    if(x.statut==='annule') return;
+    var d=new Date(x.date_rdv).getDate();
+    if(!byDay[d]) byDay[d]={n:0,ca:0};
+    byDay[d].n++; byDay[d].ca+=Number(x.prix||0);
+  });
+  var totalN=0, totalCA=0;
+  Object.keys(byDay).forEach(function(k){ totalN+=byDay[k].n; totalCA+=byDay[k].ca; });
+  var jours=['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'];
+  var startDow=(new Date(y,m,1).getDay()+6)%7; // Lundi=0
+  var nbDays=new Date(y,m+1,0).getDate();
+  var todayStr=new Date().toDateString();
+  var cells='';
+  for(var i=0;i<startDow;i++) cells+='<div></div>';
+  for(var day=1;day<=nbDays;day++){
+    var info=byDay[day];
+    var dateISO=new Date(y,m,day).toLocaleDateString('en-CA'); // YYYY-MM-DD local
+    var isToday=new Date(y,m,day).toDateString()===todayStr;
+    cells+='<div onclick="showJour(\''+dateISO+'\')" style="cursor:pointer;border:1px solid var(--line);border-radius:10px;padding:8px;min-height:66px;transition:.12s;'+
+      (isToday?'box-shadow:inset 0 0 0 2px var(--or);':'')+(info?'background:#FFF6EE;':'background:#fff;')+'">'+
+      '<div style="font-weight:600;font-size:13px;color:'+(isToday?'var(--or-dk)':'var(--brun)')+'">'+day+'</div>'+
+      (info?'<div style="font-size:12px;color:var(--or-dk);font-weight:700;margin-top:6px">'+info.n+' RDV</div>'+
+             '<div style="font-size:11px;color:var(--brun-l)">'+fmtPrix(info.ca)+'</div>':'')+
+      '</div>';
+  }
+  var head='<div class="stat-grid"><div class="stat"><div class="v">'+totalN+'</div><div class="l">RDV ce mois</div></div>'+
+    '<div class="stat"><div class="v">'+fmtPrix(totalCA)+'</div><div class="l">CA du mois</div></div></div>';
+  body.innerHTML=head+'<div class="card">'+
+    '<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:6px">'+
+    jours.map(function(j){return '<div style="text-align:center;font-size:11px;color:var(--brun-l);font-weight:700">'+j+'</div>';}).join('')+'</div>'+
+    '<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px">'+cells+'</div>'+
+    '<p class="muted" style="text-align:center;margin-top:12px">Cliquez sur un jour pour voir le détail.</p></div>';
 }
 async function loadAgenda(jour){
   var body=$('agenda-body'); if(!body) return;
@@ -653,7 +717,7 @@ async function saveGeo(){
 async function saveParametres(){
   var payload={
     nom:$('s-nom').value.trim(), wilaya:$('s-wilaya').value.trim()||null,
-    telephone:$('s-tel').value.trim()||null, adresse:$('s-adr').value.trim()||null,
+    telephone:$('s-tel').value.trim()?WAQQTI.formatPhone($('s-tel').value.trim()):null, adresse:$('s-adr').value.trim()||null,
     mode_reservation:$('s-mode').value, nb_sieges:parseInt($('s-sieges').value)||1
   };
   var r=await sb().from('salons').update(payload).eq('id',STATE.salon.id).select().single();
