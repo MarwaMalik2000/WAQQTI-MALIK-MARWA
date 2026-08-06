@@ -82,6 +82,7 @@
     <div class="big" id="ac-init">?</div>
     <h2 id="ac-name">Bienvenue</h2>
     <div class="em" id="ac-email"></div>
+    <div id="mes-resa" style="text-align:left;margin:6px 0 16px"></div>
     <a class="btn" href="/annuaire.html" style="display:block;text-align:center;margin-bottom:12px">Trouver un salon →</a>
     <button class="btn btn-google" id="btn-logout">Se déconnecter</button>
     <a class="home" href="/" data-i18n="auth.retour_accueil">← Retour à l'accueil</a>
@@ -103,7 +104,35 @@
 
 <script>
 function sb(){ return window.WAQQTI && window.WAQQTI.supabase; }
+function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
 var SIGNUP=false;
+
+// Historique des réservations du client connecté
+async function showMesReservations(uid){
+  var host=document.getElementById('mes-resa'); if(!host) return;
+  var r=await sb().from('reservations')
+    .select('prestation_nom,date_rdv,acompte_statut,statut,salons(nom,slug)')
+    .eq('client_user_id',uid).order('date_rdv',{ascending:false}).limit(20);
+  if(r.error || !r.data || !r.data.length){ host.innerHTML=''; return; }
+  function stLabel(x){
+    if(x.statut==='annule') return '<span style="color:var(--red)">Annulé</span>';
+    if(x.acompte_statut==='en_attente') return '<span style="color:var(--or-dk)">Acompte en attente</span>';
+    if(x.acompte_statut==='refuse') return '<span style="color:var(--red)">Acompte refusé</span>';
+    return '<span style="color:var(--green)">Confirmé ✓</span>';
+  }
+  host.innerHTML='<div style="font-weight:700;font-size:15px;margin-bottom:8px">📅 Mes réservations</div>'+
+    r.data.map(function(x){
+      var d=new Date(x.date_rdv);
+      var salonNom=(x.salons&&x.salons.nom)||'';
+      var slug=x.salons&&x.salons.slug;
+      return '<div style="border:1.5px solid var(--cream2);border-radius:12px;padding:10px 12px;margin-bottom:8px;font-size:13px">'+
+        '<div style="font-weight:600">'+esc(x.prestation_nom||'')+(salonNom?' · '+esc(salonNom):'')+'</div>'+
+        '<div style="color:var(--brun-l)" dir="ltr">'+d.toLocaleDateString('fr-FR')+' · '+d.toTimeString().slice(0,5)+'</div>'+
+        '<div style="margin-top:3px">'+stLabel(x)+'</div>'+
+        (slug?'<a href="/client/salon.html?s='+encodeURIComponent(slug)+'" style="color:var(--or);font-size:12px;text-decoration:none;font-weight:600">Revoir le salon →</a>':'')+
+        '</div>';
+    }).join('');
+}
 
 function toggleMode(){
   SIGNUP=!SIGNUP;
@@ -128,6 +157,7 @@ async function showAccount(user){
   document.getElementById('ac-init').textContent=(label.charAt(0)||'?').toUpperCase();
   document.getElementById('ac-name').textContent='Bonjour '+(prenom||label)+' 👋';
   document.getElementById('ac-email').textContent=user.email;
+  showMesReservations(user.id);
 }
 
 async function onSubmit(e){
