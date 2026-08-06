@@ -519,7 +519,11 @@
 
       <div class="form-row">
         <label data-i18n="book.tel_label">Numéro de téléphone *</label>
-        <input type="tel" id="client-tel" placeholder="0770 12 34 56" required>
+        <div style="display:flex;align-items:stretch;direction:ltr">
+          <span style="display:flex;align-items:center;padding:0 14px;background:var(--cream2);border:1.5px solid var(--cream2);border-right:none;border-radius:12px 0 0 12px;font-weight:600;color:var(--brun)">+213</span>
+          <input type="tel" id="client-tel" placeholder="770 12 34 56" required
+                 style="border-radius:0 12px 12px 0;flex:1" maxlength="12">
+        </div>
         <div class="hint" data-i18n="book.tel_hint">Nous vous enverrons un SMS de confirmation et un rappel 24h avant</div>
       </div>
 
@@ -622,7 +626,8 @@ function showStatusScreen(resa){
   if(cs) cs.textContent = (reservation.salon && reservation.salon.nom) || '';
   document.getElementById('confirm-prest').textContent = resa.prestation_nom || '';
   document.getElementById('confirm-date').textContent = reservation.dateLabel || '';
-  document.getElementById('confirm-heure').textContent = reservation.heure || '';
+  document.getElementById('confirm-heure').textContent =
+    (reservation.salon && reservation.salon.mode_reservation === 'journee') ? T('book.journee','Journée') : (reservation.heure || '');
   document.getElementById('confirm-emp').textContent = T('booking.premier_dispo','Premier disponible');
   document.getElementById('confirm-prix').textContent = Number(resa.prix||0).toLocaleString('fr') + ' DA';
   updateStatusVisual(resa.acompte_statut);
@@ -918,6 +923,16 @@ async function selectDate(card, date) {
   const months = ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
   reservation.date = date.toISOString().slice(0,10);
   reservation.dateLabel = `${days[date.getDay()]} ${date.getDate()} ${months[date.getMonth()]}`;
+  // Mode "à la journée" : pas d'heure à choisir
+  if (reservation.salon && reservation.salon.mode_reservation === 'journee') {
+    reservation.heure = '09:00';
+    document.getElementById('slots-section').style.display = 'none';
+    document.getElementById('recap-label').textContent = reservation.dateLabel;
+    document.getElementById('recap-value').textContent =
+      reservation.prestation + (reservation.employeNom ? ' · ' + reservation.employeNom : '');
+    document.getElementById('btn-next').disabled = false;
+    return;
+  }
   await generateSlots();
 }
 
@@ -1086,7 +1101,8 @@ async function confirmReservation() {
   if(cSalon) cSalon.textContent = (reservation.salon && reservation.salon.nom) || '';
   document.getElementById('confirm-prest').textContent = reservation.prestation;
   document.getElementById('confirm-date').textContent = reservation.dateLabel;
-  document.getElementById('confirm-heure').textContent = reservation.heure;
+  document.getElementById('confirm-heure').textContent =
+    (reservation.salon && reservation.salon.mode_reservation === 'journee') ? T('book.journee','Journée') : reservation.heure;
   document.getElementById('confirm-emp').textContent = reservation.employeNom || T('booking.premier_dispo','Premier disponible');
   document.getElementById('confirm-prix').textContent = reservation.prix.toLocaleString('fr') + ' DA';
 
