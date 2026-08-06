@@ -372,6 +372,9 @@
 
 <div class="container">
 
+  <!-- ═══════════ GALERIE DU SALON ═══════════ -->
+  <div id="salon-gallery"></div>
+
   <!-- ═══════════ ÉTAPES ═══════════ -->
   <div class="steps-bar">
     <div class="step-item active" data-step="1">
@@ -767,7 +770,12 @@ async function initSalon() {
     <span>📍 ${salon.adresse || 'Algérie'}</span>
     ${hStr}
   `;
-  document.querySelector('.salon-avatar').textContent = salon.nom.charAt(0).toUpperCase();
+  const av = document.querySelector('.salon-avatar');
+  if (salon.logo_url) { av.innerHTML = '<img src="'+salon.logo_url+'" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:24px">'; }
+  else { av.textContent = salon.nom.charAt(0).toUpperCase(); }
+
+  // Galerie du salon
+  renderSalonGallery(salon.photos);
 
   // Reprendre une réservation en cours (mémorisée) pour ce salon
   const savedId = getSavedResaId();
@@ -801,6 +809,55 @@ async function initSalon() {
   // Régénérer les dates avec les jours de fermeture du salon
   generateDates();
 }
+
+function renderSalonGallery(photos){
+  const box = document.getElementById('salon-gallery');
+  if (!box) return;
+  const pics = Array.isArray(photos) ? photos.filter(Boolean) : [];
+  if (!pics.length) { box.innerHTML = ''; return; }
+  const T = (k,fb)=>{ if(window.WQ && WQ.t){ const v=WQ.t(k); if(v && v!==k) return v; } return fb; };
+  box.innerHTML =
+    '<div class="card" style="padding:16px 18px">'+
+      '<h2 class="card-title" style="margin-bottom:12px" data-i18n="book.galerie">'+T('book.galerie','Le salon en photos')+'</h2>'+
+      '<div style="display:flex;gap:12px;overflow-x:auto;padding-bottom:4px;-webkit-overflow-scrolling:touch">'+
+        pics.map(function(u,i){
+          return '<img src="'+u+'" alt="" loading="lazy" onclick="openLightbox('+i+')" '+
+            'style="height:150px;min-width:150px;width:auto;border-radius:14px;object-fit:cover;cursor:pointer;flex-shrink:0;border:1px solid #F0E7DA">';
+        }).join('')+
+      '</div>'+
+    '</div>';
+  window.__galPics = pics;
+}
+function openLightbox(i){
+  const pics = window.__galPics || [];
+  if (!pics.length) return;
+  let idx = i;
+  let ov = document.getElementById('gal-lightbox');
+  if (!ov){
+    ov = document.createElement('div');
+    ov.id = 'gal-lightbox';
+    ov.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:9999;display:flex;align-items:center;justify-content:center;flex-direction:column';
+    ov.innerHTML =
+      '<img id="lb-img" style="max-width:92vw;max-height:80vh;border-radius:14px;box-shadow:0 10px 40px rgba(0,0,0,.5)">'+
+      '<div style="margin-top:16px;display:flex;gap:24px;align-items:center">'+
+        '<button onclick="lbStep(-1)" style="background:rgba(255,255,255,.15);color:#fff;border:none;width:48px;height:48px;border-radius:50%;font-size:22px;cursor:pointer">‹</button>'+
+        '<button onclick="closeLightbox()" style="background:#fff;color:#000;border:none;padding:10px 22px;border-radius:50px;font-weight:600;cursor:pointer">✕</button>'+
+        '<button onclick="lbStep(1)" style="background:rgba(255,255,255,.15);color:#fff;border:none;width:48px;height:48px;border-radius:50%;font-size:22px;cursor:pointer">›</button>'+
+      '</div>';
+    document.body.appendChild(ov);
+    ov.addEventListener('click', function(e){ if(e.target===ov) closeLightbox(); });
+  }
+  ov.style.display = 'flex';
+  window.__lbIdx = idx;
+  document.getElementById('lb-img').src = pics[idx];
+}
+function lbStep(d){
+  const pics = window.__galPics || [];
+  if (!pics.length) return;
+  window.__lbIdx = (window.__lbIdx + d + pics.length) % pics.length;
+  document.getElementById('lb-img').src = pics[window.__lbIdx];
+}
+function closeLightbox(){ const ov=document.getElementById('gal-lightbox'); if(ov) ov.style.display='none'; }
 
 async function loadPrestations(salonId) {
   const { data: prestations } = await WAQQTI.supabase
