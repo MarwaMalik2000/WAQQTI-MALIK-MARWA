@@ -535,7 +535,7 @@
     <div class="card confirm-screen">
       <div class="confirm-icon" id="confirm-icon">✓</div>
       <h2 id="confirm-title" data-i18n="book.confirme_titre">Réservation confirmée !</h2>
-      <p id="confirm-subtitle" data-i18n="book.confirme_sub">Un SMS de confirmation vient d'être envoyé à votre numéro</p>
+      <p id="confirm-subtitle" data-i18n="book.confirme_sub">Une confirmation vous a été envoyée sur WhatsApp.</p>
 
       <div class="confirm-detail">
         <div><strong data-i18n="book.lbl_salon">Salon :</strong> <span id="confirm-salon"></span></div>
@@ -646,7 +646,7 @@ function updateStatusVisual(statut){
   } else { // recu ou non_requis
     icon.textContent='✓'; icon.style.background='var(--green)';
     title.textContent=T('book.confirme_titre','Réservation confirmée !');
-    sub.textContent=T('book.confirme_sub','Un SMS de confirmation vient d\'être envoyé à votre numéro');
+    sub.textContent=T('book.confirme_sub','Une confirmation vous a été envoyée sur WhatsApp.');
   }
 }
 
