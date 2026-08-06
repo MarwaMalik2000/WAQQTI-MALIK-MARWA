@@ -4,6 +4,7 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Espace gérant — Waqqti</title>
+  <link rel="icon" href="/assets/logo.svg"/>
   <meta name="theme-color" content="#F68423"/>
   <link rel="manifest" href="../manifest.json"/>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=DM+Sans:wght@300;400;500;600;700&family=Amiri:wght@700&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet"/>
@@ -200,6 +201,7 @@ function $(id){ return document.getElementById(id); }
 function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){
   return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
 function fmtPrix(n){ return window.WAQQTI ? WAQQTI.formatPrix(n) : (n+' DA'); }
+function T(k, fr){ if(window.WQ && WQ.t){ var v=WQ.t(k); if(v && v!==k) return v; } return fr; }
 
 /* ---- Démarrage : attendre config.js puis vérifier la session ---- */
 function boot(){
@@ -219,6 +221,8 @@ function bindStatic(){
   document.querySelectorAll('.nav-item').forEach(function(el){
     el.addEventListener('click', function(){ switchView(el.dataset.view); });
   });
+  // Re-rendre la vue courante quand la langue change (contenu généré en JS)
+  document.addEventListener('wq:langchange', function(){ if(STATE.salon) switchView(STATE.view); });
 }
 
 /* ---- Auth (email + mot de passe uniquement — comptes créés par Waqqti) ---- */
@@ -292,7 +296,12 @@ function switchView(view){
 async function viewAgenda(){
   var main=$('main');
   var today=new Date().toISOString().slice(0,10);
-  main.innerHTML = '<div class="page-head"><h1>Agenda</h1>'+
+  var geoBanner=(!STATE.salon.latitude||!STATE.salon.longitude)
+    ? '<div class="card" style="background:#FFF6EE;border:1px solid var(--or-lt);display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">'+
+      '<span>📍 Renseignez votre position pour apparaître dans « Autour de moi » de l\'annuaire.</span>'+
+      '<button class="btn btn-sm" onclick="switchView(\'parametres\')">Ajouter ma position</button></div>'
+    : '';
+  main.innerHTML = geoBanner + '<div class="page-head"><h1>'+T('pro.agenda','Agenda')+'</h1>'+
     '<div class="toolbar">'+
       '<button class="btn btn-sm" id="tab-jour">Jour</button>'+
       '<button class="btn btn-ghost btn-sm" id="tab-mois">Mois</button>'+
@@ -415,7 +424,7 @@ async function terminerRdv(id){
 /* ════════════ ACOMPTES (validation des justificatifs) ════════════ */
 async function viewAcomptes(){
   var main=$('main');
-  main.innerHTML='<div class="page-head"><h1>Acomptes</h1>'+
+  main.innerHTML='<div class="page-head"><h1>'+T('pro.acomptes','Acomptes')+'</h1>'+
     '<div class="toolbar"><select class="inp" id="ac-filtre" style="width:auto">'+
       '<option value="en_attente">À vérifier</option>'+
       '<option value="recu">Validés</option>'+
@@ -491,7 +500,9 @@ async function majBadgeAcomptes(){
 /* ════════════ CLIENTS ════════════ */
 async function viewClients(){
   var main=$('main');
-  main.innerHTML='<div class="page-head"><h1>Clients</h1></div><div id="cl-body"><div class="empty">Chargement…</div></div>';
+  main.innerHTML='<div class="page-head"><h1>'+T('pro.clients','Clients')+'</h1>'+
+    '<input class="inp" id="cl-search" placeholder="🔍 Rechercher un client…" style="width:auto" oninput="filterClients(this.value)"></div>'+
+    '<div id="cl-body"><div class="empty">Chargement…</div></div>';
   var r=await sb().from('reservations').select('client_nom,client_telephone,date_rdv,prix')
     .eq('salon_id',STATE.salon.id).order('date_rdv',{ascending:false});
   if(r.error){ $('cl-body').innerHTML='<div class="card empty">Erreur.</div>'; return; }
@@ -505,20 +516,27 @@ async function viewClients(){
   var clients=Object.values(map).sort(function(a,b){return b.visites-a.visites;});
   if(!clients.length){ $('cl-body').innerHTML='<div class="card empty">Aucun client pour l\'instant.</div>'; return; }
   var rows=clients.map(function(c){
-    return '<tr><td><b>'+esc(c.nom)+'</b></td><td dir="ltr">'+esc(c.tel||'—')+'</td>'+
+    var s=((c.nom||'')+' '+(c.tel||'')).toLowerCase();
+    return '<tr data-s="'+esc(s)+'"><td><b>'+esc(c.nom)+'</b></td><td dir="ltr">'+esc(c.tel||'—')+'</td>'+
       '<td>'+c.visites+'</td><td>'+fmtPrix(c.total)+'</td>'+
       '<td class="muted">'+new Date(c.dernier).toLocaleDateString('fr-FR')+'</td></tr>';
   }).join('');
   $('cl-body').innerHTML='<div class="stat-grid"><div class="stat"><div class="v">'+clients.length+
     '</div><div class="l">Clients uniques</div></div></div>'+
     '<div class="card"><table><thead><tr><th>Nom</th><th>Téléphone</th><th>Visites</th>'+
-    '<th>Total</th><th>Dernier RDV</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
+    '<th>Total</th><th>Dernier RDV</th></tr></thead><tbody id="cl-tbody">'+rows+'</tbody></table></div>';
+}
+function filterClients(q){
+  q=(q||'').toLowerCase();
+  document.querySelectorAll('#cl-tbody tr').forEach(function(tr){
+    tr.style.display = tr.getAttribute('data-s').indexOf(q)>=0 ? '' : 'none';
+  });
 }
 
 /* ════════════ PRESTATIONS ════════════ */
 async function viewPrestations(){
   var main=$('main');
-  main.innerHTML='<div class="page-head"><h1>Prestations</h1>'+
+  main.innerHTML='<div class="page-head"><h1>'+T('pro.prestations','Prestations')+'</h1>'+
     '<button class="btn" onclick="formPrestation()">+ Ajouter</button></div>'+
     '<div id="pr-body"><div class="empty">Chargement…</div></div>';
   loadPrestations();
@@ -530,8 +548,9 @@ async function loadPrestations(){
   var list=r.data||[];
   if(!list.length){ b.innerHTML='<div class="card empty">Aucune prestation. Ajoute ta première prestation.</div>'; return; }
   b.innerHTML='<div class="card">'+list.map(function(p){
+    var acBadge=p.acompte_actif?' <span class="pill or">💳 '+(p.acompte_type==='fixe'?fmtPrix(p.acompte_valeur):(p.acompte_valeur+'%'))+'</span>':'';
     return '<div class="row"><div><b>'+esc(p.nom)+'</b>'+
-      (p.actif?'':' <span class="pill gray">masquée</span>')+
+      (p.actif?'':' <span class="pill gray">masquée</span>')+acBadge+
       '<div class="muted">'+esc(p.categorie||'')+' · '+p.duree_minutes+' min</div></div>'+
       '<div class="toolbar"><b>'+fmtPrix(p.prix)+'</b>'+
       '<button class="btn btn-ghost btn-sm" onclick=\'formPrestation('+JSON.stringify(p)+')\'>Modifier</button>'+
@@ -594,7 +613,7 @@ async function delPrestation(id){
 async function viewEquipe(){
   var main=$('main');
   var locked=!['confort','premium'].includes(STATE.salon.formule) && STATE.salon.formule!=='trial';
-  main.innerHTML='<div class="page-head"><h1>Équipe</h1>'+
+  main.innerHTML='<div class="page-head"><h1>'+T('pro.equipe','Équipe')+'</h1>'+
     '<button class="btn" onclick="formEmploye()">+ Ajouter</button></div>'+
     (locked?'<div class="card"><span class="pill or">Formule Confort+</span> '+
        '<span class="muted">Les profils d\'employés sont visibles par les clients à partir de la formule Confort.</span></div>':'')+
@@ -640,7 +659,7 @@ async function delEmploye(id){
 /* ════════════ PARAMÈTRES ════════════ */
 function viewParametres(){
   var s=STATE.salon, main=$('main');
-  main.innerHTML='<div class="page-head"><h1>Paramètres</h1></div>'+
+  main.innerHTML='<div class="page-head"><h1>'+T('pro.parametres','Paramètres')+'</h1></div>'+
     '<div class="card" style="max-width:600px">'+
     '<div class="field"><label>Nom du salon</label><input class="inp" id="s-nom" value="'+esc(s.nom||'')+'"></div>'+
     '<div class="field-grid">'+
@@ -674,6 +693,24 @@ function viewParametres(){
     '<div class="field"><label>Instructions (optionnel)</label><input class="inp" id="r-instr" value="'+esc(s.rib_instructions||'')+'" placeholder="Ex : Envoyez le reçu après paiement"></div>'+
     '<button class="btn" id="r-save">Enregistrer les coordonnées</button></div>'+
 
+    // ── Horaires & disponibilités ──
+    '<div class="card" style="max-width:600px">'+
+    '<h3 style="font-size:20px;margin-bottom:4px">🕐 Horaires & disponibilités</h3>'+
+    '<p class="muted" style="margin-bottom:16px">Définissent les créneaux proposés aux clients (mode « par créneau »).</p>'+
+    '<div class="field-grid">'+
+    '<div class="field"><label>Ouverture</label><input class="inp" type="time" id="h-ouv" value="'+((s.heure_ouverture||'09:00').slice(0,5))+'"></div>'+
+    '<div class="field"><label>Fermeture</label><input class="inp" type="time" id="h-fer" value="'+((s.heure_fermeture||'19:00').slice(0,5))+'"></div></div>'+
+    '<div class="field-grid">'+
+    '<div class="field"><label>Pause — début (optionnel)</label><input class="inp" type="time" id="h-pd" value="'+((s.pause_debut||'').slice(0,5))+'"></div>'+
+    '<div class="field"><label>Pause — fin</label><input class="inp" type="time" id="h-pf" value="'+((s.pause_fin||'').slice(0,5))+'"></div></div>'+
+    '<div class="field"><label>Intervalle entre créneaux</label><select class="inp" id="h-int">'+
+      [15,20,30,45,60].map(function(v){return '<option value="'+v+'"'+(((s.intervalle_creneaux||30)==v)?' selected':'')+'>'+v+' min</option>';}).join('')+
+    '</select></div>'+
+    '<div class="field"><label>Jours de fermeture</label><div style="display:flex;flex-wrap:wrap;gap:12px;margin-top:6px">'+
+      ['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'].map(function(j,i){var ch=(s.jours_fermes||[]).indexOf(i)>=0;return '<label style="font-weight:500;font-size:13px;display:flex;align-items:center;gap:5px;cursor:pointer"><input type="checkbox" class="h-jour" value="'+i+'"'+(ch?' checked':'')+'> '+j+'</label>';}).join('')+
+    '</div></div>'+
+    '<button class="btn" id="h-save">Enregistrer les horaires</button></div>'+
+
     // ── Géolocalisation (annuaire "Autour de moi") ──
     '<div class="card" style="max-width:600px">'+
     '<h3 style="font-size:20px;margin-bottom:4px">📍 Localisation</h3>'+
@@ -686,6 +723,23 @@ function viewParametres(){
   $('s-save').addEventListener('click', saveParametres);
   $('r-save').addEventListener('click', saveRib);
   $('g-save').addEventListener('click', saveGeo);
+  $('h-save').addEventListener('click', saveHoraires);
+}
+async function saveHoraires(){
+  var jours=[];
+  document.querySelectorAll('.h-jour:checked').forEach(function(c){ jours.push(parseInt(c.value)); });
+  var payload={
+    heure_ouverture:$('h-ouv').value||'09:00',
+    heure_fermeture:$('h-fer').value||'19:00',
+    pause_debut:$('h-pd').value||null,
+    pause_fin:$('h-pf').value||null,
+    intervalle_creneaux:parseInt($('h-int').value)||30,
+    jours_fermes:jours
+  };
+  if(payload.heure_fermeture<=payload.heure_ouverture){ WAQQTI.toast('La fermeture doit être après l\'ouverture','error'); return; }
+  var r=await sb().from('salons').update(payload).eq('id',STATE.salon.id).select().single();
+  if(r.error){ WAQQTI.toast(r.error.message,'error'); return; }
+  STATE.salon=r.data; WAQQTI.toast('Horaires enregistrés ✓');
 }
 function capterPositionSalon(){
   if(!navigator.geolocation){ WAQQTI.toast('Géolocalisation indisponible','error'); return; }
@@ -738,7 +792,7 @@ async function viewAbonnement(){
   var etat = s.formule==='trial'
     ? '<span class="pill or">Essai — '+(acces.jours_restants!=null?acces.jours_restants+' j restants':'')+'</span>'
     : '<span class="pill green" style="text-transform:capitalize">'+esc(s.formule)+'</span>';
-  main.innerHTML='<div class="page-head"><h1>Abonnement</h1></div>'+
+  main.innerHTML='<div class="page-head"><h1>'+T('pro.abonnement','Abonnement')+'</h1></div>'+
     '<div class="card"><div class="row"><div><b>Formule actuelle</b><div class="muted">Gérée par Waqqti</div></div>'+etat+'</div></div>'+
     '<div class="card"><h3 style="font-size:20px;margin-bottom:10px">Les formules</h3>'+
     formules.map(function(f){
