@@ -4,6 +4,7 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Admin Waqqti</title>
+  <link rel="icon" href="/assets/logo.svg"/>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="assets/config.js" defer></script>
@@ -100,6 +101,11 @@
           <input type="text" id="new-adresse" placeholder="Rue Didouche Mourad, Alger Centre">
         </div>
 
+        <div class="form-row">
+          <label>Email du gérant <small style="color:var(--brun-l);font-weight:400">(optionnel — pour lier son compte)</small></label>
+          <input type="email" id="new-gerant" placeholder="gerant@salon.dz">
+        </div>
+
         <div class="form-flex">
           <div class="form-row">
             <label>Formule</label>
@@ -189,6 +195,21 @@ document.getElementById('create-form').addEventListener('submit', async e => {
   alert.className = 'alert show success';
   alert.textContent = '✅ Salon créé avec succès !';
 
+  // Lier le compte gérant si un email a été fourni
+  let gerantMsg = '';
+  const gerantEmail = document.getElementById('new-gerant').value.trim();
+  if (gerantEmail) {
+    const lk = await WAQQTI.supabase.rpc('lier_salon_owner', { p_salon_id: data.id, p_email: gerantEmail });
+    if (lk.error) {
+      gerantMsg = `<br><br><b style="color:#C03">⚠️ Gérant non lié :</b> ${lk.error.message}<br>
+        → Crée son compte dans <b>Supabase → Authentication → Add user</b> (email : <b>${gerantEmail}</b>, coche « Auto Confirm »), puis clique <b>👤 Gérant</b> sur le salon.`;
+    } else {
+      gerantMsg = `<br><br>✅ <b>Gérant lié</b> (${gerantEmail}) — il peut se connecter à /pro/dashboard.html.`;
+    }
+  } else {
+    gerantMsg = `<br><br><span style="color:var(--brun-l)">ℹ️ Pense à créer le compte du gérant (Supabase → Authentication) puis à le lier via le bouton <b>👤 Gérant</b>.</span>`;
+  }
+
   // Afficher le lien
   const link = document.getElementById('result-link');
   link.className = 'link-output show';
@@ -199,6 +220,7 @@ document.getElementById('create-form').addEventListener('submit', async e => {
     <em>Bonjour ${data.nom}, votre espace Waqqti est prêt ! 🎉<br>
     Votre lien de réservation : https://waqqti.com/${data.slug}<br>
     Envoyez-moi vos prestations pour qu'on les ajoute.</em>
+    ${gerantMsg}
   `;
 
   document.getElementById('create-form').reset();
