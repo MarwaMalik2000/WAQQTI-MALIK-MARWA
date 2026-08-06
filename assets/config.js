@@ -136,6 +136,33 @@
     } catch (e) { return { ok: false, error: String(e) }; }
   }
 
+  // Upload d'une image publique (logo salon, photo prestation) dans le bucket 'medias'.
+  // Chemin : {salon_id}/{name}-{timestamp}.ext → renvoie l'URL publique.
+  async function uploadImage(salonId, name, file) {
+    try {
+      var ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
+      var chemin = salonId + '/' + name + '-' + Date.now() + '.' + ext;
+      var up = await client.storage.from('medias')
+        .upload(chemin, file, { upsert: true, contentType: file.type || 'image/jpeg' });
+      if (up.error) return { ok: false, error: up.error.message };
+      var pub = client.storage.from('medias').getPublicUrl(chemin);
+      return { ok: true, url: (pub.data && pub.data.publicUrl) || null, chemin: chemin };
+    } catch (e) { return { ok: false, error: String(e) }; }
+  }
+
+  // Upload d'une photo d'avis (client connecté) dans 'medias/avis/{salon_id}/…'.
+  async function uploadAvisPhoto(salonId, file) {
+    try {
+      var ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
+      var chemin = 'avis/' + salonId + '/' + Date.now() + '.' + ext;
+      var up = await client.storage.from('medias')
+        .upload(chemin, file, { upsert: false, contentType: file.type || 'image/jpeg' });
+      if (up.error) return { ok: false, error: up.error.message };
+      var pub = client.storage.from('medias').getPublicUrl(chemin);
+      return { ok: true, url: (pub.data && pub.data.publicUrl) || null, chemin: chemin };
+    } catch (e) { return { ok: false, error: String(e) }; }
+  }
+
   // URL signée temporaire pour afficher un justificatif (côté gérant connecté).
   async function urlSigneeJustificatif(chemin, secondes) {
     var r = await client.storage.from('justificatifs')
@@ -186,6 +213,8 @@
     calcAcompte: calcAcompte,
     ribLisible: ribLisible,
     uploadJustificatif: uploadJustificatif,
+    uploadImage: uploadImage,
+    uploadAvisPhoto: uploadAvisPhoto,
     urlSigneeJustificatif: urlSigneeJustificatif,
     loginGoogle: loginGoogle,
     inscriptionEmail: inscriptionEmail,
