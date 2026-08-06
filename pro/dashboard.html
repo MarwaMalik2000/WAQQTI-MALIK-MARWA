@@ -166,6 +166,7 @@
     <div class="nav-item" data-view="clients"><span class="ico">👥</span><span data-i18n="pro.clients">Clients</span></div>
     <div class="nav-item" data-view="prestations"><span class="ico">✂️</span><span data-i18n="pro.prestations">Prestations</span></div>
     <div class="nav-item" data-view="equipe"><span class="ico">🧑‍🤝‍🧑</span><span data-i18n="pro.equipe">Équipe</span></div>
+    <div class="nav-item" data-view="avis"><span class="ico">⭐</span><span data-i18n="pro.avis">Avis</span></div>
     <div class="nav-item" data-view="parametres"><span class="ico">⚙️</span><span data-i18n="pro.parametres">Paramètres</span></div>
     <div class="nav-item" data-view="abonnement"><span class="ico">💳</span><span data-i18n="pro.abonnement">Abonnement</span></div>
     <div class="spacer"></div>
@@ -292,7 +293,7 @@ function switchView(view){
     el.classList.toggle('active', el.dataset.view===view);
   });
   ({agenda:viewAgenda,acomptes:viewAcomptes,clients:viewClients,prestations:viewPrestations,
-    equipe:viewEquipe,parametres:viewParametres,abonnement:viewAbonnement}[view]||viewAgenda)();
+    equipe:viewEquipe,avis:viewAvis,parametres:viewParametres,abonnement:viewAbonnement}[view]||viewAgenda)();
 }
 
 /* ════════════ AGENDA (Jour / Mois) ════════════ */
@@ -656,6 +657,46 @@ async function delEmploye(id){
   if(!confirm(T('pro.confirm_del_membre','Supprimer ce membre ?'))) return;
   var r=await sb().from('employes').delete().eq('id',id);
   if(r.error) WAQQTI.toast(r.error.message,'error'); else { WAQQTI.toast(T('pro.toast_supprimee','Supprimée')); loadEquipe(); }
+}
+
+/* ════════════ AVIS ════════════ */
+function starPro(n){ n=Math.round(Number(n)||0); var s=''; for(var i=1;i<=5;i++) s+=(i<=n?'★':'☆'); return s; }
+async function viewAvis(){
+  var s=STATE.salon, main=$('main');
+  var moy=(s.note_moyenne!=null)?Number(s.note_moyenne).toFixed(1):'—';
+  main.innerHTML='<div class="page-head"><h1>'+T('pro.avis','Avis')+'</h1></div>'+
+    '<div class="card" style="max-width:640px;margin-bottom:14px">'+
+    '<div style="font-size:16px"><span style="color:#F6A623;font-size:20px;letter-spacing:2px">'+starPro(s.note_moyenne)+'</span> <b>'+ltr(moy)+'</b> · '+ltr((s.nb_avis||0)+'')+' '+T('pro.avis_count','avis')+'</div>'+
+    '<p class="muted" style="margin-top:6px">'+T('pro.avis_info','Les clients laissent un avis après leur rendez-vous. Plus vous avez de bons avis, mieux votre salon est classé dans l\'annuaire.')+'</p>'+
+    '</div>'+
+    '<div id="avis-body"><div class="card empty">'+T('common.chargement','Chargement…')+'</div></div>';
+  loadAvisPro();
+}
+async function loadAvisPro(){
+  var r=await sb().from('avis').select('*').eq('salon_id',STATE.salon.id).order('created_at',{ascending:false});
+  var b=$('avis-body'); if(!b) return; var list=r.data||[];
+  if(!list.length){ b.innerHTML='<div class="card empty">'+T('pro.avis_aucun','Aucun avis pour le moment.')+'</div>'; return; }
+  b.innerHTML='<div class="card">'+list.map(function(a){
+    var d=new Date(a.created_at);
+    var photo=a.photo_url?'<img src="'+esc(a.photo_url)+'" onclick="window.open(\''+esc(a.photo_url)+'\',\'_blank\')" style="width:60px;height:60px;border-radius:8px;object-fit:cover;cursor:pointer;flex-shrink:0">':'';
+    return '<div class="row" style="align-items:flex-start">'+
+      '<div style="display:flex;gap:12px;flex:1;min-width:0">'+photo+'<div style="min-width:0">'+
+      '<b>'+esc(a.auteur_nom||T('pro.avis_client','Client'))+'</b> <span style="color:#F6A623;letter-spacing:1px">'+starPro(a.note)+'</span>'+
+      '<div class="muted">'+(a.prestation_nom?esc(a.prestation_nom)+' · ':'')+ltr(d.toLocaleDateString('fr'))+'</div>'+
+      (a.commentaire?'<div style="margin-top:4px">'+esc(a.commentaire)+'</div>':'')+
+      '</div></div>'+
+      '<div class="toolbar"><button class="btn btn-ghost btn-sm" onclick="delAvis(\''+a.id+'\')" title="'+T('common.supprimer','Supprimer')+'">🗑</button></div>'+
+      '</div>';
+  }).join('')+'</div>';
+}
+async function delAvis(id){
+  if(!confirm(T('pro.avis_confirm_del','Supprimer cet avis ? (réservé aux avis abusifs)'))) return;
+  var r=await sb().from('avis').delete().eq('id',id);
+  if(r.error){ WAQQTI.toast(r.error.message,'error'); return; }
+  WAQQTI.toast(T('pro.toast_supprimee','Supprimée'));
+  var fr=await sb().from('salons').select('*').eq('id',STATE.salon.id).single();
+  if(fr.data) STATE.salon=fr.data;
+  viewAvis();
 }
 
 /* ════════════ PARAMÈTRES ════════════ */
