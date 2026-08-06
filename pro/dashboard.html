@@ -674,6 +674,7 @@ function viewParametres(){
       '<option value="journee"'+(s.mode_reservation==='journee'?' selected':'')+'>'+T('pro.p_mode_journee','À la journée (sans horaire)')+'</option>'+
     '</select></div>'+
     '<div class="field"><label>'+T('pro.p_sieges','Nombre de sièges')+'</label><input class="inp" type="number" id="s-sieges" min="1" max="50" value="'+(s.nb_sieges||1)+'"></div></div>'+
+    '<div class="field"><label>'+T('pro.p_capacite_jour','Plafond de réservations / jour (mode journée)')+' <small style="color:var(--brun-l);font-weight:400">'+T('pro.p_capacite_jour_hint','vide = illimité')+'</small></label><input class="inp" type="number" id="s-capjour" min="1" dir="ltr" value="'+(s.capacite_jour!=null?s.capacite_jour:'')+'" placeholder="'+T('pro.p_capacite_jour_ph','ex : 10')+'"></div>'+
     '<button class="btn" id="s-save">'+T('common.enregistrer','Enregistrer')+'</button></div>'+
 
     // ── Coordonnées de paiement (acompte) ──
@@ -774,7 +775,8 @@ async function saveParametres(){
   var payload={
     nom:$('s-nom').value.trim(), wilaya:$('s-wilaya').value.trim()||null,
     telephone:$('s-tel').value.trim()?WAQQTI.formatPhone($('s-tel').value.trim()):null, adresse:$('s-adr').value.trim()||null,
-    mode_reservation:$('s-mode').value, nb_sieges:parseInt($('s-sieges').value)||1
+    mode_reservation:$('s-mode').value, nb_sieges:parseInt($('s-sieges').value)||1,
+    capacite_jour:parseInt($('s-capjour').value)||null
   };
   var r=await sb().from('salons').update(payload).eq('id',STATE.salon.id).select().single();
   if(r.error){ WAQQTI.toast(r.error.message,'error'); return; }
