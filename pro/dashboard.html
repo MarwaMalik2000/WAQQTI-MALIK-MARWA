@@ -551,9 +551,9 @@ async function loadPrestations(){
   if(!list.length){ b.innerHTML='<div class="card empty">'+T('pro.aucune_prestation','Aucune prestation. Ajoute ta première prestation.')+'</div>'; return; }
   b.innerHTML='<div class="card">'+list.map(function(p){
     var acBadge=p.acompte_actif?' <span class="pill or">💳 '+ltr(p.acompte_type==='fixe'?fmtPrix(p.acompte_valeur):(p.acompte_valeur+'%'))+'</span>':'';
-    return '<div class="row"><div><b>'+esc(p.nom)+'</b>'+
+    return '<div class="row"><div style="display:flex;align-items:center;gap:10px"><div><b>'+esc(p.nom)+'</b>'+
       (p.actif?'':' <span class="pill gray">'+T('pro.masquee','masquée')+'</span>')+acBadge+
-      '<div class="muted">'+esc(p.categorie||'')+' · '+p.duree_minutes+' '+T('pro.min','min')+'</div></div>'+
+      '<div class="muted">'+esc(p.categorie||'')+' · '+p.duree_minutes+' '+T('pro.min','min')+'</div></div></div>'+
       '<div class="toolbar"><b>'+fmtPrix(p.prix)+'</b>'+
       '<button class="btn btn-ghost btn-sm" onclick=\'formPrestation('+JSON.stringify(p)+')\'>'+T('pro.modifier','Modifier')+'</button>'+
       '<button class="btn btn-ghost btn-sm" onclick="delPrestation(\''+p.id+'\')">🗑</button></div></div>';
@@ -602,8 +602,8 @@ async function savePrestation(id){
   if(!payload.nom){ WAQQTI.toast(T('pro.nom_requis','Le nom est requis'),'error'); return; }
   var r = id ? await sb().from('prestations').update(payload).eq('id',id)
              : await sb().from('prestations').insert(payload);
-  if(r.error) WAQQTI.toast(r.error.message,'error');
-  else { WAQQTI.toast(T('pro.toast_prest_ok','Prestation enregistrée')); viewPrestations(); }
+  if(r.error){ WAQQTI.toast(r.error.message,'error'); return; }
+  WAQQTI.toast(T('pro.toast_prest_ok','Prestation enregistrée')); viewPrestations();
 }
 async function delPrestation(id){
   if(!confirm(T('pro.confirm_del_prest','Supprimer cette prestation ?'))) return;
@@ -662,6 +662,19 @@ async function delEmploye(id){
 function viewParametres(){
   var s=STATE.salon, main=$('main');
   main.innerHTML='<div class="page-head"><h1>'+T('pro.parametres','Paramètres')+'</h1></div>'+
+    // ── Logo du salon ──
+    '<div class="card" style="max-width:600px">'+
+    '<h3 style="font-size:20px;margin-bottom:4px">'+T('pro.logo_titre','🖼 Logo du salon')+'</h3>'+
+    '<p class="muted" style="margin-bottom:14px">'+T('pro.logo_sub','Affiché sur votre page de réservation et dans l\'annuaire.')+'</p>'+
+    '<div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">'+
+    (s.logo_url?'<img src="'+esc(s.logo_url)+'" style="width:76px;height:76px;border-radius:16px;object-fit:cover;border:1px solid var(--line)">':'<div style="width:76px;height:76px;border-radius:16px;background:var(--cream2);display:flex;align-items:center;justify-content:center;font-size:30px">🖼</div>')+
+    '<div style="flex:1;min-width:200px">'+
+    '<input type="file" id="logo-file" accept="image/*" style="font-size:13px;margin-bottom:8px;width:100%">'+
+    '<button class="btn btn-sm" id="logo-save">'+T('pro.logo_upload','Téléverser le logo')+'</button>'+
+    '<div id="logo-status" style="font-size:12px;margin-top:6px"></div>'+
+    '</div></div></div>'+
+    // ── Galerie du salon (Confort = 5, Premium = 10) ──
+    galerieCardHTML(s)+
     '<div class="card" style="max-width:600px">'+
     '<div class="field"><label>'+T('pro.p_nom_salon','Nom du salon')+'</label><input class="inp" id="s-nom" value="'+esc(s.nom||'')+'"></div>'+
     '<div class="field-grid">'+
@@ -727,6 +740,72 @@ function viewParametres(){
   $('r-save').addEventListener('click', saveRib);
   $('g-save').addEventListener('click', saveGeo);
   $('h-save').addEventListener('click', saveHoraires);
+  $('logo-save').addEventListener('click', uploadLogo);
+  if($('gal-save')) $('gal-save').addEventListener('click', uploadGalerie);
+}
+function galerieLimite(s){ return (s.formule==='premium'||s.formule==='trial')?10:(s.formule==='confort'?5:0); }
+function galerieCardHTML(s){
+  var lim=galerieLimite(s), pics=s.photos||[];
+  var head='<div class="card" style="max-width:600px">'+
+    '<h3 style="font-size:20px;margin-bottom:4px">'+T('pro.gal_titre','📸 Galerie du salon')+'</h3>';
+  if(lim===0){
+    return head+'<p class="muted" style="margin-bottom:12px">'+T('pro.gal_sub','Ces photos s\'affichent sur votre page de réservation, sous le nom du salon.')+'</p>'+
+      '<div><span class="pill or">'+T('pro.f_confort','Confort')+'+</span> <span class="muted">'+T('pro.gal_upsell','Passez en formule Confort (5 photos) ou Premium (10 photos) pour présenter votre salon.')+'</span></div></div>';
+  }
+  var grid=pics.map(function(u,i){
+    return '<div style="position:relative;width:92px;height:92px">'+
+      '<img src="'+esc(u)+'" style="width:92px;height:92px;border-radius:10px;object-fit:cover;border:1px solid var(--line)">'+
+      '<button type="button" onclick="delPhotoGalerie('+i+')" title="'+T('common.supprimer','Supprimer')+'" style="position:absolute;top:-8px;right:-8px;width:24px;height:24px;border-radius:50%;border:none;background:#c0392b;color:#fff;cursor:pointer;font-size:15px;line-height:1;box-shadow:0 2px 6px rgba(0,0,0,.2)">×</button></div>';
+  }).join('');
+  var add = pics.length<lim
+    ? '<input type="file" id="gal-file" accept="image/*" multiple style="font-size:13px;margin-bottom:8px;width:100%">'+
+      '<button class="btn btn-sm" id="gal-save">'+T('pro.gal_upload','Ajouter des photos')+'</button>'+
+      '<div id="gal-status" style="font-size:12px;margin-top:6px"></div>'
+    : '<p class="muted">'+T('pro.gal_plein','Limite atteinte. Supprimez une photo pour en ajouter une nouvelle.')+'</p>';
+  return head+
+    '<p class="muted" style="margin-bottom:14px">'+T('pro.gal_sub','Ces photos s\'affichent sur votre page de réservation, sous le nom du salon.')+' <b>'+ltr(pics.length+' / '+lim)+'</b></p>'+
+    (pics.length?'<div style="display:flex;flex-wrap:wrap;gap:12px;margin-bottom:16px">'+grid+'</div>':'')+
+    add+'</div>';
+}
+async function uploadGalerie(){
+  var files=Array.prototype.slice.call(($('gal-file').files)||[]);
+  var st=$('gal-status'), s=STATE.salon;
+  if(!files.length){ st.style.color='#c0392b'; st.textContent='⚠️ '+T('pro.choisir_image','Choisis une image.'); return; }
+  var lim=galerieLimite(s), pics=(s.photos||[]).slice();
+  var place=lim-pics.length;
+  if(place<=0){ st.style.color='#c0392b'; st.textContent=T('pro.gal_plein','Limite atteinte.'); return; }
+  files=files.slice(0,place);
+  var btn=$('gal-save'); btn.disabled=true; btn.textContent='…'; st.style.color='var(--brun-l)'; st.textContent=T('common.chargement','Chargement…');
+  for(var i=0;i<files.length;i++){
+    var up=await WAQQTI.uploadImage(s.id,'galerie',files[i]);
+    if(up.ok) pics.push(up.url);
+    else { st.style.color='#c0392b'; st.textContent='❌ '+up.error; }
+  }
+  var r=await sb().from('salons').update({photos:pics}).eq('id',s.id).select().single();
+  btn.disabled=false;
+  if(r.error){ st.style.color='#c0392b'; st.textContent='❌ '+r.error.message; return; }
+  STATE.salon=r.data; WAQQTI.toast(T('pro.gal_ok','Galerie mise à jour ✓')); viewParametres();
+}
+async function delPhotoGalerie(i){
+  var s=STATE.salon, pics=(s.photos||[]).slice();
+  if(i<0||i>=pics.length) return;
+  if(!confirm(T('pro.gal_confirm_del','Supprimer cette photo ?'))) return;
+  pics.splice(i,1);
+  var r=await sb().from('salons').update({photos:pics}).eq('id',s.id).select().single();
+  if(r.error){ WAQQTI.toast(r.error.message,'error'); return; }
+  STATE.salon=r.data; WAQQTI.toast(T('pro.toast_supprimee','Supprimée')); viewParametres();
+}
+async function uploadLogo(){
+  var f=($('logo-file').files||[])[0];
+  var st=$('logo-status');
+  if(!f){ st.style.color='var(--red)'; st.textContent='⚠️ '+T('pro.choisir_image','Choisis une image.'); return; }
+  var btn=$('logo-save'); btn.disabled=true; btn.textContent='…';
+  var r=await WAQQTI.uploadImage(STATE.salon.id,'logo',f);
+  if(!r.ok){ st.style.color='var(--red)'; st.textContent='❌ '+r.error; btn.disabled=false; btn.textContent=T('pro.logo_upload','Téléverser le logo'); return; }
+  var up=await sb().from('salons').update({logo_url:r.url}).eq('id',STATE.salon.id).select().single();
+  btn.disabled=false;
+  if(up.error){ st.style.color='var(--red)'; st.textContent='❌ '+up.error.message; btn.textContent=T('pro.logo_upload','Téléverser le logo'); return; }
+  STATE.salon=up.data; WAQQTI.toast(T('pro.logo_ok','Logo enregistré ✓')); viewParametres();
 }
 async function saveHoraires(){
   var jours=[];
