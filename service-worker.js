@@ -5,7 +5,7 @@
    (données temps réel : rendez-vous, dispos…). Ils passent direct au réseau.
    À enregistrer en chemin ABSOLU : navigator.serviceWorker.register('/service-worker.js')
    ============================================================ */
-var CACHE = 'waqqti-v1';
+var CACHE = 'waqqti-v3';
 
 // Coquille de l'app mise en cache à l'installation (ajuste si besoin).
 var PRECACHE = [
