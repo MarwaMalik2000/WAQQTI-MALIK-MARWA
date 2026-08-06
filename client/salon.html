@@ -363,7 +363,7 @@
         <span>⏰ 09h–19h</span>
       </div>
       <span class="open-pill">
-        <span class="dot"></span> Ouvert maintenant
+        <span class="dot"></span> <span data-i18n="book.ouvert">Ouvert maintenant</span>
       </span>
     </div>
   </div>
@@ -461,14 +461,14 @@
   <div class="step-content" id="step-2">
     <!-- CHOIX EMPLOYÉ (formule confort/premium) -->
     <div class="card" id="employes-card">
-      <h2 class="card-title">Choisissez votre préférence</h2>
-      <p class="card-sub">Avec qui souhaitez-vous prendre rendez-vous ?</p>
+      <h2 class="card-title" data-i18n="book.pref_titre">Choisissez votre préférence</h2>
+      <p class="card-sub" data-i18n="book.pref_sub">Avec qui souhaitez-vous prendre rendez-vous ?</p>
 
       <div class="employes-grid">
         <div class="employe-card" data-emp="0" data-emp-name="">
           <div class="emp-avatar" style="background:var(--cream2);color:var(--brun)">?</div>
-          <div class="emp-name">Peu importe</div>
-          <div class="emp-role">1er disponible</div>
+          <div class="emp-name" data-i18n="book.peu_importe">Peu importe</div>
+          <div class="emp-role" data-i18n="booking.premier_dispo">1er disponible</div>
         </div>
         <div class="employe-card" data-emp="1" data-emp-name="Yasmine">
           <div class="emp-avatar">Y</div>
@@ -491,16 +491,16 @@
     <!-- DATE -->
     <div class="card">
       <h2 class="card-title" data-i18n="book.choix_date">Choisissez la date</h2>
-      <p class="card-sub">Faites défiler pour voir plus de dates</p>
+      <p class="card-sub" data-i18n="book.dates_sub">Faites défiler pour voir plus de dates</p>
       <div class="dates-row" id="dates-row">
         <!-- Généré en JS -->
       </div>
 
       <!-- HEURE -->
       <div class="slots-section" id="slots-section" style="display:none">
-        <div class="slots-period">Matin</div>
+        <div class="slots-period" data-i18n="booking.matin">Matin</div>
         <div class="slots-grid" id="slots-morning"></div>
-        <div class="slots-period">Après-midi</div>
+        <div class="slots-period" data-i18n="booking.apresmidi">Après-midi</div>
         <div class="slots-grid" id="slots-afternoon"></div>
       </div>
     </div>
@@ -510,7 +510,7 @@
   <div class="step-content" id="step-3">
     <div class="card">
       <h2 class="card-title" data-i18n="book.coordonnees_titre">Vos coordonnées</h2>
-      <p class="card-sub">Nous enverrons une confirmation par SMS</p>
+      <p class="card-sub" data-i18n="book.coord_sub">Nous enverrons une confirmation par SMS</p>
 
       <div class="form-row">
         <label data-i18n="book.nom_label">Nom complet *</label>
@@ -520,11 +520,11 @@
       <div class="form-row">
         <label data-i18n="book.tel_label">Numéro de téléphone *</label>
         <input type="tel" id="client-tel" placeholder="0770 12 34 56" required>
-        <div class="hint">Nous vous enverrons un SMS de confirmation et un rappel 24h avant</div>
+        <div class="hint" data-i18n="book.tel_hint">Nous vous enverrons un SMS de confirmation et un rappel 24h avant</div>
       </div>
 
       <div class="form-row">
-        <label>Note pour le salon (optionnel)</label>
+        <label data-i18n="book.note_label">Note pour le salon (optionnel)</label>
         <textarea id="client-note" rows="3" placeholder="Précisions, demandes particulières…"></textarea>
       </div>
     </div>
@@ -534,33 +534,33 @@
   <div class="step-content" id="step-4">
     <div class="card confirm-screen">
       <div class="confirm-icon">✓</div>
-      <h2>Réservation confirmée !</h2>
-      <p>Un SMS de confirmation vient d'être envoyé à votre numéro</p>
+      <h2 data-i18n="book.confirme_titre">Réservation confirmée !</h2>
+      <p data-i18n="book.confirme_sub">Un SMS de confirmation vient d'être envoyé à votre numéro</p>
 
       <div class="confirm-detail">
-        <div><strong>Salon :</strong> Salon Yasmine Beauty</div>
-        <div><strong>Service :</strong> <span id="confirm-prest"></span></div>
-        <div><strong>Date :</strong> <span id="confirm-date"></span></div>
-        <div><strong>Heure :</strong> <span id="confirm-heure"></span></div>
-        <div><strong>Avec :</strong> <span id="confirm-emp"></span></div>
-        <div><strong>Prix :</strong> <span id="confirm-prix"></span></div>
+        <div><strong data-i18n="book.lbl_salon">Salon :</strong> <span id="confirm-salon"></span></div>
+        <div><strong data-i18n="book.lbl_service">Service :</strong> <span id="confirm-prest"></span></div>
+        <div><strong data-i18n="book.lbl_date">Date :</strong> <span id="confirm-date"></span></div>
+        <div><strong data-i18n="book.lbl_heure">Heure :</strong> <span id="confirm-heure"></span></div>
+        <div><strong data-i18n="book.lbl_avec">Avec :</strong> <span id="confirm-emp"></span></div>
+        <div><strong data-i18n="book.lbl_prix">Prix :</strong> <span id="confirm-prix"></span></div>
       </div>
 
       <!-- Preuve de paiement de l'acompte (injectée en JS si acompte requis) -->
       <div id="upload-acompte"></div>
 
-      <p style="font-size:13px">
+      <p style="font-size:13px" data-i18n="book.annuler_note">
         Pour annuler ou modifier, contactez directement le salon.
       </p>
 
-      <button class="btn-next" style="margin:20px auto 0" onclick="location.reload()">
+      <button class="btn-next" style="margin:20px auto 0" onclick="location.reload()" data-i18n="book.autre">
         Faire une autre réservation
       </button>
     </div>
   </div>
 
-  <div class="waqqti-footer">
-    Réservation propulsée par <a href="https://waqqti.dz" target="_blank">Waqqti.dz</a> · La référence beauté en Algérie
+  <div class="waqqti-footer" data-i18n-html="book.footer">
+    Réservation propulsée par <a href="https://www.waqqti.com" target="_blank">Waqqti</a> · La référence beauté en Algérie
   </div>
 </div>
 
@@ -568,7 +568,7 @@
 <div class="recap-bar" id="recap-bar">
   <div class="recap-inner">
     <div class="recap-info">
-      <div class="recap-label" id="recap-label">Prestation choisie</div>
+      <div class="recap-label" id="recap-label" data-i18n="book.recap_prestation">Prestation choisie</div>
       <div class="recap-value" id="recap-value">—</div>
     </div>
     <button class="btn-next" id="btn-next" onclick="nextStep()" data-i18n="book.continuer">
@@ -588,6 +588,9 @@ const reservation = {
   id: null, acompteMontant: 0, acompteRequis: false,
 };
 let currentStep = 1;
+
+// Traduction avec repli français (si i18n absent ou clé manquante)
+function T(k, fr){ if(window.WQ && WQ.t){ var v=WQ.t(k); if(v && v!==k) return v; } return fr; }
 
 // Lecture du slug dans l'URL : ?s=yasmine-beauty ou /yasmine-beauty
 function getSalonSlug() {
@@ -709,7 +712,7 @@ function selectPrestation(item, p) {
   const acompteTxt = reservation.acompteRequis
     ? ` · acompte ${Number(reservation.acompteMontant).toLocaleString('fr')} DA`
     : '';
-  document.getElementById('recap-label').textContent = 'Prestation choisie';
+  document.getElementById('recap-label').textContent = T('book.recap_prestation','Prestation choisie');
   document.getElementById('recap-value').textContent =
     `${p.nom} · ${Number(p.prix).toLocaleString('fr')} DA${acompteTxt}`;
   document.getElementById('recap-bar').classList.add('visible');
@@ -723,14 +726,13 @@ function acompteInfoHTML() {
   const rib = window.WAQQTI ? WAQQTI.ribLisible(s) : null;
   return `
     <div class="card" style="border:1.5px solid var(--or); background:rgba(246,132,35,.05)">
-      <h2 class="card-title" style="font-size:20px">💳 Acompte requis : ${montant}</h2>
-      <p class="card-sub">Pour garantir votre rendez-vous, le salon demande un acompte.
-        Effectuez le versement puis ajoutez une photo du reçu ci-dessous.</p>
+      <h2 class="card-title" style="font-size:20px">💳 ${T('book.acompte_requis','Acompte requis')} : ${montant}</h2>
+      <p class="card-sub">${T('book.acompte_sub','Pour garantir votre rendez-vous, le salon demande un acompte. Effectuez le versement puis ajoutez une photo du reçu ci-dessous.')}</p>
       <div style="background:#fff;border-radius:12px;padding:14px 16px;font-size:14px;line-height:1.9">
-        ${rib ? `<div><strong>Coordonnées :</strong> <span dir="ltr">${rib}</span></div>` : ''}
-        ${s.rib_titulaire ? `<div><strong>Titulaire :</strong> ${s.rib_titulaire}</div>` : ''}
+        ${rib ? `<div><strong>${T('book.coordonnees_lbl','Coordonnées :')}</strong> <span dir="ltr">${rib}</span></div>` : ''}
+        ${s.rib_titulaire ? `<div><strong>${T('book.titulaire','Titulaire :')}</strong> ${s.rib_titulaire}</div>` : ''}
         ${s.rib_instructions ? `<div style="color:var(--brun-l)">${s.rib_instructions}</div>` : ''}
-        ${!rib ? `<div style="color:var(--brun-l)">Le salon vous communiquera ses coordonnées de paiement par WhatsApp.</div>` : ''}
+        ${!rib ? `<div style="color:var(--brun-l)">${T('book.rib_wa','Le salon vous communiquera ses coordonnées de paiement par WhatsApp.')}</div>` : ''}
       </div>
     </div>`;
 }
@@ -904,8 +906,8 @@ function nextStep() {
     if (!reservation.prestation) return;
     goToStep(2);
     document.getElementById('btn-next').disabled = true;
-    document.getElementById('recap-label').textContent = 'Date & heure';
-    document.getElementById('recap-value').textContent = 'À sélectionner';
+    document.getElementById('recap-label').textContent = T('book.step2','Date & heure');
+    document.getElementById('recap-value').textContent = T('book.a_selectionner','À sélectionner');
   } else if (currentStep === 2) {
     if (!reservation.date || !reservation.heure) return;
     goToStep(3);
@@ -920,8 +922,8 @@ function nextStep() {
       step3.insertBefore(wrap, step3.firstChild);
     }
     document.getElementById('btn-next').disabled = true;
-    document.getElementById('recap-label').textContent = 'Coordonnées';
-    document.getElementById('recap-value').textContent = 'À remplir';
+    document.getElementById('recap-label').textContent = T('book.step3','Coordonnées');
+    document.getElementById('recap-value').textContent = T('book.a_remplir','À remplir');
     const nom = document.getElementById('client-nom');
     const tel = document.getElementById('client-tel');
     const check = () => {
@@ -930,7 +932,7 @@ function nextStep() {
     };
     nom.addEventListener('input', check);
     tel.addEventListener('input', check);
-    document.getElementById('btn-next').textContent = 'Confirmer ma réservation ✓';
+    document.getElementById('btn-next').textContent = T('book.confirmer_resa','Confirmer ma réservation ✓');
   } else if (currentStep === 3) {
     confirmReservation();
   }
@@ -941,7 +943,7 @@ async function confirmReservation() {
   const btn = document.getElementById('btn-next');
   const originalText = btn.textContent;
   btn.disabled = true;
-  btn.textContent = '⏳ Enregistrement...';
+  btn.textContent = T('book.enregistrement','⏳ Enregistrement...');
 
   const nom = document.getElementById('client-nom').value.trim();
   const tel = document.getElementById('client-tel').value.trim();
@@ -976,10 +978,12 @@ async function confirmReservation() {
 
   goToStep(4);
   document.getElementById('recap-bar').classList.remove('visible');
+  var cSalon=document.getElementById('confirm-salon');
+  if(cSalon) cSalon.textContent = (reservation.salon && reservation.salon.nom) || '';
   document.getElementById('confirm-prest').textContent = reservation.prestation;
   document.getElementById('confirm-date').textContent = reservation.dateLabel;
   document.getElementById('confirm-heure').textContent = reservation.heure;
-  document.getElementById('confirm-emp').textContent = reservation.employeNom || 'Premier disponible';
+  document.getElementById('confirm-emp').textContent = reservation.employeNom || T('booking.premier_dispo','Premier disponible');
   document.getElementById('confirm-prix').textContent = reservation.prix.toLocaleString('fr') + ' DA';
 
   // Écran d'upload du reçu d'acompte (si requis)
@@ -995,16 +999,16 @@ function renderUploadAcompte() {
   const rib = window.WAQQTI ? WAQQTI.ribLisible(s) : null;
   host.innerHTML = `
     <div class="confirm-detail" style="background:rgba(246,132,35,.07);border:1.5px solid var(--or)">
-      <div style="font-weight:700;margin-bottom:10px">💳 Acompte à régler :
+      <div style="font-weight:700;margin-bottom:10px">💳 ${T('book.acompte_regler','Acompte à régler :')}
         ${Number(reservation.acompteMontant).toLocaleString('fr')} DA</div>
-      ${rib ? `<div style="margin-bottom:6px"><strong>Payer via :</strong> <span dir="ltr">${rib}</span></div>` : ''}
-      ${s.rib_titulaire ? `<div style="margin-bottom:6px"><strong>Titulaire :</strong> ${s.rib_titulaire}</div>` : ''}
+      ${rib ? `<div style="margin-bottom:6px"><strong>${T('book.payer_via','Payer via :')}</strong> <span dir="ltr">${rib}</span></div>` : ''}
+      ${s.rib_titulaire ? `<div style="margin-bottom:6px"><strong>${T('book.titulaire','Titulaire :')}</strong> ${s.rib_titulaire}</div>` : ''}
       <p style="font-size:13px;color:var(--brun-l);margin:8px 0 12px">
-        Après le versement, ajoutez une photo/capture du reçu :</p>
+        ${T('book.apres_versement','Après le versement, ajoutez une photo/capture du reçu :')}</p>
       <input type="file" id="justif-file" accept="image/*" capture="environment"
         style="width:100%;font-size:13px;margin-bottom:10px">
       <button class="btn-next" id="justif-send" style="width:100%;justify-content:center">
-        📤 Envoyer le reçu</button>
+        ${T('book.envoyer_recu','📤 Envoyer le reçu')}</button>
       <div id="justif-status" style="font-size:13px;margin-top:10px;text-align:center"></div>
     </div>`;
   const fileInput = document.getElementById('justif-file');
@@ -1012,17 +1016,17 @@ function renderUploadAcompte() {
   const status = document.getElementById('justif-status');
   sendBtn.addEventListener('click', async () => {
     const f = fileInput.files && fileInput.files[0];
-    if (!f) { status.textContent = '⚠️ Choisissez d\'abord une image.'; return; }
-    sendBtn.disabled = true; sendBtn.textContent = '⏳ Envoi...';
+    if (!f) { status.textContent = T('book.choisir_image','⚠️ Choisissez d\'abord une image.'); return; }
+    sendBtn.disabled = true; sendBtn.textContent = T('book.envoi','⏳ Envoi...');
     const r = await WAQQTI.uploadJustificatif(reservation.salonId, reservation.id, f);
     if (r.ok) {
       status.style.color = 'var(--green)';
-      status.textContent = '✅ Reçu envoyé ! Le salon va vérifier votre acompte.';
-      sendBtn.textContent = '✓ Reçu envoyé';
+      status.textContent = T('book.recu_ok','✅ Reçu envoyé ! Le salon va vérifier votre acompte.');
+      sendBtn.textContent = T('book.recu_envoye','✓ Reçu envoyé');
     } else {
       status.style.color = 'var(--red)';
       status.textContent = '❌ ' + (r.error || 'Échec de l\'envoi.');
-      sendBtn.disabled = false; sendBtn.textContent = '📤 Réessayer';
+      sendBtn.disabled = false; sendBtn.textContent = T('book.reessayer','📤 Réessayer');
     }
   });
 }
