@@ -533,9 +533,9 @@
   <!-- ═══════════ ÉTAPE 4 : CONFIRMATION ═══════════ -->
   <div class="step-content" id="step-4">
     <div class="card confirm-screen">
-      <div class="confirm-icon">✓</div>
-      <h2 data-i18n="book.confirme_titre">Réservation confirmée !</h2>
-      <p data-i18n="book.confirme_sub">Un SMS de confirmation vient d'être envoyé à votre numéro</p>
+      <div class="confirm-icon" id="confirm-icon">✓</div>
+      <h2 id="confirm-title" data-i18n="book.confirme_titre">Réservation confirmée !</h2>
+      <p id="confirm-subtitle" data-i18n="book.confirme_sub">Un SMS de confirmation vient d'être envoyé à votre numéro</p>
 
       <div class="confirm-detail">
         <div><strong data-i18n="book.lbl_salon">Salon :</strong> <span id="confirm-salon"></span></div>
@@ -985,6 +985,22 @@ async function confirmReservation() {
   document.getElementById('confirm-heure').textContent = reservation.heure;
   document.getElementById('confirm-emp').textContent = reservation.employeNom || T('booking.premier_dispo','Premier disponible');
   document.getElementById('confirm-prix').textContent = reservation.prix.toLocaleString('fr') + ' DA';
+
+  // Si acompte : passer l'écran en "en attente" (pas de coche verte définitive)
+  var icon=document.getElementById('confirm-icon');
+  var title=document.getElementById('confirm-title');
+  var subtitle=document.getElementById('confirm-subtitle');
+  if (reservation.acompteRequis) {
+    icon.textContent='⏳';
+    icon.style.background='var(--or)';
+    title.textContent = T('book.attente_titre','Réservation en attente');
+    subtitle.textContent = T('book.attente_sub','Votre réservation sera confirmée une fois votre acompte validé par le salon.');
+  } else {
+    icon.textContent='✓';
+    icon.style.background='var(--green)';
+    title.textContent = T('book.confirme_titre','Réservation confirmée !');
+    subtitle.textContent = T('book.confirme_sub','Un SMS de confirmation vient d\'être envoyé à votre numéro');
+  }
 
   // Écran d'upload du reçu d'acompte (si requis)
   renderUploadAcompte();
