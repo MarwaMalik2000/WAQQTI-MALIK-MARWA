@@ -717,13 +717,15 @@ function startStatusPolling(){
   if(statusTimer) clearInterval(statusTimer);
   statusTimer=setInterval(async function(){
     if(!reservation.id){ return; }
-    var r=await WAQQTI.supabase.from('reservations')
-      .select('acompte_statut,justificatif_url,statut').eq('id',reservation.id).maybeSingle();
-    if(r.error || !r.data){ return; }
-    if(r.data.statut==='annule'){ clearInterval(statusTimer); return; }
-    updateStatusVisual(r.data.acompte_statut);
-    renderAcompteZone(r.data.acompte_statut, !!r.data.justificatif_url);
-    if(r.data.acompte_statut==='recu' || r.data.acompte_statut==='non_requis'){ clearInterval(statusTimer); }
+    var row=null;
+    var rr=await WAQQTI.supabase.rpc('statut_reservation', { p_id: reservation.id });
+    if(!rr.error && rr.data && rr.data.length) row=rr.data[0];
+    else { var dd=await WAQQTI.supabase.from('reservations').select('acompte_statut,justificatif_url,statut').eq('id',reservation.id).maybeSingle(); row=dd.data; }
+    if(!row){ return; }
+    if(row.statut==='annule'){ clearInterval(statusTimer); return; }
+    updateStatusVisual(row.acompte_statut);
+    renderAcompteZone(row.acompte_statut, !!row.justificatif_url);
+    if(row.acompte_statut==='recu' || row.acompte_statut==='non_requis'){ clearInterval(statusTimer); }
   }, 12000);
 }
 
@@ -770,8 +772,10 @@ async function initSalon() {
   // Reprendre une réservation en cours (mémorisée) pour ce salon
   const savedId = getSavedResaId();
   if (savedId) {
-    const { data: resa } = await WAQQTI.supabase
-      .from('reservations').select('*').eq('id', savedId).maybeSingle();
+    let resa = null;
+    const rr = await WAQQTI.supabase.rpc('statut_reservation', { p_id: savedId });
+    if (!rr.error && rr.data && rr.data.length) resa = rr.data[0];
+    else { const dd = await WAQQTI.supabase.from('reservations').select('*').eq('id', savedId).maybeSingle(); resa = dd.data; }
     if (resa && resa.statut !== 'annule') {
       prepareFromResa(resa);
       showStatusScreen(resa);
@@ -998,18 +1002,27 @@ async function generateSlots() {
   const startOfDay = new Date(reservation.date + 'T00:00:00').toISOString();
   const endOfDay = new Date(reservation.date + 'T23:59:59').toISOString();
 
-  let query = WAQQTI.supabase
-    .from('reservations')
-    .select('date_rdv, duree_minutes, employe_id')
-    .eq('salon_id', reservation.salonId)
-    .gte('date_rdv', startOfDay)
-    .lte('date_rdv', endOfDay)
-    .not('statut', 'in', '(annule)');
-
-  if (reservation.employeId) {
-    query = query.eq('employe_id', reservation.employeId);
+  // Dispos via RPC sécurisée (n'expose pas les données client). Repli direct si besoin.
+  let existingRdvs = [];
+  const rpc = await WAQQTI.supabase.rpc('get_creneaux_pris', {
+    p_salon_id: reservation.salonId,
+    p_jour: reservation.date,
+    p_employe_id: reservation.employeId || null
+  });
+  if (!rpc.error && rpc.data) {
+    existingRdvs = rpc.data;
+  } else {
+    let query = WAQQTI.supabase
+      .from('reservations')
+      .select('date_rdv, duree_minutes, employe_id')
+      .eq('salon_id', reservation.salonId)
+      .gte('date_rdv', startOfDay)
+      .lte('date_rdv', endOfDay)
+      .not('statut', 'in', '(annule)');
+    if (reservation.employeId) query = query.eq('employe_id', reservation.employeId);
+    const res = await query;
+    existingRdvs = res.data || [];
   }
-  const { data: existingRdvs } = await query;
 
   // Créneaux possibles — générés selon les horaires du salon
   const s = reservation.salon || {};
@@ -1152,6 +1165,10 @@ async function confirmReservation() {
   const note = document.getElementById('client-note').value.trim();
   const dateRdv = `${reservation.date}T${reservation.heure}:00`;
 
+  // Rattacher au compte si le client est connecté (pour « Mes réservations »)
+  var _sess = await WAQQTI.supabase.auth.getSession();
+  var _uid = (_sess && _sess.data && _sess.data.session) ? _sess.data.session.user.id : null;
+
   // Création via RPC : Kill Switch + anti-surbooking + calcul acompte côté serveur
   const { data, error } = await WAQQTI.supabase.rpc('creer_reservation', {
     p_salon_id: reservation.salonId,
@@ -1164,6 +1181,7 @@ async function confirmReservation() {
     p_date_rdv: dateRdv,
     p_notes: note || null,
     p_employe_id: reservation.employeId,
+    p_user_id: _uid,
   });
 
   if (error) {
