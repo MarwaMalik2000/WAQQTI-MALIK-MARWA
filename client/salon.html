@@ -553,7 +553,7 @@
         Pour annuler ou modifier, contactez directement le salon.
       </p>
 
-      <button class="btn-next" style="margin:20px auto 0" onclick="location.reload()" data-i18n="book.autre">
+      <button class="btn-next" style="margin:20px auto 0" onclick="nouvelleReservation()" data-i18n="book.autre">
         Faire une autre réservation
       </button>
     </div>
@@ -592,6 +592,94 @@ let currentStep = 1;
 // Traduction avec repli français (si i18n absent ou clé manquante)
 function T(k, fr){ if(window.WQ && WQ.t){ var v=WQ.t(k); if(v && v!==k) return v; } return fr; }
 
+/* ─── Mémorisation de la réservation (persistance + suivi de statut) ─── */
+function savedKey(){ return 'waqqti_resa_' + getSalonSlug(); }
+function saveResa(id){ try{ localStorage.setItem(savedKey(), id); }catch(e){} }
+function getSavedResaId(){ try{ return localStorage.getItem(savedKey()); }catch(e){ return null; } }
+function clearSavedResa(){ try{ localStorage.removeItem(savedKey()); }catch(e){} }
+function nouvelleReservation(){ clearSavedResa(); location.reload(); }
+
+// Recharge l'état de la réservation depuis une ligne DB (au rafraîchissement)
+function prepareFromResa(resa){
+  reservation.id = resa.id;
+  reservation.salonId = resa.salon_id;
+  reservation.prestation = resa.prestation_nom;
+  reservation.prix = Number(resa.prix || 0);
+  reservation.duree = resa.duree_minutes;
+  reservation.acompteMontant = Number(resa.acompte_montant || 0);
+  reservation.acompteRequis = (resa.acompte_statut === 'en_attente' || resa.acompte_statut === 'refuse');
+  var d = new Date(resa.date_rdv);
+  reservation.heure = d.toTimeString().slice(0,5);
+  reservation.dateLabel = window.WQ ? WQ.dateLisible(d)
+    : d.toLocaleDateString('fr-FR', { weekday:'long', day:'numeric', month:'long' });
+}
+
+// Affiche l'écran final (étape 4) selon le statut de la réservation
+function showStatusScreen(resa){
+  goToStep(4);
+  document.getElementById('recap-bar').classList.remove('visible');
+  var cs=document.getElementById('confirm-salon');
+  if(cs) cs.textContent = (reservation.salon && reservation.salon.nom) || '';
+  document.getElementById('confirm-prest').textContent = resa.prestation_nom || '';
+  document.getElementById('confirm-date').textContent = reservation.dateLabel || '';
+  document.getElementById('confirm-heure').textContent = reservation.heure || '';
+  document.getElementById('confirm-emp').textContent = T('booking.premier_dispo','Premier disponible');
+  document.getElementById('confirm-prix').textContent = Number(resa.prix||0).toLocaleString('fr') + ' DA';
+  updateStatusVisual(resa.acompte_statut);
+  renderAcompteZone(resa.acompte_statut, !!resa.justificatif_url);
+}
+
+// Change l'icône + titre selon le statut d'acompte
+function updateStatusVisual(statut){
+  var icon=document.getElementById('confirm-icon');
+  var title=document.getElementById('confirm-title');
+  var sub=document.getElementById('confirm-subtitle');
+  if(!icon||!title||!sub) return;
+  if(statut==='en_attente'){
+    icon.textContent='⏳'; icon.style.background='var(--or)';
+    title.textContent=T('book.attente_titre','Réservation en attente');
+    sub.textContent=T('book.attente_sub','Votre réservation sera confirmée une fois votre acompte validé par le salon.');
+  } else if(statut==='refuse'){
+    icon.textContent='✕'; icon.style.background='var(--red)';
+    title.textContent=T('book.refuse_titre','Acompte refusé');
+    sub.textContent=T('book.refuse_sub','Votre justificatif a été refusé. Merci d\'en renvoyer un valide.');
+  } else { // recu ou non_requis
+    icon.textContent='✓'; icon.style.background='var(--green)';
+    title.textContent=T('book.confirme_titre','Réservation confirmée !');
+    sub.textContent=T('book.confirme_sub','Un SMS de confirmation vient d\'être envoyé à votre numéro');
+  }
+}
+
+// Zone acompte : upload, message d'attente, ou rien selon le statut
+function renderAcompteZone(statut, hasJustif){
+  var host=document.getElementById('upload-acompte');
+  if(!host) return;
+  if(statut==='non_requis' || statut==='recu'){ host.innerHTML=''; return; }
+  if(statut==='en_attente' && hasJustif){
+    host.innerHTML='<div class="confirm-detail" style="background:rgba(246,132,35,.07);border:1.5px solid var(--or);text-align:center">'+
+      '<div style="font-weight:700">🕒 '+T('book.recu_attente','Reçu envoyé — en attente de validation par le salon.')+'</div></div>';
+    return;
+  }
+  // en_attente sans reçu, OU refusé → proposer l'upload
+  renderUploadAcompte();
+}
+
+// Suivi en direct : rafraîchit le statut toutes les 12 s (auto passage à "confirmée")
+var statusTimer=null;
+function startStatusPolling(){
+  if(statusTimer) clearInterval(statusTimer);
+  statusTimer=setInterval(async function(){
+    if(!reservation.id){ return; }
+    var r=await WAQQTI.supabase.from('reservations')
+      .select('acompte_statut,justificatif_url,statut').eq('id',reservation.id).maybeSingle();
+    if(r.error || !r.data){ return; }
+    if(r.data.statut==='annule'){ clearInterval(statusTimer); return; }
+    updateStatusVisual(r.data.acompte_statut);
+    renderAcompteZone(r.data.acompte_statut, !!r.data.justificatif_url);
+    if(r.data.acompte_statut==='recu' || r.data.acompte_statut==='non_requis'){ clearInterval(statusTimer); }
+  }, 12000);
+}
+
 // Lecture du slug dans l'URL : ?s=yasmine-beauty ou /yasmine-beauty
 function getSalonSlug() {
   const params = new URLSearchParams(window.location.search);
@@ -628,6 +716,21 @@ async function initSalon() {
     <span>⏰ 09h–19h</span>
   `;
   document.querySelector('.salon-avatar').textContent = salon.nom.charAt(0).toUpperCase();
+
+  // Reprendre une réservation en cours (mémorisée) pour ce salon
+  const savedId = getSavedResaId();
+  if (savedId) {
+    const { data: resa } = await WAQQTI.supabase
+      .from('reservations').select('*').eq('id', savedId).maybeSingle();
+    if (resa && resa.statut !== 'annule') {
+      prepareFromResa(resa);
+      showStatusScreen(resa);
+      startStatusPolling();
+      return; // on n'affiche pas le parcours de réservation
+    } else {
+      clearSavedResa();
+    }
+  }
 
   // Charger prestations
   await loadPrestations(salon.id);
@@ -975,6 +1078,7 @@ async function confirmReservation() {
   reservation.id = data.id;
   reservation.acompteMontant = Number(data.acompte_montant || 0);
   reservation.acompteRequis = data.acompte_statut === 'en_attente';
+  saveResa(data.id);   // mémorise la réservation (survit au rafraîchissement)
 
   goToStep(4);
   document.getElementById('recap-bar').classList.remove('visible');
@@ -986,24 +1090,9 @@ async function confirmReservation() {
   document.getElementById('confirm-emp').textContent = reservation.employeNom || T('booking.premier_dispo','Premier disponible');
   document.getElementById('confirm-prix').textContent = reservation.prix.toLocaleString('fr') + ' DA';
 
-  // Si acompte : passer l'écran en "en attente" (pas de coche verte définitive)
-  var icon=document.getElementById('confirm-icon');
-  var title=document.getElementById('confirm-title');
-  var subtitle=document.getElementById('confirm-subtitle');
-  if (reservation.acompteRequis) {
-    icon.textContent='⏳';
-    icon.style.background='var(--or)';
-    title.textContent = T('book.attente_titre','Réservation en attente');
-    subtitle.textContent = T('book.attente_sub','Votre réservation sera confirmée une fois votre acompte validé par le salon.');
-  } else {
-    icon.textContent='✓';
-    icon.style.background='var(--green)';
-    title.textContent = T('book.confirme_titre','Réservation confirmée !');
-    subtitle.textContent = T('book.confirme_sub','Un SMS de confirmation vient d\'être envoyé à votre numéro');
-  }
-
-  // Écran d'upload du reçu d'acompte (si requis)
-  renderUploadAcompte();
+  updateStatusVisual(data.acompte_statut);
+  renderAcompteZone(data.acompte_statut, !!data.justificatif_url);
+  if (data.acompte_statut === 'en_attente') startStatusPolling();
 }
 
 // Ajoute (une seule fois) le bloc d'upload de la preuve de paiement en étape 4
