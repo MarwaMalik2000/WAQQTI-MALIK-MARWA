@@ -82,6 +82,20 @@
     <a class="home" href="/" data-i18n="auth.retour_accueil">← Retour à l'accueil</a>
   </div>
 
+  <!-- Écran « email de confirmation envoyé » -->
+  <div class="card hidden" id="confirm-sent" style="text-align:center">
+    <div class="big" style="background:var(--cream);color:var(--or);font-size:34px">📧</div>
+    <h2 style="font-family:'Cormorant Garamond',serif;font-size:26px;margin-bottom:8px">Vérifiez votre boîte mail</h2>
+    <p style="color:var(--brun-l);font-size:14px;line-height:1.6;margin-bottom:6px">
+      Un email de confirmation a été envoyé à<br><b id="cs-email" style="color:var(--brun)"></b>.</p>
+    <p style="color:var(--brun-l);font-size:14px;line-height:1.6;margin-bottom:20px">
+      Cliquez sur le lien dans l'email pour activer votre compte, puis revenez vous connecter.</p>
+    <button class="btn" id="cs-resend" style="display:block;width:100%;margin-bottom:10px">Renvoyer l'email</button>
+    <button class="btn btn-google" id="cs-back" style="width:100%">Retour à la connexion</button>
+    <div id="cs-status" style="font-size:13px;margin-top:12px;min-height:16px"></div>
+    <a class="home" href="/" data-i18n="auth.retour_accueil">← Retour à l'accueil</a>
+  </div>
+
 <script>
 function sb(){ return window.WAQQTI && window.WAQQTI.supabase; }
 var SIGNUP=false;
@@ -127,14 +141,39 @@ async function onSubmit(e){
     btn.disabled=false; btn.textContent='Créer mon compte';
     if(s.error){ err.textContent=s.error.message; return; }
     if(s.data && s.data.session){ showAccount(s.data.user); }
-    else { err.style.color='var(--green)'; err.textContent='✅ Compte créé. Vérifiez votre email pour confirmer.'; toggleMode(); }
+    else { showConfirmSent(email); }        // email à confirmer → page dédiée
   } else {
     btn.disabled=true; btn.textContent='Connexion…';
     var l=await sb().auth.signInWithPassword({email:email,password:password});
     btn.disabled=false; btn.textContent='Se connecter';
-    if(l.error){ err.textContent=l.error.message; return; }
+    if(l.error){
+      // Email pas encore confirmé → renvoyer vers la page de confirmation
+      if(/not confirmed|confirm/i.test(l.error.message||'')){ showConfirmSent(email); return; }
+      err.textContent=l.error.message; return;
+    }
     showAccount(l.data.user);
   }
+}
+
+// Affiche l'écran « email de confirmation envoyé »
+var PENDING_EMAIL='';
+function showConfirmSent(email){
+  PENDING_EMAIL=email;
+  document.getElementById('auth-card').classList.add('hidden');
+  document.getElementById('account').classList.add('hidden');
+  var cs=document.getElementById('confirm-sent');
+  cs.classList.remove('hidden');
+  document.getElementById('cs-email').textContent=email;
+  document.getElementById('cs-status').textContent='';
+}
+async function resendConfirmation(){
+  var st=document.getElementById('cs-status');
+  var btn=document.getElementById('cs-resend');
+  btn.disabled=true; btn.textContent='Envoi…';
+  var r=await sb().auth.resend({ type:'signup', email:PENDING_EMAIL });
+  btn.disabled=false; btn.textContent='Renvoyer l\'email';
+  if(r.error){ st.style.color='var(--red)'; st.textContent='❌ '+r.error.message; }
+  else { st.style.color='var(--green)'; st.textContent='✅ Email renvoyé. Pensez à vérifier vos spams.'; }
 }
 
 function boot(){
@@ -143,6 +182,12 @@ function boot(){
   document.getElementById('toggle').addEventListener('click', function(e){ e.preventDefault(); toggleMode(); });
   document.getElementById('btn-google').addEventListener('click', function(){ WAQQTI.loginGoogle(window.location.href); });
   document.getElementById('btn-logout').addEventListener('click', async function(){ await sb().auth.signOut(); location.reload(); });
+  document.getElementById('cs-resend').addEventListener('click', resendConfirmation);
+  document.getElementById('cs-back').addEventListener('click', function(){
+    document.getElementById('confirm-sent').classList.add('hidden');
+    document.getElementById('auth-card').classList.remove('hidden');
+    if(SIGNUP) toggleMode();
+  });
   sb().auth.getSession().then(function(res){
     var session=res && res.data && res.data.session;
     if(session && session.user) showAccount(session.user);
