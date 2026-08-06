@@ -4,6 +4,7 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Salon Yasmine Beauty — Réservation Waqqti</title>
+  <link rel="icon" href="/assets/logo.svg"/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
   <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@700&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet"/>
@@ -520,9 +521,15 @@
       <div class="form-row">
         <label data-i18n="book.tel_label">Numéro de téléphone *</label>
         <div style="display:flex;align-items:stretch;direction:ltr">
-          <span style="display:flex;align-items:center;padding:0 14px;background:var(--cream2);border:1.5px solid var(--cream2);border-right:none;border-radius:12px 0 0 12px;font-weight:600;color:var(--brun)">+213</span>
+          <select id="client-tel-code" style="border:1.5px solid var(--cream2);border-right:none;border-radius:12px 0 0 12px;background:var(--cream2);color:var(--brun);font-weight:600;font-family:inherit;font-size:14px;padding:0 6px;max-width:118px">
+            <option value="+213" selected>🇩🇿 +213</option>
+            <option value="+33">🇫🇷 +33</option>
+            <option value="+34">🇪🇸 +34</option>
+            <option value="+32">🇧🇪 +32</option>
+            <option value="+1">🇨🇦 +1</option>
+          </select>
           <input type="tel" id="client-tel" placeholder="770 12 34 56" required
-                 style="border-radius:0 12px 12px 0;flex:1" maxlength="12">
+                 style="border-radius:0 12px 12px 0;flex:1" maxlength="15">
         </div>
         <div class="hint" data-i18n="book.tel_hint">Nous vous enverrons un SMS de confirmation et un rappel 24h avant</div>
       </div>
@@ -552,6 +559,9 @@
 
       <!-- Preuve de paiement de l'acompte (injectée en JS si acompte requis) -->
       <div id="upload-acompte"></div>
+
+      <!-- Actions : calendrier + contacter le salon (injectées en JS) -->
+      <div id="confirm-actions" style="max-width:380px;margin:16px auto 0"></div>
 
       <p style="font-size:13px" data-i18n="book.annuler_note">
         Pour annuler ou modifier, contactez directement le salon.
@@ -596,6 +606,37 @@ let currentStep = 1;
 // Traduction avec repli français (si i18n absent ou clé manquante)
 function T(k, fr){ if(window.WQ && WQ.t){ var v=WQ.t(k); if(v && v!==k) return v; } return fr; }
 
+// Actions sur l'écran de confirmation : calendrier + contacter le salon
+function renderConfirmActions(){
+  var host=document.getElementById('confirm-actions'); if(!host) return;
+  var s=reservation.salon||{}; var html='';
+  if(s.telephone){
+    var wa=String(s.telephone).replace(/[^\d]/g,'');
+    var quand=reservation.dateLabel+((s.mode_reservation==='journee')?'':(' à '+reservation.heure));
+    var msg=encodeURIComponent('Bonjour '+(s.nom||'')+', je viens de réserver via Waqqti : '+(reservation.prestation||'')+' — '+quand+'.');
+    html+='<a href="https://wa.me/'+wa+'?text='+msg+'" target="_blank" class="btn-next" style="display:flex;justify-content:center;background:#25D366;margin-bottom:10px;text-decoration:none;width:100%">💬 '+T('book.contacter_salon','Contacter le salon')+'</a>';
+  }
+  html+='<button type="button" class="btn-next" style="width:100%;justify-content:center;background:var(--cream2);color:var(--brun)" onclick="telechargerICS()">📅 '+T('book.calendrier','Ajouter au calendrier')+'</button>';
+  host.innerHTML=html;
+}
+function telechargerICS(){
+  var start=new Date(reservation.date+'T'+(reservation.heure||'09:00')+':00');
+  var end=new Date(start.getTime()+((reservation.duree||30)*60000));
+  function p(n){return (n<10?'0':'')+n;}
+  function fmt(d){return d.getFullYear()+p(d.getMonth()+1)+p(d.getDate())+'T'+p(d.getHours())+p(d.getMinutes())+'00';}
+  var s=reservation.salon||{};
+  var ics=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Waqqti//FR','BEGIN:VEVENT',
+    'UID:'+(reservation.id||Date.now())+'@waqqti.com','DTSTAMP:'+fmt(new Date()),
+    'DTSTART:'+fmt(start),'DTEND:'+fmt(end),
+    'SUMMARY:'+(reservation.prestation||'Rendez-vous')+' — '+(s.nom||'Waqqti'),
+    'LOCATION:'+(s.adresse||''),'DESCRIPTION:Réservation via Waqqti',
+    'END:VEVENT','END:VCALENDAR'].join('\r\n');
+  var blob=new Blob([ics],{type:'text/calendar'});
+  var a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+  a.download='rendez-vous-waqqti.ics'; document.body.appendChild(a); a.click();
+  setTimeout(function(){ a.remove(); URL.revokeObjectURL(a.href); },100);
+}
+
 /* ─── Mémorisation de la réservation (persistance + suivi de statut) ─── */
 function savedKey(){ return 'waqqti_resa_' + getSalonSlug(); }
 function saveResa(id){ try{ localStorage.setItem(savedKey(), id); }catch(e){} }
@@ -632,6 +673,7 @@ function showStatusScreen(resa){
   document.getElementById('confirm-prix').textContent = Number(resa.prix||0).toLocaleString('fr') + ' DA';
   updateStatusVisual(resa.acompte_statut);
   renderAcompteZone(resa.acompte_statut, !!resa.justificatif_url);
+  renderConfirmActions();
 }
 
 // Change l'icône + titre selon le statut d'acompte
@@ -716,9 +758,12 @@ async function initSalon() {
   // Afficher header salon
   document.querySelector('.salon-info h1').textContent = salon.nom;
   const meta = document.querySelector('.salon-meta');
+  const hOuv = (salon.heure_ouverture || '09:00').slice(0,5).replace(':','h');
+  const hFer = (salon.heure_fermeture || '19:00').slice(0,5).replace(':','h');
+  const hStr = (salon.mode_reservation === 'journee') ? '' : `<span>⏰ ${hOuv}–${hFer}</span>`;
   meta.innerHTML = `
     <span>📍 ${salon.adresse || 'Algérie'}</span>
-    <span>⏰ 09h–19h</span>
+    ${hStr}
   `;
   document.querySelector('.salon-avatar').textContent = salon.nom.charAt(0).toUpperCase();
 
@@ -748,6 +793,9 @@ async function initSalon() {
     const empCard = document.getElementById('employes-card');
     if (empCard) empCard.style.display = 'none';
   }
+
+  // Régénérer les dates avec les jours de fermeture du salon
+  generateDates();
 }
 
 async function loadPrestations(salonId) {
@@ -901,17 +949,20 @@ function generateDates() {
   const days = ['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'];
   const months = ['Jan','Fév','Mar','Avr','Mai','Juin','Juil','Août','Sep','Oct','Nov','Déc'];
 
+  const fermes = (reservation.salon && reservation.salon.jours_fermes) || [];
+
   for (let i = 0; i < 14; i++) {
     const date = new Date(today);
     date.setDate(today.getDate() + i);
     const card = document.createElement('div');
-    card.className = 'date-card';
+    const isClosed = fermes.indexOf(date.getDay()) >= 0;
+    card.className = 'date-card' + (isClosed ? ' closed' : '');
     card.innerHTML = `
       <div class="date-day">${days[date.getDay()]}</div>
       <div class="date-num">${date.getDate()}</div>
       <div class="date-month">${months[date.getMonth()]}</div>
     `;
-    card.addEventListener('click', () => selectDate(card, date));
+    if (!isClosed) card.addEventListener('click', () => selectDate(card, date));
     datesRow.appendChild(card);
   }
 }
@@ -960,9 +1011,37 @@ async function generateSlots() {
   }
   const { data: existingRdvs } = await query;
 
-  // Créneaux possibles
-  const morningSlots = ['09:00','09:30','10:00','10:30','11:00','11:30','12:00','12:30'];
-  const afternoonSlots = ['14:00','14:30','15:00','15:30','16:00','16:30','17:00','17:30','18:00'];
+  // Créneaux possibles — générés selon les horaires du salon
+  const s = reservation.salon || {};
+  const t2m = (t) => { const p = String(t).split(':'); return (+p[0]) * 60 + (+p[1]); };
+  const m2t = (m) => { const h = Math.floor(m / 60), mm = m % 60; return (h < 10 ? '0' : '') + h + ':' + (mm < 10 ? '0' : '') + mm; };
+  const open = t2m(s.heure_ouverture || '09:00');
+  const close = t2m(s.heure_fermeture || '19:00');
+  const step = s.intervalle_creneaux || 30;
+  const pD = s.pause_debut ? t2m(s.pause_debut) : null;
+  const pF = s.pause_fin ? t2m(s.pause_fin) : null;
+  const dur = reservation.duree || 30;
+  const isToday = reservation.date === new Date().toISOString().slice(0, 10);
+  const nowMin = isToday ? (new Date().getHours() * 60 + new Date().getMinutes()) : -1;
+
+  const allSlots = [];
+  for (let t = open; t + dur <= close; t += step) {
+    if (pD != null && pF != null && t < pF && (t + dur) > pD) continue; // chevauche la pause
+    if (t <= nowMin) continue; // heure déjà passée aujourd'hui
+    allSlots.push(m2t(t));
+  }
+  const morningSlots = allSlots.filter(x => t2m(x) < 720);
+  const afternoonSlots = allSlots.filter(x => t2m(x) >= 720);
+
+  // Cacher les sections vides (ex : salon ouvert seulement l'après-midi)
+  if (morning.previousElementSibling) morning.previousElementSibling.style.display = morningSlots.length ? '' : 'none';
+  if (afternoon.previousElementSibling) afternoon.previousElementSibling.style.display = afternoonSlots.length ? '' : 'none';
+  if (!allSlots.length) {
+    morning.innerHTML = '<div style="grid-column:1/-1;color:var(--brun-l);font-size:13px">Aucun créneau disponible ce jour.</div>';
+    afternoon.innerHTML = '';
+    if (morning.previousElementSibling) morning.previousElementSibling.style.display = 'none';
+    return;
+  }
 
   // Identifier les créneaux pris
   const isSlotTaken = (slot) => {
@@ -1046,7 +1125,7 @@ function nextStep() {
     const tel = document.getElementById('client-tel');
     const check = () => {
       document.getElementById('btn-next').disabled =
-        !(nom.value.trim() && tel.value.trim().length >= 9);
+        !(nom.value.trim() && tel.value.replace(/[^\d]/g,'').length >= 6);
     };
     nom.addEventListener('input', check);
     tel.addEventListener('input', check);
@@ -1065,6 +1144,11 @@ async function confirmReservation() {
 
   const nom = document.getElementById('client-nom').value.trim();
   const tel = document.getElementById('client-tel').value.trim();
+  const telCode = (document.getElementById('client-tel-code') || {}).value || '+213';
+  // Numéro international : indicatif + numéro local (sans le 0 de tête)
+  const fullTel = (telCode === '+213')
+    ? WAQQTI.formatPhone(tel)
+    : (telCode + tel.replace(/[^\d]/g, '').replace(/^0+/, ''));
   const note = document.getElementById('client-note').value.trim();
   const dateRdv = `${reservation.date}T${reservation.heure}:00`;
 
@@ -1076,7 +1160,7 @@ async function confirmReservation() {
     p_duree: reservation.duree,
     p_prix: reservation.prix,
     p_client_nom: nom,
-    p_client_tel: WAQQTI.formatPhone(tel),
+    p_client_tel: fullTel,
     p_date_rdv: dateRdv,
     p_notes: note || null,
     p_employe_id: reservation.employeId,
@@ -1108,6 +1192,7 @@ async function confirmReservation() {
 
   updateStatusVisual(data.acompte_statut);
   renderAcompteZone(data.acompte_statut, !!data.justificatif_url);
+  renderConfirmActions();
   if (data.acompte_statut === 'en_attente') startStatusPolling();
 }
 
