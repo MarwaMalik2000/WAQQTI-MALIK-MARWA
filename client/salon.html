@@ -375,6 +375,9 @@
   <!-- ═══════════ GALERIE DU SALON ═══════════ -->
   <div id="salon-gallery"></div>
 
+  <!-- ═══════════ À PROPOS DU SALON ═══════════ -->
+  <div id="salon-about"></div>
+
   <!-- ═══════════ ÉTAPES ═══════════ -->
   <div class="steps-bar">
     <div class="step-item active" data-step="1">
@@ -788,6 +791,15 @@ async function initSalon() {
 
   // Galerie du salon
   renderSalonGallery(salon.photos);
+
+  // À propos (descriptif rédigé par le gérant)
+  var about = document.getElementById('salon-about');
+  if (about) {
+    about.innerHTML = salon.description
+      ? '<div class="card"><h2 class="card-title">'+T('book.apropos','À propos du salon')+'</h2>'+
+        '<p style="white-space:pre-wrap;line-height:1.6;color:var(--brun-l)">'+escHtml(salon.description)+'</p></div>'
+      : '';
+  }
 
   // Avis clients
   loadAvis(salon);
