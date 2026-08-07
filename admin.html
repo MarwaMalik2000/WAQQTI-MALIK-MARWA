@@ -391,9 +391,7 @@ async function gererCompte(id, nom){
 // Renouveler l'essai de 30 jours (repasse en trial + nouvelle date de fin)
 async function renouvelerEssai(id, nom) {
   if (!confirm(`Renouveler l'essai de « ${nom} » pour 30 jours ?`)) return;
-  const fin = new Date(Date.now() + 30 * 86400000).toISOString();
-  const { error } = await WAQQTI.supabase
-    .from('salons').update({ formule: 'trial', trial_end_date: fin }).eq('id', id);
+  const { error } = await WAQQTI.supabase.rpc('admin_renouveler_essai', { p_salon_id: id });
   if (error) WAQQTI.toast(error.message, 'error');
   else { WAQQTI.toast('Essai renouvelé (+30 jours) ✓'); loadSalons(); }
 }
@@ -404,9 +402,10 @@ async function supprimerSalon(id, nom) {
   const saisie = prompt(`Pour confirmer, tape le nom exact du salon :\n« ${nom} »`);
   if (saisie === null) return;
   if (saisie.trim() !== nom.trim()) { WAQQTI.toast('Nom incorrect — suppression annulée', 'error'); return; }
-  const { error } = await WAQQTI.supabase.from('salons').delete().eq('id', id);
-  if (error) WAQQTI.toast(error.message, 'error');
-  else { WAQQTI.toast('Salon supprimé'); loadSalons(); }
+  const { error } = await WAQQTI.supabase.rpc('admin_supprimer_salon', { p_salon_id: id });
+  if (error) { WAQQTI.toast(error.message, 'error'); return; }
+  WAQQTI.toast('Salon supprimé ✓');
+  loadSalons();
 }
 
 async function changeFormule(id, current) {
