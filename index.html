@@ -211,8 +211,12 @@
     .steps { display:grid; grid-template-columns:repeat(4,1fr); gap:28px; margin-top:56px }
     .step { text-align:center; position:relative }
     .step:not(:last-child)::after {
-      content:'→'; position:absolute; top:22px; right:-18px;
+      content:'→'; position:absolute; top:22px; right:-18px; left:auto;
       color:var(--or-lt); font-size:20px;
+    }
+    /* En arabe (RTL) : la flèche pointe vers la gauche et se place à gauche */
+    [dir="rtl"] .step:not(:last-child)::after {
+      content:'←'; right:auto; left:-18px;
     }
     .step-n {
       width:52px; height:52px; border-radius:50%;
