@@ -635,12 +635,43 @@ async function loadEquipe(){
   var r=await sb().from('employes').select('*').eq('salon_id',STATE.salon.id).order('ordre',{ascending:true});
   var b=$('eq-body'); if(!b) return; var list=r.data||[];
   if(!list.length){ b.innerHTML='<div class="card empty">'+T('pro.aucun_membre','Aucun membre. Ajoute ton équipe.')+'</div>'; return; }
+  // Compter les RDV (non annulés) par membre
+  var counts={};
+  var rc=await sb().from('reservations').select('employe_id,statut').eq('salon_id',STATE.salon.id);
+  (rc.data||[]).forEach(function(x){ if(x.employe_id && x.statut!=='annule') counts[x.employe_id]=(counts[x.employe_id]||0)+1; });
   b.innerHTML='<div class="card">'+list.map(function(e){
-    return '<div class="row"><div><b>'+esc(e.nom)+'</b>'+(e.actif?'':' <span class="pill gray">'+T('pro.inactif','inactif')+'</span>')+'</div>'+
+    var n=counts[e.id]||0;
+    return '<div class="row"><div><b>'+esc(e.nom)+'</b>'+(e.actif?'':' <span class="pill gray">'+T('pro.inactif','inactif')+'</span>')+
+      ' <span class="pill or">'+ltr(n+' '+T('pro.rdv','RDV'))+'</span>'+
+      '<div class="muted" style="margin-top:2px;cursor:pointer;text-decoration:underline" onclick="viewEmployeRdv(\''+e.id+'\','+JSON.stringify(e.nom).replace(/"/g,'&quot;')+')">'+T('pro.voir_rdv','Voir ses rendez-vous')+'</div></div>'+
       '<div class="toolbar">'+
       '<button class="btn btn-ghost btn-sm" onclick=\'formEmploye('+JSON.stringify(e)+')\'>'+T('pro.modifier','Modifier')+'</button>'+
       '<button class="btn btn-ghost btn-sm" onclick="delEmploye(\''+e.id+'\')">🗑</button></div></div>';
   }).join('')+'</div>';
+}
+async function viewEmployeRdv(id, nom){
+  var main=$('main');
+  main.innerHTML='<div class="page-head"><h1>'+esc(nom)+'</h1>'+
+    '<button class="btn btn-ghost" onclick="viewEquipe()">'+T('pro.retour','← Retour')+'</button></div>'+
+    '<div id="emp-rdv"><div class="card empty">'+T('common.chargement','Chargement…')+'</div></div>';
+  var r=await sb().from('reservations').select('*').eq('salon_id',STATE.salon.id).eq('employe_id',id)
+    .order('date_rdv',{ascending:false}).limit(200);
+  var box=$('emp-rdv'); var list=(r.data||[]).filter(function(x){return x.statut!=='annule';});
+  if(!list.length){ box.innerHTML='<div class="card empty">'+T('pro.aucun_rdv_membre','Aucun rendez-vous pour ce membre.')+'</div>'; return; }
+  var now=new Date();
+  var fut=list.filter(function(x){return new Date(x.date_rdv)>=now;});
+  var pas=list.filter(function(x){return new Date(x.date_rdv)<now;});
+  function ligne(x){
+    var d=new Date(x.date_rdv);
+    return '<div class="row"><div><b>'+esc(x.prestation_nom||'')+'</b>'+
+      '<div class="muted">'+esc(x.client_nom||'')+' · '+ltr(d.toLocaleDateString('fr')+' '+d.toLocaleTimeString('fr',{hour:'2-digit',minute:'2-digit'}))+'</div></div>'+
+      '<div class="toolbar"><b>'+fmtPrix(x.prix||0)+'</b></div></div>';
+  }
+  box.innerHTML=
+    '<div class="card"><h3 style="font-size:18px;margin-bottom:8px">'+T('pro.a_venir','À venir')+' ('+ltr(fut.length+'')+')</h3>'+
+      (fut.length?fut.map(ligne).join(''):'<div class="muted">'+T('pro.aucun','Aucun')+'</div>')+'</div>'+
+    '<div class="card" style="margin-top:12px"><h3 style="font-size:18px;margin-bottom:8px">'+T('pro.passes','Passés')+' ('+ltr(pas.length+'')+')</h3>'+
+      (pas.length?pas.map(ligne).join(''):'<div class="muted">'+T('pro.aucun','Aucun')+'</div>')+'</div>';
 }
 function formEmploye(e){
   e=e||{}; var main=$('main');
@@ -730,6 +761,7 @@ function viewParametres(){
     '<div class="field"><label>'+T('pro.p_wilaya','Wilaya')+'</label><input class="inp" id="s-wilaya" value="'+esc(s.wilaya||'')+'"></div>'+
     '<div class="field"><label>'+T('pro.p_telephone','Téléphone')+'</label><input class="inp" id="s-tel" dir="ltr" value="'+esc(s.telephone||'')+'"></div></div>'+
     '<div class="field"><label>'+T('pro.p_adresse','Adresse')+'</label><input class="inp" id="s-adr" value="'+esc(s.adresse||'')+'"></div>'+
+    '<div class="field"><label>'+T('pro.p_description','Description du salon')+' <small style="color:var(--brun-l);font-weight:400">'+T('pro.p_description_hint','présentée aux clients')+'</small></label><textarea class="inp" id="s-desc" rows="4" style="resize:vertical" placeholder="'+T('pro.p_description_ph','Présentez votre salon : ambiance, spécialités, équipe, ce qui vous distingue…')+'">'+esc(s.description||'')+'</textarea></div>'+
     '<div class="field-grid">'+
     '<div class="field"><label>'+T('pro.p_mode','Mode de réservation')+'</label><select class="inp" id="s-mode">'+
       '<option value="creneau"'+(s.mode_reservation==='creneau'?' selected':'')+'>'+T('pro.p_mode_creneau','Par créneau horaire')+'</option>'+
@@ -926,7 +958,8 @@ async function saveParametres(){
     nom:$('s-nom').value.trim(), wilaya:$('s-wilaya').value.trim()||null,
     telephone:$('s-tel').value.trim()?WAQQTI.formatPhone($('s-tel').value.trim()):null, adresse:$('s-adr').value.trim()||null,
     mode_reservation:$('s-mode').value, nb_sieges:parseInt($('s-sieges').value)||1,
-    capacite_jour:parseInt($('s-capjour').value)||null
+    capacite_jour:parseInt($('s-capjour').value)||null,
+    description:$('s-desc').value.trim()||null
   };
   var r=await sb().from('salons').update(payload).eq('id',STATE.salon.id).select().single();
   if(r.error){ WAQQTI.toast(r.error.message,'error'); return; }
