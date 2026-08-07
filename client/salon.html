@@ -1082,6 +1082,25 @@ function acompteInfoHTML() {
     </div>`;
 }
 
+// Un compte n'est exigé QUE si la prestation demande un acompte
+async function getUid(){
+  var s=await WAQQTI.supabase.auth.getSession();
+  return (s && s.data && s.data.session) ? s.data.session.user.id : null;
+}
+async function injectAcompteLoginBanner(){
+  var host=document.getElementById('acompte-info'); if(!host) return;
+  var old=document.getElementById('acompte-login'); if(old) old.remove();
+  var uid=await getUid(); if(uid) return; // déjà connecté
+  var div=document.createElement('div');
+  div.id='acompte-login';
+  div.className='card';
+  div.style.cssText='border:1.5px solid var(--or);background:#FFF6EE';
+  div.innerHTML='<b>👤 '+T('book.acompte_compte_titre','Un compte est nécessaire pour les acomptes')+'</b>'+
+    '<p style="font-size:13px;color:var(--brun-l);margin:6px 0 10px">'+T('book.acompte_compte_sub','Connectez-vous ou créez un compte pour suivre votre acompte. Vos infos restent ici — revenez ensuite valider.')+'</p>'+
+    '<a href="/auth.html" target="_blank" rel="noopener" class="btn-next" style="display:inline-flex;text-decoration:none">'+T('book.avis_login_cta','Se connecter')+'</a>';
+  host.parentNode.insertBefore(div, host.nextSibling);
+}
+
 async function loadEmployes(salonId) {
   const { data: employes } = await WAQQTI.supabase
     .from('employes')
@@ -1310,11 +1329,14 @@ function nextStep() {
     const step3 = document.getElementById('step-3');
     const oldAc = document.getElementById('acompte-info');
     if (oldAc) oldAc.remove();
+    const oldLogin = document.getElementById('acompte-login');
+    if (oldLogin) oldLogin.remove();
     if (reservation.acompteRequis) {
       const wrap = document.createElement('div');
       wrap.id = 'acompte-info';
       wrap.innerHTML = acompteInfoHTML();
       step3.insertBefore(wrap, step3.firstChild);
+      injectAcompteLoginBanner();
     }
     document.getElementById('btn-next').disabled = true;
     document.getElementById('recap-label').textContent = T('book.step3','Coordonnées');
@@ -1353,6 +1375,14 @@ async function confirmReservation() {
   // Rattacher au compte si le client est connecté (pour « Mes réservations »)
   var _sess = await WAQQTI.supabase.auth.getSession();
   var _uid = (_sess && _sess.data && _sess.data.session) ? _sess.data.session.user.id : null;
+
+  // Compte OBLIGATOIRE uniquement si la prestation demande un acompte
+  if (reservation.acompteRequis && !_uid) {
+    btn.disabled = false; btn.textContent = originalText;
+    injectAcompteLoginBanner();
+    alert(T('book.acompte_login_requis','Pour réserver avec un acompte, connectez-vous d\'abord (bouton « Se connecter »). Vos informations restent saisies ici.'));
+    return;
+  }
 
   // Création via RPC : Kill Switch + anti-surbooking + calcul acompte côté serveur
   const { data, error } = await WAQQTI.supabase.rpc('creer_reservation', {
