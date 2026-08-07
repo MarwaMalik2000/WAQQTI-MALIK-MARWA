@@ -798,7 +798,11 @@ async function initSalon() {
     about.innerHTML = salon.description
       ? '<div class="card"><h2 class="card-title">'+T('book.apropos','À propos du salon')+'</h2>'+
         '<p style="white-space:pre-wrap;line-height:1.6;color:var(--brun-l)">'+escHtml(salon.description)+'</p></div>'
-      : '';
+      : '<div class="card"><h2 class="card-title">'+T('book.apropos','À propos du salon')+'</h2>'+
+        '<p style="color:var(--brun-l)">'+T('book.apropos_vide','Ce salon n’a pas encore ajouté de description.')+'</p></div>';
+    if (location.hash === '#salon-about') {
+      setTimeout(function(){ about.scrollIntoView({ behavior:'smooth', block:'start' }); }, 350);
+    }
   }
 
   // Avis clients
