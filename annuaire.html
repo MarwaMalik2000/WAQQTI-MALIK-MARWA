@@ -47,7 +47,9 @@
     .salon .dispo-day .dd{font-size:12px;color:var(--brun-l);min-width:48px;text-transform:capitalize}
     .salon .chip{font-size:12px;background:var(--cream);color:var(--or-dk);padding:4px 9px;border-radius:8px;font-weight:600;text-decoration:none}
     .salon .chip:hover{background:var(--cream2)}
-    .salon .go{margin-top:auto;text-align:center;padding:11px;background:var(--or);color:#fff;border-radius:10px;font-weight:600;font-size:14px}
+    .salon .more{margin-top:auto;display:block;text-align:center;font-size:13px;color:var(--or-dk);font-weight:600;text-decoration:none;padding:8px;border:1.5px solid var(--cream2);border-radius:10px;margin-bottom:8px}
+    .salon .more:hover{background:var(--cream)}
+    .salon .go{text-align:center;padding:11px;background:var(--or);color:#fff;border-radius:10px;font-weight:600;font-size:14px}
     .salon .go:hover{background:var(--or-dk)}
     .empty{text-align:center;color:var(--brun-l);padding:50px 20px}
     @media(max-width:600px){.searchbar{flex-direction:column}.btn{width:100%}}
@@ -121,6 +123,7 @@ function render(list){
       (s.description?'<div class="sdesc">'+esc(s.description.length>95?s.description.slice(0,95)+'…':s.description)+'</div>':'')+
       dist+
       '<div class="dispo" id="dispo-'+esc(s.id)+'"></div>'+
+      '<a class="more" href="/client/salon.html?s='+encodeURIComponent(s.slug)+'#salon-about">'+t('ann.plus_infos','Plus d’informations')+' →</a>'+
       '<a class="go" href="/client/salon.html?s='+encodeURIComponent(s.slug)+'">Réserver →</a>'+
       '</div>';
   }).join('');
