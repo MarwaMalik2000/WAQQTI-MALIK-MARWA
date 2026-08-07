@@ -130,6 +130,21 @@
           </select>
         </div>
 
+        <div class="form-row">
+          <label>Genre / cible</label>
+          <select id="new-genre" onchange="renderCats()">
+            <option value="">— À préciser —</option>
+            <option value="homme">Hommes</option>
+            <option value="femme">Femmes</option>
+            <option value="mixte">Mixte (hommes & femmes)</option>
+          </select>
+        </div>
+
+        <div class="form-row">
+          <label>Catégories / spécialités</label>
+          <div id="new-cats" style="display:flex;flex-wrap:wrap;gap:8px">—</div>
+        </div>
+
         <button type="submit" class="btn" style="width:100%">Créer le salon</button>
       </form>
 
@@ -152,6 +167,25 @@
 
 <script>
 let allSalons = [];
+
+// ── Catégories (partagées avec l'annuaire) ──
+const CAT_LABELS = {
+  barber:'Barber & coiffure hommes', bienetre_h:'Bien-être hommes',
+  coiffure_maquillage:'Coiffure & maquillage', onglerie:'Onglerie', spa:'Bien-être & spa',
+  soin_visage:'Esthétique & soin du visage', regard:'Beauté du regard', mariage:'Mariage & événements'
+};
+const CATS_H = ['barber','bienetre_h'];
+const CATS_F = ['coiffure_maquillage','onglerie','spa','soin_visage','regard','mariage'];
+function catsForGenre(g){ return g==='homme'?CATS_H : g==='femme'?CATS_F : g==='mixte'?CATS_H.concat(CATS_F) : []; }
+function renderCats(){
+  const g = document.getElementById('new-genre').value;
+  const box = document.getElementById('new-cats');
+  const list = catsForGenre(g);
+  if (!list.length){ box.innerHTML = '<span style="color:var(--brun-l);font-size:13px">Choisis d\'abord le genre</span>'; return; }
+  box.innerHTML = list.map(c =>
+    '<label style="display:flex;align-items:center;gap:5px;font-size:13px;font-weight:500;background:var(--cream);padding:6px 10px;border-radius:8px;cursor:pointer">'+
+    '<input type="checkbox" class="cat-cb" value="'+c+'"> '+CAT_LABELS[c]+'</label>').join('');
+}
 
 // Auto-générer le slug
 document.getElementById('new-nom').addEventListener('input', e => {
@@ -181,6 +215,8 @@ document.getElementById('create-form').addEventListener('submit', async e => {
     formule:  document.getElementById('new-formule').value,
     mode_reservation: document.getElementById('new-mode').value,
     nb_sieges: parseInt(document.getElementById('new-sieges').value) || 1,
+    genre: document.getElementById('new-genre').value || null,
+    categories: Array.from(document.querySelectorAll('.cat-cb:checked')).map(x => x.value),
   };
 
   const { data, error } = await WAQQTI.supabase
@@ -224,6 +260,7 @@ document.getElementById('create-form').addEventListener('submit', async e => {
   `;
 
   document.getElementById('create-form').reset();
+  renderCats();
   loadSalons();
 });
 
@@ -269,7 +306,9 @@ function renderSalons(salons) {
         <div class="salon-actions">
           <button class="icon-btn" onclick="copyLink('${s.slug}')">📋 Lien</button>
           <button class="icon-btn" onclick="changeFormule('${s.id}', '${s.formule}')">⚡ Formule</button>
+          <button class="icon-btn" onclick="renouvelerEssai('${s.id}', '${s.nom.replace(/'/g,'')}')">♻️ Essai +30j</button>
           <button class="icon-btn" onclick="lierGerant('${s.id}', '${s.nom.replace(/'/g,'')}')">👤 Gérant</button>
+          <button class="icon-btn" style="background:#FDE7E8;color:#C0272E" onclick="supprimerSalon('${s.id}', '${s.nom.replace(/'/g,'')}')">🗑 Supprimer</button>
         </div>
       </div>
     `;
@@ -300,6 +339,27 @@ async function lierGerant(id, nom) {
   });
   if (error) WAQQTI.toast(error.message, 'error');
   else { WAQQTI.toast('Salon lié à ' + email); loadSalons(); }
+}
+
+// Renouveler l'essai de 30 jours (repasse en trial + nouvelle date de fin)
+async function renouvelerEssai(id, nom) {
+  if (!confirm(`Renouveler l'essai de « ${nom} » pour 30 jours ?`)) return;
+  const fin = new Date(Date.now() + 30 * 86400000).toISOString();
+  const { error } = await WAQQTI.supabase
+    .from('salons').update({ formule: 'trial', trial_end_date: fin }).eq('id', id);
+  if (error) WAQQTI.toast(error.message, 'error');
+  else { WAQQTI.toast('Essai renouvelé (+30 jours) ✓'); loadSalons(); }
+}
+
+// Supprimer un salon (et tout ce qui lui est rattaché via ON DELETE CASCADE)
+async function supprimerSalon(id, nom) {
+  if (!confirm(`⚠️ Supprimer définitivement « ${nom} » ?\n\nToutes ses prestations, réservations, avis et photos seront supprimés. Action irréversible.`)) return;
+  const saisie = prompt(`Pour confirmer, tape le nom exact du salon :\n« ${nom} »`);
+  if (saisie === null) return;
+  if (saisie.trim() !== nom.trim()) { WAQQTI.toast('Nom incorrect — suppression annulée', 'error'); return; }
+  const { error } = await WAQQTI.supabase.from('salons').delete().eq('id', id);
+  if (error) WAQQTI.toast(error.message, 'error');
+  else { WAQQTI.toast('Salon supprimé'); loadSalons(); }
 }
 
 async function changeFormule(id, current) {
@@ -335,6 +395,7 @@ window.addEventListener('load', async () => {
   }
 
   // 3. Charger la liste des salons
+  renderCats();
   loadSalons();
 });
 </script>
