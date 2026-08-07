@@ -21,6 +21,11 @@
     .form-row { margin-bottom:14px }
     .form-row label { display:block; font-size:13px; font-weight:600; margin-bottom:5px; color:var(--brun) }
     .form-row input, .form-row select { width:100%; padding:11px 14px; border:1.5px solid #F5E2CC; border-radius:10px; font-size:14px; font-family:inherit }
+    /* Cases à cocher des catégories : ne pas hériter du width:100% */
+    #new-cats { display:flex; flex-wrap:wrap; gap:8px }
+    #new-cats label { display:inline-flex; align-items:center; gap:8px; background:var(--cream); padding:8px 12px; border-radius:10px; font-size:13px; font-weight:500; cursor:pointer; border:1.5px solid transparent }
+    #new-cats label:hover { border-color:var(--cream2) }
+    #new-cats input[type=checkbox] { width:18px; height:18px; flex:0 0 auto; margin:0; padding:0; accent-color:var(--or) }
     .form-row input:focus, .form-row select:focus { outline:none; border-color:var(--or); box-shadow:0 0 0 4px rgba(246,132,35,.1) }
     .form-flex { display:flex; gap:10px }
     .form-flex > div { flex:1 }
@@ -102,8 +107,13 @@
         </div>
 
         <div class="form-row">
-          <label>Email du gérant <small style="color:var(--brun-l);font-weight:400">(optionnel — pour lier son compte)</small></label>
+          <label>Email du gérant <small style="color:var(--brun-l);font-weight:400">(pour lier / créer son compte)</small></label>
           <input type="email" id="new-gerant" placeholder="gerant@salon.dz">
+        </div>
+
+        <div class="form-row">
+          <label>Mot de passe gérant <small style="color:var(--brun-l);font-weight:400">(optionnel — crée le compte directement)</small></label>
+          <input type="text" id="new-mdp" placeholder="min. 6 caractères" autocomplete="off">
         </div>
 
         <div class="form-flex">
@@ -183,8 +193,7 @@ function renderCats(){
   const list = catsForGenre(g);
   if (!list.length){ box.innerHTML = '<span style="color:var(--brun-l);font-size:13px">Choisis d\'abord le genre</span>'; return; }
   box.innerHTML = list.map(c =>
-    '<label style="display:flex;align-items:center;gap:5px;font-size:13px;font-weight:500;background:var(--cream);padding:6px 10px;border-radius:8px;cursor:pointer">'+
-    '<input type="checkbox" class="cat-cb" value="'+c+'"> '+CAT_LABELS[c]+'</label>').join('');
+    '<label><input type="checkbox" class="cat-cb" value="'+c+'"><span>'+CAT_LABELS[c]+'</span></label>').join('');
 }
 
 // Auto-générer le slug
@@ -231,19 +240,31 @@ document.getElementById('create-form').addEventListener('submit', async e => {
   alert.className = 'alert show success';
   alert.textContent = '✅ Salon créé avec succès !';
 
-  // Lier le compte gérant si un email a été fourni
+  // Compte gérant
   let gerantMsg = '';
   const gerantEmail = document.getElementById('new-gerant').value.trim();
-  if (gerantEmail) {
+  const gerantMdp = document.getElementById('new-mdp').value.trim();
+  if (gerantEmail && gerantMdp) {
+    // Créer le compte (email + mot de passe) via l'Edge Function sécurisée
+    const res = await creerCompteGerant(data.id, gerantEmail, gerantMdp);
+    if (res.ok) {
+      gerantMsg = `<br><br>✅ <b>Compte gérant ${res.created ? 'créé' : 'mis à jour'} & lié</b><br>
+        <div style="background:#fff;border:1px solid #EEE7DC;border-radius:8px;padding:10px;margin-top:6px">
+        🔗 <b>/pro/dashboard.html</b><br>📧 <b>${gerantEmail}</b><br>🔑 <b>${gerantMdp}</b></div>
+        <span style="color:var(--brun-l)">Transmets ces identifiants au gérant.</span>`;
+    } else {
+      gerantMsg = `<br><br><b style="color:#C03">⚠️ Compte non créé :</b> ${res.error}`;
+    }
+  } else if (gerantEmail) {
     const lk = await WAQQTI.supabase.rpc('lier_salon_owner', { p_salon_id: data.id, p_email: gerantEmail });
     if (lk.error) {
       gerantMsg = `<br><br><b style="color:#C03">⚠️ Gérant non lié :</b> ${lk.error.message}<br>
-        → Crée son compte dans <b>Supabase → Authentication → Add user</b> (email : <b>${gerantEmail}</b>, coche « Auto Confirm »), puis clique <b>👤 Gérant</b> sur le salon.`;
+        → Renseigne aussi un <b>mot de passe</b> pour créer le compte directement, ou clique <b>🔑 Compte</b> sur le salon.`;
     } else {
       gerantMsg = `<br><br>✅ <b>Gérant lié</b> (${gerantEmail}) — il peut se connecter à /pro/dashboard.html.`;
     }
   } else {
-    gerantMsg = `<br><br><span style="color:var(--brun-l)">ℹ️ Pense à créer le compte du gérant (Supabase → Authentication) puis à le lier via le bouton <b>👤 Gérant</b>.</span>`;
+    gerantMsg = `<br><br><span style="color:var(--brun-l)">ℹ️ Renseigne l'email + un mot de passe pour créer le compte du gérant, ou fais-le plus tard via <b>🔑 Compte</b>.</span>`;
   }
 
   // Afficher le lien
@@ -307,7 +328,8 @@ function renderSalons(salons) {
           <button class="icon-btn" onclick="copyLink('${s.slug}')">📋 Lien</button>
           <button class="icon-btn" onclick="changeFormule('${s.id}', '${s.formule}')">⚡ Formule</button>
           <button class="icon-btn" onclick="renouvelerEssai('${s.id}', '${s.nom.replace(/'/g,'')}')">♻️ Essai +30j</button>
-          <button class="icon-btn" onclick="lierGerant('${s.id}', '${s.nom.replace(/'/g,'')}')">👤 Gérant</button>
+          <button class="icon-btn" onclick="gererCompte('${s.id}', '${s.nom.replace(/'/g,'')}')">🔑 Compte</button>
+          <button class="icon-btn" onclick="lierGerant('${s.id}', '${s.nom.replace(/'/g,'')}')">👤 Lier</button>
           <button class="icon-btn" style="background:#FDE7E8;color:#C0272E" onclick="supprimerSalon('${s.id}', '${s.nom.replace(/'/g,'')}')">🗑 Supprimer</button>
         </div>
       </div>
@@ -339,6 +361,31 @@ async function lierGerant(id, nom) {
   });
   if (error) WAQQTI.toast(error.message, 'error');
   else { WAQQTI.toast('Salon lié à ' + email); loadSalons(); }
+}
+
+// Créer / réinitialiser le compte gérant (email + mot de passe) via Edge Function
+async function creerCompteGerant(salonId, email, password){
+  try{
+    const { data, error } = await WAQQTI.supabase.functions.invoke('creer-compte-gerant', {
+      body: { salon_id: salonId, email: email, password: password }
+    });
+    if (error) {
+      let msg = error.message || 'Erreur';
+      try { const j = await error.context.json(); if (j && j.error) msg = j.error; } catch(e){}
+      return { ok:false, error: msg };
+    }
+    if (data && data.error) return { ok:false, error: data.error };
+    return { ok:true, created: !!(data && data.created) };
+  } catch(e){ return { ok:false, error: String(e) }; }
+}
+async function gererCompte(id, nom){
+  const email = prompt(`Compte gérant pour « ${nom} »\n\nEmail :`);
+  if (!email) return;
+  const mdp = prompt('Mot de passe (min. 6 caractères) :');
+  if (!mdp) return;
+  const res = await creerCompteGerant(id, email.trim(), mdp.trim());
+  if (res.ok) { WAQQTI.toast('Compte ' + (res.created ? 'créé' : 'mis à jour') + ' ✓'); loadSalons(); }
+  else WAQQTI.toast(res.error, 'error');
 }
 
 // Renouveler l'essai de 30 jours (repasse en trial + nouvelle date de fin)
