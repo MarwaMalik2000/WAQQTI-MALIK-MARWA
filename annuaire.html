@@ -40,6 +40,12 @@
     .salon .note{font-size:14px;margin-bottom:8px}
     .salon .note .muted,.muted{color:#B79B82;font-weight:400}
     .pill{display:inline-block;padding:3px 10px;border-radius:50px;font-size:11px;font-weight:600;background:#FFE5D0;color:var(--or-dk);margin-bottom:12px;text-transform:capitalize}
+    .salon .dispo{margin:0 0 12px}
+    .salon .dispo-t{font-size:12px;font-weight:600;color:var(--brun);margin-bottom:6px}
+    .salon .dispo-day{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:5px}
+    .salon .dispo-day .dd{font-size:12px;color:var(--brun-l);min-width:48px;text-transform:capitalize}
+    .salon .chip{font-size:12px;background:var(--cream);color:var(--or-dk);padding:4px 9px;border-radius:8px;font-weight:600;text-decoration:none}
+    .salon .chip:hover{background:var(--cream2)}
     .salon .go{margin-top:auto;text-align:center;padding:11px;background:var(--or);color:#fff;border-radius:10px;font-weight:600;font-size:14px}
     .salon .go:hover{background:var(--or-dk)}
     .empty{text-align:center;color:var(--brun-l);padding:50px 20px}
@@ -112,9 +118,61 @@ function render(list){
       '<div class="meta">📍 '+esc(s.adresse||s.wilaya||'Algérie')+'</div>'+
       ((s.categories&&s.categories.length)?'<div class="ctags">'+s.categories.slice(0,2).map(function(k){return '<span class="ctag">'+esc(catLabel(k))+'</span>';}).join('')+'</div>':'')+
       dist+
+      '<div class="dispo" id="dispo-'+esc(s.id)+'"></div>'+
       '<a class="go" href="/client/salon.html?s='+encodeURIComponent(s.slug)+'">Réserver →</a>'+
       '</div>';
   }).join('');
+  chargerDispos(list);
+}
+
+/* ── Prochaines disponibilités (3 prochains jours ouvrés) ── */
+function t(k,fb){ if(window.WQ&&WQ.t){ var v=WQ.t(k); if(v&&v!==k) return v; } return fb; }
+function toMin(x){ x=(x||'').slice(0,5); var p=x.split(':'); return (+p[0])*60+(+p[1]); }
+function pad2(n){ return (n<10?'0':'')+n; }
+function jourCourt(d){ if(window.WQ&&WQ.jourCourt) return WQ.jourCourt(d); return ['dim','lun','mar','mer','jeu','ven','sam'][d.getDay()]; }
+function slotsJour(s, dateObj){
+  var o=toMin(s.heure_ouverture||'09:00'), c=toMin(s.heure_fermeture||'19:00'), step=s.intervalle_creneaux||30;
+  var pds=s.pause_debut?toMin(s.pause_debut):null, pfs=s.pause_fin?toMin(s.pause_fin):null;
+  var now=new Date(), isToday=dateObj.toDateString()===now.toDateString(), nowMin=now.getHours()*60+now.getMinutes();
+  var out=[];
+  for(var m=o;m+step<=c;m+=step){
+    if(pds!=null&&pfs!=null&&m>=pds&&m<pfs) continue;
+    if(isToday&&m<=nowMin+15) continue;
+    out.push(pad2(Math.floor(m/60))+':'+pad2(m%60));
+  }
+  return out;
+}
+async function dispoSalon(s){
+  var jf=s.jours_fermes||[], res=[], offset=0, open=0;
+  while(offset<=13 && open<3){
+    var d=new Date(); d.setDate(d.getDate()+offset); offset++;
+    if(jf.indexOf(d.getDay())>=0) continue;
+    if(s.mode_reservation==='journee'){ res.push({d:new Date(d),slots:null}); open++; continue; }
+    var cand=slotsJour(s,d); if(!cand.length) continue;
+    var jourStr=d.getFullYear()+'-'+pad2(d.getMonth()+1)+'-'+pad2(d.getDate());
+    var taken={};
+    try{
+      var rr=await sb().rpc('get_creneaux_pris',{p_salon_id:s.id,p_jour:jourStr});
+      (rr.data||[]).forEach(function(x){ var tt=new Date(x.date_rdv); var k=pad2(tt.getHours())+':'+pad2(tt.getMinutes()); taken[k]=(taken[k]||0)+1; });
+    }catch(e){}
+    var free=cand.filter(function(x){ return (taken[x]||0)<(s.nb_sieges||1); });
+    if(free.length){ res.push({d:new Date(d),slots:free.slice(0,3)}); open++; }
+  }
+  return res;
+}
+function chargerDispos(list){
+  for(var i=0;i<list.length && i<25;i++){ (function(s){
+    dispoSalon(s).then(function(res){
+      var host=document.getElementById('dispo-'+s.id); if(!host) return;
+      if(!res.length){ host.innerHTML='<div class="dispo-t" style="color:var(--brun-l)">'+t('ann.dispo_aucune','Pas de créneau proche')+'</div>'; return; }
+      host.innerHTML='<div class="dispo-t">'+t('ann.dispo_titre','Prochaines dispos')+'</div>'+res.map(function(r){
+        var jour='<span class="dd">'+esc(jourCourt(r.d))+' '+r.d.getDate()+'</span>';
+        if(r.slots===null) return '<div class="dispo-day">'+jour+' <a class="chip" href="/client/salon.html?s='+encodeURIComponent(s.slug)+'">'+t('ann.dispo_jour','Disponible')+'</a></div>';
+        var chips=r.slots.map(function(tm){ return '<a class="chip" href="/client/salon.html?s='+encodeURIComponent(s.slug)+'"><bdi dir="ltr">'+tm+'</bdi></a>'; }).join('');
+        return '<div class="dispo-day">'+jour+' '+chips+'</div>';
+      }).join('');
+    }).catch(function(){});
+  })(list[i]); }
 }
 
 var ALL_SALONS=[];
