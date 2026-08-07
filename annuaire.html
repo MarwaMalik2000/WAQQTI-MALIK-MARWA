@@ -37,6 +37,7 @@
     .salon .dist{font-size:12px;color:var(--green);font-weight:600;margin-bottom:12px}
     .salon .ctags{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px}
     .salon .ctag{font-size:11px;background:#F0E7DA;color:var(--brun-l);padding:3px 9px;border-radius:50px;font-weight:500}
+    .salon .sdesc{font-size:12.5px;color:var(--brun-l);line-height:1.45;margin-bottom:10px}
     .salon .note{font-size:14px;margin-bottom:8px}
     .salon .note .muted,.muted{color:#B79B82;font-weight:400}
     .pill{display:inline-block;padding:3px 10px;border-radius:50px;font-size:11px;font-weight:600;background:#FFE5D0;color:var(--or-dk);margin-bottom:12px;text-transform:capitalize}
@@ -117,6 +118,7 @@ function render(list){
       note+
       '<div class="meta">📍 '+esc(s.adresse||s.wilaya||'Algérie')+'</div>'+
       ((s.categories&&s.categories.length)?'<div class="ctags">'+s.categories.slice(0,2).map(function(k){return '<span class="ctag">'+esc(catLabel(k))+'</span>';}).join('')+'</div>':'')+
+      (s.description?'<div class="sdesc">'+esc(s.description.length>95?s.description.slice(0,95)+'…':s.description)+'</div>':'')+
       dist+
       '<div class="dispo" id="dispo-'+esc(s.id)+'"></div>'+
       '<a class="go" href="/client/salon.html?s='+encodeURIComponent(s.slug)+'">Réserver →</a>'+
