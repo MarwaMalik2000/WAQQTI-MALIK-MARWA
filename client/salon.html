@@ -851,20 +851,24 @@ function openLightbox(i){
   if (!ov){
     ov = document.createElement('div');
     ov.id = 'gal-lightbox';
-    ov.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:9999;display:flex;align-items:center;justify-content:center;flex-direction:column';
+    // Overlay centré ; les contrôles sont en position:fixed → ils NE bougent PAS
+    // d'une photo à l'autre, quel que soit le format de l'image.
+    ov.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:9999;display:flex;align-items:center;justify-content:center';
     ov.innerHTML =
-      '<img id="lb-img" style="max-width:92vw;max-height:80vh;border-radius:14px;box-shadow:0 10px 40px rgba(0,0,0,.5)">'+
-      '<div style="margin-top:16px;display:flex;gap:24px;align-items:center">'+
-        '<button onclick="lbStep(-1)" style="background:rgba(255,255,255,.15);color:#fff;border:none;width:48px;height:48px;border-radius:50%;font-size:22px;cursor:pointer">‹</button>'+
-        '<button onclick="closeLightbox()" style="background:#fff;color:#000;border:none;padding:10px 22px;border-radius:50px;font-weight:600;cursor:pointer">✕</button>'+
-        '<button onclick="lbStep(1)" style="background:rgba(255,255,255,.15);color:#fff;border:none;width:48px;height:48px;border-radius:50%;font-size:22px;cursor:pointer">›</button>'+
-      '</div>';
+      '<button onclick="closeLightbox()" aria-label="Fermer" style="position:fixed;top:16px;right:16px;background:#fff;color:#000;border:none;width:44px;height:44px;border-radius:50%;font-size:18px;font-weight:700;cursor:pointer;z-index:2">✕</button>'+
+      '<button id="lb-prev" onclick="lbStep(-1)" aria-label="Précédent" style="position:fixed;left:14px;top:50%;transform:translateY(-50%);background:rgba(255,255,255,.18);color:#fff;border:none;width:52px;height:52px;border-radius:50%;font-size:26px;line-height:1;cursor:pointer;z-index:2">‹</button>'+
+      '<button id="lb-next" onclick="lbStep(1)" aria-label="Suivant" style="position:fixed;right:14px;top:50%;transform:translateY(-50%);background:rgba(255,255,255,.18);color:#fff;border:none;width:52px;height:52px;border-radius:50%;font-size:26px;line-height:1;cursor:pointer;z-index:2">›</button>'+
+      '<img id="lb-img" style="max-width:88vw;max-height:86vh;border-radius:14px;box-shadow:0 10px 40px rgba(0,0,0,.5)">';
     document.body.appendChild(ov);
     ov.addEventListener('click', function(e){ if(e.target===ov) closeLightbox(); });
   }
   ov.style.display = 'flex';
   window.__lbIdx = idx;
   document.getElementById('lb-img').src = pics[idx];
+  // Masquer les flèches s'il n'y a qu'une seule photo
+  var multi = pics.length > 1 ? 'block' : 'none';
+  document.getElementById('lb-prev').style.display = multi;
+  document.getElementById('lb-next').style.display = multi;
 }
 function lbStep(d){
   const pics = window.__galPics || [];
@@ -1019,12 +1023,19 @@ async function loadPrestations(salonId) {
       const dureeLabel = p.duree_minutes >= 60
         ? `${Math.floor(p.duree_minutes/60)}h${p.duree_minutes % 60 ? (p.duree_minutes%60).toString().padStart(2,'0') : '00'}`
         : `${p.duree_minutes}min`;
+      const prixStr = (p.prix_max!=null && Number(p.prix_max)>Number(p.prix))
+        ? `<bdi dir="ltr">${Number(p.prix).toLocaleString('fr')}–${Number(p.prix_max).toLocaleString('fr')} DA</bdi>`
+        : `<bdi dir="ltr">${Number(p.prix).toLocaleString('fr')} DA</bdi>`;
+      const descStr = p.description
+        ? `<div class="prest-desc" style="font-size:12.5px;color:var(--brun-l);margin-top:4px;line-height:1.45">${escHtml(p.description)}</div>`
+        : '';
       div.innerHTML = `
         <div class="prest-info">
-          <div class="prest-name">${p.nom}</div>
+          <div class="prest-name">${escHtml(p.nom)}</div>
           <div class="prest-duration">${dureeLabel}</div>
+          ${descStr}
         </div>
-        <div class="prest-price">${Number(p.prix).toLocaleString('fr')} DA</div>
+        <div class="prest-price">${prixStr}</div>
       `;
       div.addEventListener('click', () => selectPrestation(div, p));
       step1.appendChild(div);
