@@ -718,15 +718,28 @@ async function loadAvisPro(){
   b.innerHTML='<div class="card">'+list.map(function(a){
     var d=new Date(a.created_at);
     var photo=a.photo_url?'<img src="'+esc(a.photo_url)+'" onclick="window.open(\''+esc(a.photo_url)+'\',\'_blank\')" style="width:60px;height:60px;border-radius:8px;object-fit:cover;cursor:pointer;flex-shrink:0">':'';
-    return '<div class="row" style="align-items:flex-start">'+
-      '<div style="display:flex;gap:12px;flex:1;min-width:0">'+photo+'<div style="min-width:0">'+
-      '<b>'+esc(a.auteur_nom||T('pro.avis_client','Client'))+'</b> <span style="color:#F6A623;letter-spacing:1px">'+starPro(a.note)+'</span>'+
-      '<div class="muted">'+(a.prestation_nom?esc(a.prestation_nom)+' · ':'')+ltr(d.toLocaleDateString('fr'))+'</div>'+
-      (a.commentaire?'<div style="margin-top:4px">'+esc(a.commentaire)+'</div>':'')+
-      '</div></div>'+
-      '<div class="toolbar"><button class="btn btn-ghost btn-sm" onclick="delAvis(\''+a.id+'\')" title="'+T('common.supprimer','Supprimer')+'">🗑</button></div>'+
-      '</div>';
+    var rep=a.reponse?'<div style="margin-top:8px;background:var(--cream);border-radius:10px;padding:9px 12px"><b style="font-size:12px">↳ '+T('pro.avis_votre_reponse','Votre réponse')+'</b><div style="margin-top:2px">'+esc(a.reponse)+'</div></div>':'';
+    return '<div style="border-bottom:1px solid #F3EADD;padding:12px 0">'+
+      '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px">'+
+        '<div style="display:flex;gap:12px;min-width:0">'+photo+'<div style="min-width:0">'+
+        '<b>'+esc(a.auteur_nom||T('pro.avis_client','Client'))+'</b> <span style="color:#F6A623;letter-spacing:1px">'+starPro(a.note)+'</span>'+
+        '<div class="muted">'+(a.prestation_nom?esc(a.prestation_nom)+' · ':'')+ltr(d.toLocaleDateString('fr'))+'</div>'+
+        (a.commentaire?'<div style="margin-top:4px">'+esc(a.commentaire)+'</div>':'')+
+        '</div></div>'+
+        '<button class="btn btn-ghost btn-sm" onclick="delAvis(\''+a.id+'\')" title="'+T('common.supprimer','Supprimer')+'">🗑</button>'+
+      '</div>'+rep+
+      '<div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap">'+
+        '<input class="inp" id="rep-'+a.id+'" placeholder="'+T('pro.avis_repondre_ph','Répondre publiquement à cet avis…')+'" value="'+esc(a.reponse||'')+'" style="font-size:13px;flex:1;min-width:200px">'+
+        '<button class="btn btn-sm" onclick="repondreAvis(\''+a.id+'\')">'+(a.reponse?T('pro.avis_modifier_rep','Modifier'):T('pro.avis_repondre','Répondre'))+'</button>'+
+      '</div>'+
+    '</div>';
   }).join('')+'</div>';
+}
+async function repondreAvis(id){
+  var el=$('rep-'+id); if(!el) return;
+  var r=await sb().rpc('repondre_avis',{p_avis_id:id, p_reponse: el.value.trim()||null});
+  if(r.error){ WAQQTI.toast(r.error.message,'error'); return; }
+  WAQQTI.toast(T('pro.avis_rep_ok','Réponse publiée ✓')); loadAvisPro();
 }
 async function delAvis(id){
   if(!confirm(T('pro.avis_confirm_del','Supprimer cet avis ? (réservé aux avis abusifs)'))) return;
@@ -770,6 +783,18 @@ function viewParametres(){
     '<div class="field"><label>'+T('pro.p_sieges','Nombre de sièges')+'</label><input class="inp" type="number" id="s-sieges" min="1" max="50" value="'+(s.nb_sieges||1)+'"></div></div>'+
     '<div class="field"><label>'+T('pro.p_capacite_jour','Plafond de réservations / jour (mode journée)')+' <small style="color:var(--brun-l);font-weight:400">'+T('pro.p_capacite_jour_hint','vide = illimité')+'</small></label><input class="inp" type="number" id="s-capjour" min="1" dir="ltr" value="'+(s.capacite_jour!=null?s.capacite_jour:'')+'" placeholder="'+T('pro.p_capacite_jour_ph','ex : 10')+'"></div>'+
     '<button class="btn" id="s-save">'+T('common.enregistrer','Enregistrer')+'</button></div>'+
+
+    // ── Fermeture exceptionnelle ──
+    '<div class="card" style="max-width:600px">'+
+    '<h3 style="font-size:20px;margin-bottom:4px">'+T('pro.ferme_titre','🚫 Fermeture exceptionnelle')+'</h3>'+
+    '<p class="muted" style="margin-bottom:14px">'+T('pro.ferme_sub','Fermez votre salon sur une plage de dates (congés, imprévu). Les clients ne pourront pas réserver ces jours-là.')+'</p>'+
+    (s.ferme_du?'<div class="pill or" style="margin-bottom:12px">'+T('pro.ferme_active','Fermé')+' '+ltr((s.ferme_du?String(s.ferme_du).slice(0,10):'')+' → '+(s.ferme_au?String(s.ferme_au).slice(0,10):''))+'</div>':'')+
+    '<div class="field-grid">'+
+    '<div class="field"><label>'+T('pro.ferme_du','Du')+'</label><input class="inp" type="date" id="s-ferme-du" value="'+(s.ferme_du?String(s.ferme_du).slice(0,10):'')+'"></div>'+
+    '<div class="field"><label>'+T('pro.ferme_au','Au')+'</label><input class="inp" type="date" id="s-ferme-au" value="'+(s.ferme_au?String(s.ferme_au).slice(0,10):'')+'"></div></div>'+
+    '<button class="btn" id="ferme-save">'+T('pro.ferme_enregistrer','Enregistrer la fermeture')+'</button> '+
+    '<button class="btn btn-ghost" id="ferme-clear">'+T('pro.ferme_annuler','Retirer la fermeture')+'</button>'+
+    '</div>'+
 
     // ── Coordonnées de paiement (acompte) ──
     '<div class="card" style="max-width:600px">'+
@@ -830,7 +855,21 @@ function viewParametres(){
   $('h-save').addEventListener('click', saveHoraires);
   $('logo-save').addEventListener('click', uploadLogo);
   if($('gal-save')) $('gal-save').addEventListener('click', uploadGalerie);
+  if($('ferme-save')) $('ferme-save').addEventListener('click', saveFermeture);
+  if($('ferme-clear')) $('ferme-clear').addEventListener('click', clearFermeture);
   renderQR();
+}
+async function saveFermeture(){
+  var du=$('s-ferme-du').value||null, au=$('s-ferme-au').value||null;
+  if(du&&au&&au<du){ WAQQTI.toast(T('pro.ferme_ordre','La date de fin doit être après le début'),'error'); return; }
+  var r=await sb().from('salons').update({ferme_du:du,ferme_au:au}).eq('id',STATE.salon.id).select().single();
+  if(r.error){ WAQQTI.toast(r.error.message,'error'); return; }
+  STATE.salon=r.data; WAQQTI.toast(T('pro.ferme_ok','Fermeture enregistrée ✓')); viewParametres();
+}
+async function clearFermeture(){
+  var r=await sb().from('salons').update({ferme_du:null,ferme_au:null}).eq('id',STATE.salon.id).select().single();
+  if(r.error){ WAQQTI.toast(r.error.message,'error'); return; }
+  STATE.salon=r.data; WAQQTI.toast(T('pro.ferme_efface','Fermeture retirée')); viewParametres();
 }
 function salonPublicUrl(){ return 'https://www.waqqti.com/client/salon.html?s='+encodeURIComponent(STATE.salon.slug||''); }
 function renderQR(){
