@@ -641,7 +641,19 @@ function renderConfirmActions(){
     html+='<a href="https://wa.me/'+wa+'?text='+msg+'" target="_blank" class="btn-next" style="display:flex;justify-content:center;background:#25D366;margin-bottom:10px;text-decoration:none;width:100%">💬 '+T('book.contacter_salon','Contacter le salon')+'</a>';
   }
   html+='<button type="button" class="btn-next" style="width:100%;justify-content:center;background:var(--cream2);color:var(--brun)" onclick="telechargerICS()">📅 '+T('book.calendrier','Ajouter au calendrier')+'</button>';
+  html+='<button type="button" onclick="annulerRDV()" style="width:100%;margin-top:10px;padding:11px;background:none;border:1.5px solid #E0454C;color:#C0272E;border-radius:12px;font-weight:600;font-family:inherit;cursor:pointer">✕ '+T('book.annuler_rdv','Annuler mon rendez-vous')+'</button>';
   host.innerHTML=html;
+}
+async function annulerRDV(){
+  if(!reservation.id){ return; }
+  if(!confirm(T('book.annuler_confirm','Voulez-vous vraiment annuler ce rendez-vous ?'))) return;
+  var saved=getSavedResa();
+  var token=(saved&&saved.token)||reservation.annulToken||null;
+  var r=await WAQQTI.supabase.rpc('annuler_reservation',{ p_id:reservation.id, p_token:token });
+  if(r.error){ alert('❌ '+r.error.message); return; }
+  alert(T('book.annuler_ok','Rendez-vous annulé. À bientôt !'));
+  clearSavedResa();
+  location.href='/client/salon.html?s='+encodeURIComponent(getSalonSlug());
 }
 function telechargerICS(){
   var start=new Date(reservation.date+'T'+(reservation.heure||'09:00')+':00');
@@ -663,8 +675,9 @@ function telechargerICS(){
 
 /* ─── Mémorisation de la réservation (persistance + suivi de statut) ─── */
 function savedKey(){ return 'waqqti_resa_' + getSalonSlug(); }
-function saveResa(id){ try{ localStorage.setItem(savedKey(), id); }catch(e){} }
-function getSavedResaId(){ try{ return localStorage.getItem(savedKey()); }catch(e){ return null; } }
+function saveResa(id, token){ try{ localStorage.setItem(savedKey(), JSON.stringify({id:id, token:token||null})); }catch(e){} }
+function getSavedResa(){ try{ var v=localStorage.getItem(savedKey()); if(!v) return null; try{ return JSON.parse(v); }catch(e){ return {id:v, token:null}; } }catch(e){ return null; } }
+function getSavedResaId(){ var s=getSavedResa(); return s?s.id:null; }
 function clearSavedResa(){ try{ localStorage.removeItem(savedKey()); }catch(e){} }
 function nouvelleReservation(){ clearSavedResa(); location.reload(); }
 
@@ -1523,7 +1536,8 @@ async function confirmReservation() {
   reservation.id = data.id;
   reservation.acompteMontant = Number(data.acompte_montant || 0);
   reservation.acompteRequis = data.acompte_statut === 'en_attente';
-  saveResa(data.id);   // mémorise la réservation (survit au rafraîchissement)
+  reservation.annulToken = data.annul_token || null;
+  saveResa(data.id, data.annul_token);   // mémorise la réservation + token d'annulation
 
   goToStep(4);
   document.getElementById('recap-bar').classList.remove('visible');
