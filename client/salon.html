@@ -372,6 +372,9 @@
 
 <div class="container">
 
+  <!-- ═══════════ BANNIÈRE FERMETURE ═══════════ -->
+  <div id="salon-ferme"></div>
+
   <!-- ═══════════ GALERIE DU SALON ═══════════ -->
   <div id="salon-gallery"></div>
 
@@ -789,6 +792,20 @@ async function initSalon() {
   if (salon.logo_url) { av.innerHTML = '<img src="'+salon.logo_url+'" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:24px">'; }
   else { av.textContent = salon.nom.charAt(0).toUpperCase(); }
 
+  // Bannière fermeture exceptionnelle (si la période couvre aujourd'hui ou le futur)
+  var fb = document.getElementById('salon-ferme');
+  if (fb) {
+    var todayStr = new Date().toISOString().slice(0,10);
+    var finFerm = salon.ferme_au || salon.ferme_du;
+    if (salon.ferme_du && finFerm >= todayStr) {
+      var periode = salon.ferme_au && salon.ferme_au !== salon.ferme_du
+        ? new Date(salon.ferme_du).toLocaleDateString('fr') + ' → ' + new Date(salon.ferme_au).toLocaleDateString('fr')
+        : new Date(salon.ferme_du).toLocaleDateString('fr');
+      fb.innerHTML = '<div class="card" style="border:1.5px solid var(--or);background:#FFF6EE;text-align:center">'+
+        '<b>🚫 '+T('book.ferme_titre','Salon fermé')+'</b><div style="color:var(--brun-l);margin-top:4px"><bdi dir="ltr">'+periode+'</bdi></div></div>';
+    } else { fb.innerHTML = ''; }
+  }
+
   // Galerie du salon
   renderSalonGallery(salon.photos);
 
@@ -927,6 +944,7 @@ async function loadAvis(salon){
       '<div style="font-size:12px;color:var(--brun-l)">'+meta+'</div>'+
       (a.commentaire?'<p style="margin-top:6px">'+escHtml(a.commentaire)+'</p>':'')+
       photo+
+      (a.reponse?'<div style="margin-top:8px;margin-left:12px;background:var(--cream);border-left:3px solid var(--or);border-radius:8px;padding:8px 12px"><b style="font-size:12px;color:var(--or-dk)">↳ '+T('book.avis_reponse','Réponse du salon')+'</b><div style="margin-top:2px;font-size:13.5px">'+escHtml(a.reponse)+'</div></div>':'')+
     '</div>';
   }).join('');
   await buildAvisForm(salon);
@@ -1173,13 +1191,16 @@ function generateDates() {
   const days = ['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'];
   const months = ['Jan','Fév','Mar','Avr','Mai','Juin','Juil','Août','Sep','Oct','Nov','Déc'];
 
-  const fermes = (reservation.salon && reservation.salon.jours_fermes) || [];
+  const s0 = reservation.salon || {};
+  const fermes = s0.jours_fermes || [];
+  const dstr = d => d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+  const inFermeture = ds => !!s0.ferme_du && ds >= s0.ferme_du && (s0.ferme_au ? ds <= s0.ferme_au : ds === s0.ferme_du);
 
   for (let i = 0; i < 14; i++) {
     const date = new Date(today);
     date.setDate(today.getDate() + i);
     const card = document.createElement('div');
-    const isClosed = fermes.indexOf(date.getDay()) >= 0;
+    const isClosed = fermes.indexOf(date.getDay()) >= 0 || inFermeture(dstr(date));
     card.className = 'date-card' + (isClosed ? ' closed' : '');
     card.innerHTML = `
       <div class="date-day">${days[date.getDay()]}</div>
