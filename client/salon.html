@@ -819,18 +819,8 @@ async function initSalon() {
   // Galerie du salon
   renderSalonGallery(salon.photos);
 
-  // À propos (descriptif rédigé par le gérant)
-  var about = document.getElementById('salon-about');
-  if (about) {
-    about.innerHTML = salon.description
-      ? '<div class="card"><h2 class="card-title">'+T('book.apropos','À propos du salon')+'</h2>'+
-        '<p style="white-space:pre-wrap;line-height:1.6;color:var(--brun-l)">'+escHtml(salon.description)+'</p></div>'
-      : '<div class="card"><h2 class="card-title">'+T('book.apropos','À propos du salon')+'</h2>'+
-        '<p style="color:var(--brun-l)">'+T('book.apropos_vide','Ce salon n’a pas encore ajouté de description.')+'</p></div>';
-    if (location.hash === '#salon-about') {
-      setTimeout(function(){ about.scrollIntoView({ behavior:'smooth', block:'start' }); }, 350);
-    }
-  }
+  // À propos (description + horaires + équipe)
+  renderAbout(salon);
 
   // Avis clients
   loadAvis(salon);
@@ -1024,6 +1014,39 @@ async function soumettreAvis(salonId){
 }
 document.addEventListener('wq:langchange', function(){ if(reservation.salon) loadAvis(reservation.salon); });
 
+/* ═══════════ À PROPOS ═══════════ */
+function jNom(i){ var d=new Date(2024,0,7+i); return (window.WQ&&WQ.jourCourt)?WQ.jourCourt(d):['dim','lun','mar','mer','jeu','ven','sam'][i]; }
+async function renderAbout(salon){
+  var about=document.getElementById('salon-about'); if(!about) return;
+  var parts='';
+  parts += salon.description
+    ? '<p style="white-space:pre-wrap;line-height:1.6;color:var(--brun-l)">'+escHtml(salon.description)+'</p>'
+    : '<p style="color:var(--brun-l)">'+T('book.apropos_vide','Ce salon n’a pas encore ajouté de description.')+'</p>';
+  // Horaires
+  var jf=salon.jours_fermes||[];
+  var ouverts=[0,1,2,3,4,5,6].filter(function(i){return jf.indexOf(i)<0;}).map(jNom);
+  var fermes=jf.map(jNom);
+  var hOuv=(salon.heure_ouverture||'09:00').slice(0,5).replace(':','h');
+  var hFer=(salon.heure_fermeture||'19:00').slice(0,5).replace(':','h');
+  parts += '<div style="margin-top:16px"><b>🕐 '+T('book.horaires','Horaires d\'ouverture')+'</b>'+
+    (salon.mode_reservation==='journee'?'':'<div style="color:var(--brun-l);margin-top:2px"><bdi dir="ltr">'+hOuv+' – '+hFer+'</bdi></div>')+
+    '<div style="color:var(--brun-l);font-size:13px;margin-top:2px">'+esc2(ouverts.join(', '))+
+    (fermes.length?(' · '+T('book.ferme_le','fermé')+' '+esc2(fermes.join(', '))):'')+'</div></div>';
+  // Collaborateurs
+  try{
+    var er=await WAQQTI.supabase.from('employes').select('nom').eq('salon_id',salon.id).eq('actif',true).order('ordre',{ascending:true});
+    var emps=(er.data||[]);
+    if(emps.length){
+      parts += '<div style="margin-top:16px"><b>👥 '+T('book.collaborateurs','L\'équipe')+'</b>'+
+        '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px">'+
+        emps.map(function(e){return '<span style="background:var(--cream);padding:5px 11px;border-radius:50px;font-size:13px">'+escHtml(e.nom)+'</span>';}).join('')+'</div></div>';
+    }
+  }catch(e){}
+  about.innerHTML='<div class="card"><h2 class="card-title">'+T('book.apropos','À propos du salon')+'</h2>'+parts+'</div>';
+  if(location.hash==='#salon-about'){ setTimeout(function(){about.scrollIntoView({behavior:'smooth',block:'start'});},350); }
+}
+function esc2(s){ return escHtml(s); }
+
 /* ═══════════ LISTE D'ATTENTE ═══════════ */
 async function buildAttenteForm(){
   var zone=document.getElementById('attente-zone'); if(!zone) return;
@@ -1032,8 +1055,12 @@ async function buildAttenteForm(){
   var inp='width:100%;padding:12px 14px;border:1.5px solid var(--cream2);border-radius:12px;font-size:15px;font-family:inherit';
   zone.innerHTML=
     '<div class="form-row"><label>'+T('book.nom_label','Nom complet')+' *</label><input type="text" id="att-nom" style="'+inp+'" placeholder="'+T('book.liste_nom_ph','Ex : Amina K.')+'"></div>'+
-    '<div class="form-row" style="margin-top:10px"><label>'+T('book.liste_tel','Téléphone')+'</label><input type="tel" id="att-tel" dir="ltr" style="'+inp+'" placeholder="0770 12 34 56"></div>'+
-    '<div class="form-row" style="margin-top:10px"><label>'+T('book.liste_email','E-mail (optionnel)')+'</label><input type="email" id="att-email" dir="ltr" style="'+inp+'" value="'+escHtml(email)+'"></div>'+
+    '<div class="form-row" style="margin-top:10px"><label>'+T('book.liste_email','E-mail')+' *</label><input type="email" id="att-email" dir="ltr" style="'+inp+'" value="'+escHtml(email)+'" placeholder="vous@email.com"></div>'+
+    '<div class="form-row" style="margin-top:10px"><label>'+T('book.liste_tel','Téléphone (optionnel)')+'</label><input type="tel" id="att-tel" dir="ltr" style="'+inp+'" placeholder="0770 12 34 56"></div>'+
+    '<div class="form-grid" style="display:flex;gap:10px;margin-top:10px;flex-wrap:wrap">'+
+      '<div class="form-row" style="flex:1;min-width:140px"><label>'+T('book.liste_jour','Jour souhaité')+'</label><input type="date" id="att-jour" dir="ltr" style="'+inp+'" value="'+escHtml(reservation.date||'')+'"></div>'+
+      '<div class="form-row" style="flex:1;min-width:140px"><label>'+T('book.liste_heure','Créneau souhaité')+'</label><input type="text" id="att-heure" style="'+inp+'" placeholder="'+T('book.liste_heure_ph','ex : matin, 14h…')+'" value="'+escHtml(reservation.heure||'')+'"></div>'+
+    '</div>'+
     '<button type="button" class="btn-next" style="width:100%;justify-content:center;margin-top:14px" onclick="soumettreAttente()">🔔 '+T('book.liste_cta','Me prévenir si une place se libère')+'</button>'+
     '<div id="att-status" style="font-size:13px;margin-top:8px"></div>';
 }
@@ -1041,12 +1068,15 @@ async function soumettreAttente(){
   var st=document.getElementById('att-status');
   var nom=(document.getElementById('att-nom').value||'').trim();
   if(!nom){ st.style.color='#c0392b'; st.textContent=T('book.liste_nom_requis','Votre nom est requis.'); return; }
-  var tel=(document.getElementById('att-tel').value||'').trim();
   var email=(document.getElementById('att-email').value||'').trim();
+  if(!email){ st.style.color='#c0392b'; st.textContent=T('book.liste_email_requis','Votre e-mail est requis pour être prévenu(e).'); return; }
+  var tel=(document.getElementById('att-tel').value||'').trim();
+  var jour=(document.getElementById('att-jour').value||'').trim()||reservation.date||null;
+  var heure=(document.getElementById('att-heure').value||'').trim()||null;
   var r=await WAQQTI.supabase.rpc('ajouter_liste_attente',{
-    p_salon_id:reservation.salonId, p_nom:nom, p_telephone:tel||null, p_email:email||null,
+    p_salon_id:reservation.salonId, p_nom:nom, p_telephone:tel||null, p_email:email,
     p_prestation_id:reservation.prestationId||null, p_prestation_nom:reservation.prestation||null,
-    p_jour:reservation.date||null });
+    p_jour:jour, p_heure:heure });
   if(r.error){ st.style.color='#c0392b'; st.textContent='❌ '+r.error.message; return; }
   st.style.color='var(--green)'; st.textContent='✓ '+T('book.liste_ok','Vous êtes sur la liste ! Le salon vous préviendra.');
   var btn=document.querySelector('#attente-zone .btn-next'); if(btn){ btn.disabled=true; }
@@ -1067,52 +1097,60 @@ async function loadPrestations(salonId) {
     return;
   }
 
-  // Regrouper par catégorie
-  const groups = {};
-  prestations.forEach(p => {
-    const cat = p.categorie || 'Autres';
-    if (!groups[cat]) groups[cat] = [];
-    groups[cat].push(p);
-  });
-
-  // Supprimer les exemples figés
+  // Stocker + insérer le contrôle de tri (une seule fois)
+  window.__PRESTS = prestations;
+  if (!document.getElementById('prest-sort')) {
+    const bar = document.createElement('div');
+    bar.style.cssText = 'display:flex;justify-content:flex-end;margin:4px 0 10px';
+    bar.innerHTML = '<select id="prest-sort" style="padding:8px 12px;border:1.5px solid var(--cream2);border-radius:10px;font-family:inherit;font-size:13px">'+
+      '<option value="reco">'+T('book.tri_reco','Trier : recommandé')+'</option>'+
+      '<option value="prix_asc">'+T('book.tri_prix_asc','Prix croissant')+'</option>'+
+      '<option value="prix_desc">'+T('book.tri_prix_desc','Prix décroissant')+'</option></select>';
+    const sub = step1.querySelector('.card-sub');
+    if (sub) sub.insertAdjacentElement('afterend', bar); else step1.insertBefore(bar, step1.firstChild);
+    document.getElementById('prest-sort').addEventListener('change', function(){ drawPrests(this.value); });
+  }
+  drawPrests('reco');
+}
+function prestItemEl(p){
+  const div = document.createElement('div');
+  div.className = 'prest-item';
+  div.dataset.id = p.id; div.dataset.name = p.nom; div.dataset.duration = p.duree_minutes; div.dataset.price = p.prix;
+  const dureeLabel = p.duree_minutes >= 60
+    ? `${Math.floor(p.duree_minutes/60)}h${p.duree_minutes % 60 ? (p.duree_minutes%60).toString().padStart(2,'0') : '00'}`
+    : `${p.duree_minutes}min`;
+  const prixStr = (p.prix_max!=null && Number(p.prix_max)>Number(p.prix))
+    ? `<bdi dir="ltr">${Number(p.prix).toLocaleString('fr')}–${Number(p.prix_max).toLocaleString('fr')} DA</bdi>`
+    : `<bdi dir="ltr">${Number(p.prix).toLocaleString('fr')} DA</bdi>`;
+  const descStr = p.description
+    ? `<div class="prest-desc" style="font-size:12.5px;color:var(--brun-l);margin-top:4px;line-height:1.45">${escHtml(p.description)}</div>`
+    : '';
+  div.innerHTML = `
+    <div class="prest-info">
+      <div class="prest-name">${escHtml(p.nom)}</div>
+      <div class="prest-duration">${dureeLabel}</div>
+      ${descStr}
+    </div>
+    <div class="prest-price">${prixStr}</div>
+  `;
+  div.addEventListener('click', () => selectPrestation(div, p));
+  return div;
+}
+function drawPrests(mode){
+  const step1 = document.querySelector('#step-1 .card');
   step1.querySelectorAll('.prest-categ, .prest-item').forEach(el => el.remove());
-
-  // Régénérer
-  Object.entries(groups).forEach(([cat, items]) => {
-    const catEl = document.createElement('div');
-    catEl.className = 'prest-categ';
-    catEl.textContent = cat;
-    step1.appendChild(catEl);
-
-    items.forEach(p => {
-      const div = document.createElement('div');
-      div.className = 'prest-item';
-      div.dataset.id = p.id;
-      div.dataset.name = p.nom;
-      div.dataset.duration = p.duree_minutes;
-      div.dataset.price = p.prix;
-      const dureeLabel = p.duree_minutes >= 60
-        ? `${Math.floor(p.duree_minutes/60)}h${p.duree_minutes % 60 ? (p.duree_minutes%60).toString().padStart(2,'0') : '00'}`
-        : `${p.duree_minutes}min`;
-      const prixStr = (p.prix_max!=null && Number(p.prix_max)>Number(p.prix))
-        ? `<bdi dir="ltr">${Number(p.prix).toLocaleString('fr')}–${Number(p.prix_max).toLocaleString('fr')} DA</bdi>`
-        : `<bdi dir="ltr">${Number(p.prix).toLocaleString('fr')} DA</bdi>`;
-      const descStr = p.description
-        ? `<div class="prest-desc" style="font-size:12.5px;color:var(--brun-l);margin-top:4px;line-height:1.45">${escHtml(p.description)}</div>`
-        : '';
-      div.innerHTML = `
-        <div class="prest-info">
-          <div class="prest-name">${escHtml(p.nom)}</div>
-          <div class="prest-duration">${dureeLabel}</div>
-          ${descStr}
-        </div>
-        <div class="prest-price">${prixStr}</div>
-      `;
-      div.addEventListener('click', () => selectPrestation(div, p));
-      step1.appendChild(div);
+  let list = (window.__PRESTS || []).slice();
+  if (mode === 'prix_asc' || mode === 'prix_desc') {
+    list.sort((a,b)=> mode==='prix_asc' ? (Number(a.prix)-Number(b.prix)) : (Number(b.prix)-Number(a.prix)));
+    list.forEach(p => step1.appendChild(prestItemEl(p)));
+  } else {
+    const groups = {};
+    list.forEach(p => { const c = p.categorie || 'Autres'; (groups[c] = groups[c] || []).push(p); });
+    Object.entries(groups).forEach(([cat, items]) => {
+      const catEl = document.createElement('div'); catEl.className = 'prest-categ'; catEl.textContent = cat; step1.appendChild(catEl);
+      items.forEach(p => step1.appendChild(prestItemEl(p)));
     });
-  });
+  }
 }
 
 function selectPrestation(item, p) {
