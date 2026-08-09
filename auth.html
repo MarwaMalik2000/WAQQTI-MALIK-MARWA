@@ -82,8 +82,9 @@
     <div class="big" id="ac-init">?</div>
     <h2 id="ac-name">Bienvenue</h2>
     <div class="em" id="ac-email"></div>
-    <div id="mes-resa" style="text-align:left;margin:6px 0 16px"></div>
-    <a class="btn" href="/annuaire.html" style="display:block;text-align:center;margin-bottom:12px">Trouver un salon →</a>
+    <button class="btn" id="btn-histo" style="width:100%;margin:16px 0 6px">📅 Mes réservations</button>
+    <div id="mes-resa" class="hidden" style="text-align:left;margin:6px 0 16px"></div>
+    <a class="btn" href="/annuaire.html" style="display:block;text-align:center;margin:12px 0">Trouver un salon →</a>
     <button class="btn btn-google" id="btn-logout">Se déconnecter</button>
     <a class="home" href="/" data-i18n="auth.retour_accueil">← Retour à l'accueil</a>
   </div>
@@ -168,7 +169,16 @@ async function showAccount(user){
   document.getElementById('ac-init').textContent=(label.charAt(0)||'?').toUpperCase();
   document.getElementById('ac-name').textContent='Bonjour '+(prenom||label)+' 👋';
   document.getElementById('ac-email').textContent=user.email;
-  showMesReservations(user.id);
+  // Historique masqué par défaut, chargé au clic
+  var bh=document.getElementById('btn-histo'); var loaded=false;
+  if(bh) bh.onclick=function(){
+    var box=document.getElementById('mes-resa');
+    if(box.classList.contains('hidden')){
+      box.classList.remove('hidden');
+      if(!loaded){ showMesReservations(user.id); loaded=true; }
+      bh.textContent='📅 Masquer mes réservations';
+    } else { box.classList.add('hidden'); bh.textContent='📅 Mes réservations'; }
+  };
 }
 
 async function onSubmit(e){
