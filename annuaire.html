@@ -41,6 +41,7 @@
     .salon .note{font-size:14px;margin-bottom:8px}
     .salon .note .muted,.muted{color:#B79B82;font-weight:400}
     .pill{display:inline-block;padding:3px 10px;border-radius:50px;font-size:11px;font-weight:600;background:#FFE5D0;color:var(--or-dk);margin-bottom:12px;text-transform:capitalize}
+    .pill.gamme{background:#E8F0E4;color:#2D9E5F;margin-left:6px;letter-spacing:1px}
     .salon .dispo{margin:0 0 12px}
     .salon .dispo-t{font-size:12px;font-weight:600;color:var(--brun);margin-bottom:6px}
     .salon .dispo-day{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:5px}
@@ -77,6 +78,7 @@
       <input type="text" id="q" placeholder="🔍 Nom du salon, ville, adresse…" data-i18n-attr="placeholder:ann.recherche_ph"/>
       <select id="genre" style="padding:13px 14px;border:1.5px solid var(--cream2);border-radius:12px;font-size:15px;font-family:inherit;background:#fff"><option value="" data-i18n="ann.genre_tous">Hommes & Femmes</option><option value="homme" data-i18n="ann.genre_h">Hommes</option><option value="femme" data-i18n="ann.genre_f">Femmes</option></select>
       <select id="cat" style="padding:13px 14px;border:1.5px solid var(--cream2);border-radius:12px;font-size:15px;font-family:inherit;background:#fff"><option value="">Toutes spécialités</option></select>
+      <select id="gamme" style="padding:13px 14px;border:1.5px solid var(--cream2);border-radius:12px;font-size:15px;font-family:inherit;background:#fff"><option value="" data-i18n="ann.prix_tous">Tous les prix</option><option value="1">€ — Éco</option><option value="2">€€ — Moyen</option><option value="3">€€€ — Premium</option></select>
       <select id="wilaya" style="padding:13px 14px;border:1.5px solid var(--cream2);border-radius:12px;font-size:15px;font-family:inherit;background:#fff"><option value="">Toutes les wilayas</option></select>
       <button class="btn" id="btn-search" data-i18n="ann.rechercher">Rechercher</button>
       <button class="btn btn-ghost" id="btn-geo" data-i18n="ann.autour">📍 Autour de moi</button>
@@ -89,6 +91,9 @@ function sb(){ return window.WAQQTI && window.WAQQTI.supabase; }
 function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){
   return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
 function stars(n){ n=Math.round(Number(n)||0); var s=''; for(var i=1;i<=5;i++) s+=(i<=n?'★':'☆'); return '<span style="color:#F6A623;letter-spacing:1px">'+s+'</span>'; }
+// Gamme de prix (seuils en DA, ajustables) : € < 1500 · €€ 1500–3500 · €€€ > 3500
+function gammeNum(prix){ if(prix==null) return 0; var p=Number(prix); return p<1500?1:(p<=3500?2:3); }
+function gammeSym(prix){ var n=gammeNum(prix); return n?('€'.repeat(n)):''; }
 function newLabel(){ return (window.WQ&&WQ.t&&WQ.t('ann.nouveau')!=='ann.nouveau')?WQ.t('ann.nouveau'):'✨ Nouveau'; }
 
 // Catégories (mêmes clés que l'admin) — libellés traduits via i18n si dispo
@@ -116,6 +121,7 @@ function render(list){
         (s.logo_url?'<img src="'+esc(s.logo_url)+'" alt="" style="width:100%;height:100%;object-fit:cover">':esc((s.nom||'?').charAt(0).toUpperCase()))+
       '</div>'+
       '<span class="pill">'+esc(s.formule)+'</span>'+
+      (s.prix_moyen!=null?'<span class="pill gamme" title="'+esc(Number(s.prix_moyen).toLocaleString('fr'))+' DA">'+gammeSym(s.prix_moyen)+'</span>':'')+
       '<h3>'+esc(s.nom)+'</h3>'+
       note+
       '<div class="meta">📍 '+esc(s.adresse||s.wilaya||'Algérie')+'</div>'+
@@ -202,10 +208,12 @@ function appliquerFiltres(){
   var w=document.getElementById('wilaya').value;
   var g=(document.getElementById('genre')||{}).value||'';
   var c=(document.getElementById('cat')||{}).value||'';
+  var pg=(document.getElementById('gamme')||{}).value||'';
   var list=ALL_SALONS.filter(function(s){
     if(w && s.wilaya!==w) return false;
     if(g && !(s.genre===g || s.genre==='mixte')) return false;
     if(c && (s.categories||[]).indexOf(c)<0) return false;
+    if(pg && String(gammeNum(s.prix_moyen))!==pg) return false;
     return true;
   });
   render(list);
@@ -235,6 +243,7 @@ function boot(){
   document.getElementById('wilaya').addEventListener('change', appliquerFiltres);
   document.getElementById('genre').addEventListener('change', appliquerFiltres);
   document.getElementById('cat').addEventListener('change', appliquerFiltres);
+  document.getElementById('gamme').addEventListener('change', appliquerFiltres);
   peuplerCats();
   document.addEventListener('wq:langchange', function(){ peuplerCats(); appliquerFiltres(); });
   chargerTous('');
