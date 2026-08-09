@@ -789,6 +789,12 @@ async function delAttente(id){
 function viewParametres(){
   var s=STATE.salon, main=$('main');
   main.innerHTML='<div class="page-head"><h1>'+T('pro.parametres','Paramètres')+'</h1></div>'+
+    // ── Notifications push ──
+    '<div class="card" style="max-width:600px">'+
+    '<h3 style="font-size:20px;margin-bottom:4px">'+T('pro.push_titre','🔔 Notifications')+'</h3>'+
+    '<p class="muted" style="margin-bottom:12px">'+T('pro.push_sub','Recevez une alerte sur ce téléphone/ordinateur à chaque nouvelle réservation, même l\'application fermée.')+'</p>'+
+    '<button class="btn" id="push-btn">'+T('pro.push_activer','Activer les notifications')+'</button>'+
+    '<div id="push-status" style="font-size:13px;margin-top:8px"></div></div>'+
     // ── Logo du salon ──
     '<div class="card" style="max-width:600px">'+
     '<h3 style="font-size:20px;margin-bottom:4px">'+T('pro.logo_titre','🖼 Logo du salon')+'</h3>'+
@@ -891,7 +897,26 @@ function viewParametres(){
   if($('gal-save')) $('gal-save').addEventListener('click', uploadGalerie);
   if($('ferme-save')) $('ferme-save').addEventListener('click', saveFermeture);
   if($('ferme-clear')) $('ferme-clear').addEventListener('click', clearFermeture);
+  if($('push-btn')) $('push-btn').addEventListener('click', activerNotifs);
   renderQR();
+}
+/* ── Notifications push (même app fermée) ── */
+var VAPID_PUBLIC='BApETiw_PDuPVnDVt_j9nxzW73M_q4T5462tPdHDqs7aY2vAv8h4P7rzRSgQKfUXJx207uBwy8UHNtMCBHY07S0';
+function urlB64ToUint8(b){var pad='='.repeat((4-b.length%4)%4);var s=(b+pad).replace(/-/g,'+').replace(/_/g,'/');var raw=atob(s);var arr=new Uint8Array(raw.length);for(var i=0;i<raw.length;i++)arr[i]=raw.charCodeAt(i);return arr;}
+async function activerNotifs(){
+  var st=$('push-status');
+  if(!('serviceWorker' in navigator) || !('PushManager' in window)){ st.style.color='#c0392b'; st.textContent=T('pro.push_indispo','Notifications non supportées sur cet appareil/navigateur.'); return; }
+  try{
+    var reg=await navigator.serviceWorker.register('/service-worker.js');
+    await navigator.serviceWorker.ready;
+    var perm=await Notification.requestPermission();
+    if(perm!=='granted'){ st.style.color='#c0392b'; st.textContent=T('pro.push_refuse','Autorisation refusée. Activez-la dans les réglages du navigateur.'); return; }
+    var sub=await reg.pushManager.subscribe({userVisibleOnly:true, applicationServerKey:urlB64ToUint8(VAPID_PUBLIC)});
+    var j=sub.toJSON();
+    var r=await sb().from('push_subscriptions').upsert({salon_id:STATE.salon.id, endpoint:j.endpoint, subscription:j},{onConflict:'endpoint'});
+    if(r.error){ st.style.color='#c0392b'; st.textContent='❌ '+r.error.message; return; }
+    st.style.color='var(--green)'; st.textContent='✓ '+T('pro.push_ok','Notifications activées sur cet appareil.');
+  }catch(e){ st.style.color='#c0392b'; st.textContent='❌ '+String(e); }
 }
 async function saveFermeture(){
   var du=$('s-ferme-du').value||null, au=$('s-ferme-au').value||null;
