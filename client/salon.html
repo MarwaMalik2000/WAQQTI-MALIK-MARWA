@@ -514,6 +514,13 @@
         <div class="slots-grid" id="slots-afternoon"></div>
       </div>
     </div>
+
+    <!-- LISTE D'ATTENTE -->
+    <div class="card" id="attente-card">
+      <h2 class="card-title" data-i18n="book.liste_titre">Complet ou aucun créneau qui vous convient ?</h2>
+      <p class="card-sub" data-i18n="book.liste_sub">Laissez vos coordonnées : le salon vous prévient dès qu'une place se libère.</p>
+      <div id="attente-zone"></div>
+    </div>
   </div>
 
   <!-- ═══════════ ÉTAPE 3 : COORDONNÉES ═══════════ -->
@@ -792,6 +799,9 @@ async function initSalon() {
   if (salon.logo_url) { av.innerHTML = '<img src="'+salon.logo_url+'" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:24px">'; }
   else { av.textContent = salon.nom.charAt(0).toUpperCase(); }
 
+  // Liste d'attente
+  buildAttenteForm();
+
   // Bannière fermeture exceptionnelle (si la période couvre aujourd'hui ou le futur)
   var fb = document.getElementById('salon-ferme');
   if (fb) {
@@ -1013,6 +1023,34 @@ async function soumettreAvis(salonId){
   if(fresh.data){ reservation.salon=fresh.data; await loadAvis(fresh.data); }
 }
 document.addEventListener('wq:langchange', function(){ if(reservation.salon) loadAvis(reservation.salon); });
+
+/* ═══════════ LISTE D'ATTENTE ═══════════ */
+async function buildAttenteForm(){
+  var zone=document.getElementById('attente-zone'); if(!zone) return;
+  var email='';
+  try{ var s=await WAQQTI.supabase.auth.getSession(); if(s&&s.data&&s.data.session) email=s.data.session.user.email||''; }catch(e){}
+  var inp='width:100%;padding:12px 14px;border:1.5px solid var(--cream2);border-radius:12px;font-size:15px;font-family:inherit';
+  zone.innerHTML=
+    '<div class="form-row"><label>'+T('book.nom_label','Nom complet')+' *</label><input type="text" id="att-nom" style="'+inp+'" placeholder="'+T('book.liste_nom_ph','Ex : Amina K.')+'"></div>'+
+    '<div class="form-row" style="margin-top:10px"><label>'+T('book.liste_tel','Téléphone')+'</label><input type="tel" id="att-tel" dir="ltr" style="'+inp+'" placeholder="0770 12 34 56"></div>'+
+    '<div class="form-row" style="margin-top:10px"><label>'+T('book.liste_email','E-mail (optionnel)')+'</label><input type="email" id="att-email" dir="ltr" style="'+inp+'" value="'+escHtml(email)+'"></div>'+
+    '<button type="button" class="btn-next" style="width:100%;justify-content:center;margin-top:14px" onclick="soumettreAttente()">🔔 '+T('book.liste_cta','Me prévenir si une place se libère')+'</button>'+
+    '<div id="att-status" style="font-size:13px;margin-top:8px"></div>';
+}
+async function soumettreAttente(){
+  var st=document.getElementById('att-status');
+  var nom=(document.getElementById('att-nom').value||'').trim();
+  if(!nom){ st.style.color='#c0392b'; st.textContent=T('book.liste_nom_requis','Votre nom est requis.'); return; }
+  var tel=(document.getElementById('att-tel').value||'').trim();
+  var email=(document.getElementById('att-email').value||'').trim();
+  var r=await WAQQTI.supabase.rpc('ajouter_liste_attente',{
+    p_salon_id:reservation.salonId, p_nom:nom, p_telephone:tel||null, p_email:email||null,
+    p_prestation_id:reservation.prestationId||null, p_prestation_nom:reservation.prestation||null,
+    p_jour:reservation.date||null });
+  if(r.error){ st.style.color='#c0392b'; st.textContent='❌ '+r.error.message; return; }
+  st.style.color='var(--green)'; st.textContent='✓ '+T('book.liste_ok','Vous êtes sur la liste ! Le salon vous préviendra.');
+  var btn=document.querySelector('#attente-zone .btn-next'); if(btn){ btn.disabled=true; }
+}
 
 async function loadPrestations(salonId) {
   const { data: prestations } = await WAQQTI.supabase
