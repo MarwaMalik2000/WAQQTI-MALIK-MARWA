@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Confirmation — Waqqti</title>
+  <link rel="icon" href="/assets/logo.svg"/>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="/assets/config.js" defer></script>
+  <style>
+    :root{--or:#F68423;--or-dk:#D26F1A;--cream:#FDEFE2;--brun:#3D1F00;--brun-l:#7A5030;--green:#2D9E5F;--red:#C0272E}
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--brun);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
+    .card{background:#fff;border-radius:22px;padding:36px 28px;max-width:420px;width:100%;text-align:center;box-shadow:0 10px 40px rgba(246,132,35,.14)}
+    .ic{font-size:52px;margin-bottom:10px}
+    h1{font-family:'Cormorant Garamond',serif;font-size:28px;margin-bottom:8px}
+    p{color:var(--brun-l);line-height:1.6}
+    a.btn{display:inline-block;margin-top:20px;background:var(--or);color:#fff;padding:12px 24px;border-radius:12px;text-decoration:none;font-weight:600}
+  </style>
+</head>
+<body>
+  <div class="card" id="box">
+    <div class="ic">⏳</div>
+    <h1 id="t">Un instant…</h1>
+    <p id="m">Traitement de votre demande.</p>
+  </div>
+<script>
+function qs(k){ return new URLSearchParams(location.search).get(k); }
+function sb(){ return window.WAQQTI && window.WAQQTI.supabase; }
+async function run(){
+  if(!sb()){ return setTimeout(run,80); }
+  var id=qs('id'), t=qs('t'), a=(qs('a')||'').toLowerCase();
+  var ic=document.querySelector('.ic'), tt=document.getElementById('t'), mm=document.getElementById('m');
+  if(!id||!t){ ic.textContent='⚠️'; tt.textContent='Lien invalide'; mm.textContent='Ce lien de confirmation est incomplet.'; return; }
+  try{
+    if(a==='non'){
+      var r=await sb().rpc('annuler_reservation',{p_id:id,p_token:t});
+      if(r.error) throw r.error;
+      ic.textContent='✅'; tt.textContent='Rendez-vous annulé'; mm.textContent='Votre rendez-vous a bien été annulé. À bientôt sur Waqqti !';
+    } else {
+      var c=await sb().rpc('confirmer_reservation',{p_id:id,p_token:t});
+      if(c.error) throw c.error;
+      if(c.data==='annule'){ ic.textContent='ℹ️'; tt.textContent='Déjà annulé'; mm.textContent='Ce rendez-vous a été annulé.'; return; }
+      ic.textContent='🎉'; tt.textContent='Merci, c\'est confirmé !'; mm.textContent='Votre venue est confirmée. Le salon vous attend.';
+    }
+  }catch(e){
+    ic.textContent='⚠️'; tt.textContent='Oups'; mm.textContent=(e&&e.message)||'Une erreur est survenue.';
+  }
+  var link=document.createElement('a'); link.className='btn'; link.href='/annuaire.html'; link.textContent='Retour à Waqqti →';
+  document.getElementById('box').appendChild(link);
+}
+document.addEventListener('DOMContentLoaded', run);
+</script>
+</body>
+</html>
