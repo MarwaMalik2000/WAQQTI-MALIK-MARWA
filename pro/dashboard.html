@@ -898,7 +898,22 @@ function viewParametres(){
   if($('ferme-save')) $('ferme-save').addEventListener('click', saveFermeture);
   if($('ferme-clear')) $('ferme-clear').addEventListener('click', clearFermeture);
   if($('push-btn')) $('push-btn').addEventListener('click', activerNotifs);
+  refreshPushState();
   renderQR();
+}
+async function refreshPushState(){
+  var btn=$('push-btn'), st=$('push-status'); if(!btn||!st) return;
+  if(!('serviceWorker' in navigator)||!('PushManager' in window)){ btn.disabled=true; st.style.color='#c0392b'; st.textContent=T('pro.push_indispo','Notifications non supportées sur cet appareil/navigateur.'); return; }
+  try{
+    var reg=await navigator.serviceWorker.getRegistration();
+    var sub=reg?await reg.pushManager.getSubscription():null;
+    if(sub && Notification.permission==='granted'){
+      btn.textContent=T('pro.push_reactiver','Réactiver / Rafraîchir');
+      st.style.color='var(--green)'; st.textContent='✓ '+T('pro.push_actives','Notifications activées sur cet appareil.');
+    } else {
+      btn.textContent=T('pro.push_activer','Activer les notifications'); st.textContent='';
+    }
+  }catch(e){}
 }
 /* ── Notifications push (même app fermée) ── */
 var VAPID_PUBLIC='BApETiw_PDuPVnDVt_j9nxzW73M_q4T5462tPdHDqs7aY2vAv8h4P7rzRSgQKfUXJx207uBwy8UHNtMCBHY07S0';
