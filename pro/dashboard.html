@@ -50,6 +50,9 @@
     .field{margin-bottom:14px}
     .field label{display:block;font-size:13px;font-weight:600;margin-bottom:6px;color:var(--brun)}
     .field input{width:100%;padding:13px 15px;border:1.5px solid var(--line);border-radius:13px;font-size:14px;font-family:inherit;background:#FDFBF9;transition:.18s}
+    /* Les cases à cocher ne doivent PAS prendre toute la largeur */
+    .field input[type=checkbox]{width:auto;flex:0 0 auto;margin:0;padding:0;accent-color:var(--or);vertical-align:middle}
+    .field label input[type=checkbox]{width:16px;height:16px}
     .field input:focus{outline:none;border-color:var(--or);background:#fff;box-shadow:0 0 0 4px rgba(246,132,35,.12)}
     .btn{padding:13px 24px;background:linear-gradient(135deg,var(--or),var(--or-dk));color:#fff;border:none;border-radius:50px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;transition:.2s;box-shadow:var(--sh-or)}
     .btn:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 12px 28px rgba(246,132,35,.42)}
@@ -168,6 +171,7 @@
     <div class="nav-item" data-view="prestations"><span class="ico">✂️</span><span data-i18n="pro.prestations">Prestations</span></div>
     <div class="nav-item" data-view="equipe"><span class="ico">🧑‍🤝‍🧑</span><span data-i18n="pro.equipe">Équipe</span></div>
     <div class="nav-item" data-view="avis"><span class="ico">⭐</span><span data-i18n="pro.avis">Avis</span></div>
+    <div class="nav-item" data-view="attente"><span class="ico">🔔</span><span data-i18n="pro.attente">Liste d'attente</span></div>
     <div class="nav-item" data-view="parametres"><span class="ico">⚙️</span><span data-i18n="pro.parametres">Paramètres</span></div>
     <div class="nav-item" data-view="abonnement"><span class="ico">💳</span><span data-i18n="pro.abonnement">Abonnement</span></div>
     <div class="spacer"></div>
@@ -295,7 +299,7 @@ function switchView(view){
     el.classList.toggle('active', el.dataset.view===view);
   });
   ({agenda:viewAgenda,acomptes:viewAcomptes,clients:viewClients,prestations:viewPrestations,
-    equipe:viewEquipe,avis:viewAvis,parametres:viewParametres,abonnement:viewAbonnement}[view]||viewAgenda)();
+    equipe:viewEquipe,avis:viewAvis,attente:viewAttente,parametres:viewParametres,abonnement:viewAbonnement}[view]||viewAgenda)();
 }
 
 /* ════════════ AGENDA (Jour / Mois) ════════════ */
@@ -749,6 +753,36 @@ async function delAvis(id){
   var fr=await sb().from('salons').select('*').eq('id',STATE.salon.id).single();
   if(fr.data) STATE.salon=fr.data;
   viewAvis();
+}
+
+/* ════════════ LISTE D'ATTENTE ════════════ */
+async function viewAttente(){
+  $('main').innerHTML='<div class="page-head"><h1>'+T('pro.attente','Liste d\'attente')+'</h1></div>'+
+    '<div class="card" style="max-width:640px;margin-bottom:14px"><p class="muted">'+T('pro.att_info','Clients à prévenir dès qu\'une place se libère. Contactez-les d\'un clic (WhatsApp / e-mail).')+'</p></div>'+
+    '<div id="att-body"><div class="card empty">'+T('common.chargement','Chargement…')+'</div></div>';
+  loadAttente();
+}
+async function loadAttente(){
+  var r=await sb().from('liste_attente').select('*').eq('salon_id',STATE.salon.id).order('created_at',{ascending:false});
+  var b=$('att-body'); if(!b) return; var list=r.data||[];
+  if(!list.length){ b.innerHTML='<div class="card empty">'+T('pro.att_aucun','Personne en liste d\'attente.')+'</div>'; return; }
+  b.innerHTML='<div class="card">'+list.map(function(a){
+    var d=new Date(a.created_at);
+    var wa=a.client_telephone?String(a.client_telephone).replace(/[^\d]/g,''):'';
+    var msg=encodeURIComponent(T('pro.att_msg','Bonjour')+' '+(a.client_nom||'')+', '+T('pro.att_msg2','une place vient de se libérer chez')+' '+STATE.salon.nom+(a.prestation_nom?' ('+a.prestation_nom+')':'')+'. '+T('pro.att_msg3','Souhaitez-vous réserver ?'));
+    var act='';
+    if(wa) act+='<a class="btn btn-sm" href="https://wa.me/'+wa+'?text='+msg+'" target="_blank" style="background:#25D366">💬</a> ';
+    if(a.client_email) act+='<a class="btn btn-sm btn-ghost" href="mailto:'+esc(a.client_email)+'?subject='+encodeURIComponent('Waqqti')+'&body='+msg+'">✉️</a> ';
+    var meta=(a.prestation_nom?esc(a.prestation_nom)+' · ':'')+(a.jour_souhaite?ltr(new Date(a.jour_souhaite).toLocaleDateString('fr'))+' · ':'')+(a.client_telephone?'<bdi dir="ltr">'+esc(a.client_telephone)+'</bdi>':'');
+    return '<div class="row"><div style="min-width:0"><b>'+esc(a.client_nom)+'</b>'+
+      '<div class="muted">'+meta+'</div></div>'+
+      '<div class="toolbar">'+act+'<button class="btn btn-ghost btn-sm" onclick="delAttente(\''+a.id+'\')" title="'+T('common.supprimer','Supprimer')+'">🗑</button></div></div>';
+  }).join('')+'</div>';
+}
+async function delAttente(id){
+  var r=await sb().from('liste_attente').delete().eq('id',id);
+  if(r.error){ WAQQTI.toast(r.error.message,'error'); return; }
+  WAQQTI.toast(T('pro.toast_supprimee','Supprimée')); loadAttente();
 }
 
 /* ════════════ PARAMÈTRES ════════════ */
