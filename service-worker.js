@@ -5,7 +5,7 @@
    (données temps réel : rendez-vous, dispos…). Ils passent direct au réseau.
    À enregistrer en chemin ABSOLU : navigator.serviceWorker.register('/service-worker.js')
    ============================================================ */
-var CACHE = 'waqqti-v3';
+var CACHE = 'waqqti-v4';
 
 // Coquille de l'app mise en cache à l'installation (ajuste si besoin).
 var PRECACHE = [
@@ -62,6 +62,37 @@ self.addEventListener('fetch', function (event) {
       return caches.match(req).then(function (cached) {
         return cached || caches.match('/index.html');
       });
+    })
+  );
+});
+
+/* ============================================================
+   NOTIFICATIONS PUSH (gérant) — reçues même application fermée
+   ============================================================ */
+self.addEventListener('push', function (event) {
+  var data = {};
+  try { data = event.data ? event.data.json() : {}; } catch (e) { data = { title: 'Waqqti', body: (event.data && event.data.text()) || '' }; }
+  var title = data.title || 'Waqqti';
+  var options = {
+    body: data.body || '',
+    icon: '/assets/logo.svg',
+    badge: '/assets/logo.svg',
+    tag: data.tag || 'waqqti-rdv',
+    data: { url: data.url || '/pro/dashboard.html' },
+    vibrate: [120, 60, 120]
+  };
+  event.waitUntil(self.registration.showNotification(title, options));
+});
+
+self.addEventListener('notificationclick', function (event) {
+  event.notification.close();
+  var url = (event.notification.data && event.notification.data.url) || '/pro/dashboard.html';
+  event.waitUntil(
+    self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(function (list) {
+      for (var i = 0; i < list.length; i++) {
+        if (list[i].url.indexOf(url) !== -1 && 'focus' in list[i]) return list[i].focus();
+      }
+      if (self.clients.openWindow) return self.clients.openWindow(url);
     })
   );
 });
