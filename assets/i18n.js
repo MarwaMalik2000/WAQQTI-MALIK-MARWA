@@ -243,7 +243,7 @@
       'step4.t': 'Les RDV arrivent',
       'step4.d': 'Vos clients réservent en autonomie. Les SMS partent automatiquement.',
       'band.text': 'Opérationnel en 24h',
-      'band.gratuit': '30 jours gratuit',
+      'band.gratuit': '30 jours gratuits',
       'band.sans': 'Sans engagement',
       'cta.sub': '30 jours gratuits · Sans engagement · Opérationnel en 24h',
       'cta.btn': '💬 Démarrer sur WhatsApp'
