@@ -11,64 +11,71 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="assets/config.js" defer></script>
   <style>
-    :root{--or:#F68423;--or-dk:#D26F1A;--or-champ:#D9A86C;--cream:#FDEFE2;--cream2:#F5E2CC;--brun:#3D1F00;--brun-l:#7A5030;--green:#2D9E5F;--red:#E0454C;--ease:cubic-bezier(.22,.9,.32,1)}
+    :root{--or:#F68423;--or-dk:#D26F1A;--or-champ:#D9A86C;--cream:#FDEFE2;--cream2:#F5E2CC;--brun:#3D1F00;--brun-l:#7A5030;--green:#2D9E5F;--red:#E0454C;
+      --ease:cubic-bezier(.22,.9,.32,1);--ease-spring:cubic-bezier(.34,1.42,.42,1);--ease-out:cubic-bezier(.16,1,.3,1)}
     *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
     body{font-family:'DM Sans',sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center;
       padding:20px;color:var(--brun);position:relative;overflow:hidden;
+      -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;font-optical-sizing:auto;text-rendering:optimizeLegibility;
       background:
         radial-gradient(900px 500px at 78% -12%, rgba(255,255,255,.18), transparent 60%),
         linear-gradient(150deg,var(--or) 0%,var(--or-dk) 55%,#9c500f 100%);
       background-size:100% 100%, 200% 200%;
-      animation:bgShift 18s ease-in-out infinite}
+      animation:bgShift 20s ease-in-out infinite}
     @keyframes bgShift{0%,100%{background-position:78% -12%,0% 50%}50%{background-position:78% -12%,100% 50%}}
-    /* Halos flottants derrière la carte */
+    /* Halos flottants (semi-transparents pendant le déplacement, §14) */
     body::before,body::after{content:'';position:fixed;border-radius:50%;pointer-events:none;z-index:0;
-      background:radial-gradient(circle,rgba(255,255,255,.15),transparent 68%)}
-    body::before{width:440px;height:440px;top:-130px;left:-110px;animation:orb 14s ease-in-out infinite}
-    body::after{width:360px;height:360px;bottom:-120px;right:-100px;animation:orb 11s ease-in-out infinite reverse}
+      background:radial-gradient(circle,rgba(255,255,255,.14),transparent 68%)}
+    body::before{width:440px;height:440px;top:-130px;left:-110px;animation:orb 15s ease-in-out infinite}
+    body::after{width:360px;height:360px;bottom:-120px;right:-100px;animation:orb 12s ease-in-out infinite reverse}
     @keyframes orb{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(32px,-26px) scale(1.14)}}
 
+    /* Carte : materialize à l'entrée (scale + fondu, §12) */
     .card{background:#fff;border-radius:22px;padding:36px 30px;width:100%;max-width:400px;
-      box-shadow:0 20px 60px rgba(0,0,0,.25);position:relative;overflow:hidden;z-index:1;
-      animation:cardUp .55s var(--ease) both}
-    @keyframes cardUp{from{opacity:0;transform:translateY(22px) scale(.98)}to{opacity:1;transform:none}}
+      box-shadow:0 20px 60px rgba(0,0,0,.25),inset 0 1px 0 rgba(255,255,255,.6);position:relative;overflow:hidden;z-index:1;
+      animation:cardUp .55s var(--ease-out) both}
+    @keyframes cardUp{from{opacity:0;transform:translateY(22px) scale(.96)}to{opacity:1;transform:none}}
     .card::before{content:'';position:absolute;top:0;left:0;right:0;height:5px;
       background:linear-gradient(90deg,var(--or),var(--or-champ),var(--or));background-size:200% 100%;
       animation:barShine 3s linear infinite}
     @keyframes barShine{0%{background-position:0% 0}100%{background-position:200% 0}}
-    .logo{font-family:'Cormorant Garamond',serif;font-size:42px;font-weight:700;color:var(--or);text-align:center}
+    /* Typo optique (§15) */
+    .logo{font-family:'Cormorant Garamond',serif;font-size:42px;font-weight:700;letter-spacing:-.02em;color:var(--or);text-align:center;line-height:1.05}
     .sub{text-align:center;color:var(--brun-l);font-size:14px;margin-bottom:24px}
     .field{margin-bottom:13px}
     .field label{display:block;font-size:13px;font-weight:600;margin-bottom:5px}
-    .field input{width:100%;padding:12px 14px;border:1.5px solid var(--cream2);border-radius:11px;font-size:14px;font-family:inherit;transition:.2s var(--ease)}
+    .field input{width:100%;padding:12px 14px;border:1.5px solid var(--cream2);border-radius:11px;font-size:14px;font-family:inherit;transition:.25s var(--ease-out)}
     .field input:focus{outline:none;border-color:var(--or);box-shadow:0 0 0 4px rgba(246,132,35,.1);transform:translateY(-1px)}
     .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-    .btn{padding:12px 20px;background:linear-gradient(135deg,var(--or),var(--or-dk));color:#fff;border:none;border-radius:50px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;width:100%;transition:.2s var(--ease);position:relative;overflow:hidden;isolation:isolate;box-shadow:0 6px 18px rgba(246,132,35,.32)}
-    .btn::before{content:'';position:absolute;inset:0;z-index:-1;background:linear-gradient(115deg,transparent 35%,rgba(255,255,255,.4) 50%,transparent 65%);transform:translateX(-130%);transition:transform .6s var(--ease)}
+    .btn{padding:12px 20px;background:linear-gradient(135deg,var(--or),var(--or-dk));color:#fff;border:none;border-radius:50px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;width:100%;transition:.25s var(--ease-out);position:relative;overflow:hidden;isolation:isolate;box-shadow:0 6px 18px rgba(246,132,35,.32)}
+    .btn::before{content:'';position:absolute;inset:0;z-index:-1;background:linear-gradient(115deg,transparent 35%,rgba(255,255,255,.4) 50%,transparent 65%);transform:translateX(-130%);transition:transform .6s var(--ease-out)}
     .btn:hover:not(:disabled){background:var(--or-dk);transform:translateY(-1px);box-shadow:0 10px 24px rgba(246,132,35,.4)}
     .btn:hover:not(:disabled)::before{transform:translateX(130%)}
-    .btn:active:not(:disabled){transform:scale(.97)}
+    .btn:active:not(:disabled){transform:scale(.96)}
     .btn:disabled{opacity:.5}
     .btn-google{background:#fff;color:var(--brun);border:1.5px solid var(--cream2);display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:14px;box-shadow:none}
     .btn-google::before{display:none}
     .btn-google:hover{background:var(--cream);transform:translateY(-1px);box-shadow:0 4px 14px rgba(61,31,0,.1)}
+    .btn-google:active{transform:scale(.97)}
     .sep{text-align:center;color:var(--brun-l);font-size:12px;margin-bottom:14px}
     .err{font-size:13px;margin-top:12px;min-height:16px;text-align:center}
     .toggle{text-align:center;font-size:13px;margin-top:16px}
     .toggle a{color:var(--or);font-weight:600;text-decoration:none;position:relative}
-    .toggle a::after{content:'';position:absolute;left:0;right:0;bottom:-2px;height:1.5px;background:var(--or);transform:scaleX(0);transform-origin:center;transition:transform .25s var(--ease)}
+    .toggle a::after{content:'';position:absolute;left:0;right:0;bottom:-2px;height:1.5px;background:var(--or);transform:scaleX(0);transform-origin:center;transition:transform .28s var(--ease-out)}
     .toggle a:hover::after{transform:scaleX(1)}
     .hidden{display:none!important}
     .home{display:block;text-align:center;margin-top:16px;font-size:13px;color:var(--brun-l);text-decoration:none;transition:color .2s}
     .home:hover{color:var(--or)}
-    /* écran connecté */
-    #account .big{width:64px;height:64px;border-radius:50%;background:var(--or);color:#fff;display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:30px;font-weight:700;margin:0 auto 14px;box-shadow:0 6px 18px rgba(246,132,35,.3)}
-    #account h2{font-family:'Cormorant Garamond',serif;text-align:center;font-size:26px;margin-bottom:4px}
+    #account .big{width:64px;height:64px;border-radius:50%;background:var(--or);color:#fff;display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:30px;font-weight:700;letter-spacing:-.02em;margin:0 auto 14px;box-shadow:0 6px 18px rgba(246,132,35,.3)}
+    #account h2{font-family:'Cormorant Garamond',serif;text-align:center;font-size:26px;letter-spacing:-.015em;margin-bottom:4px}
     #account .em{text-align:center;color:var(--brun-l);font-size:14px;margin-bottom:22px}
 
     @media (prefers-reduced-motion:reduce){
       body,body::before,body::after,.card,.card::before,.btn::before{animation:none!important}
       *,*::before,*::after{transition-duration:.01ms!important}
+    }
+    @media (prefers-contrast:more){
+      .field input{border-color:var(--brun-l)}
     }
   </style>
 </head>
