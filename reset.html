@@ -10,24 +10,47 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="assets/config.js" defer></script>
   <style>
-    :root{--or:#F68423;--or-dk:#D26F1A;--cream:#FDEFE2;--cream2:#F5E2CC;--brun:#3D1F00;--brun-l:#7A5030;--green:#2D9E5F;--red:#E0454C}
+    :root{--or:#F68423;--or-dk:#D26F1A;--or-champ:#D9A86C;--cream:#FDEFE2;--cream2:#F5E2CC;--brun:#3D1F00;--brun-l:#7A5030;--green:#2D9E5F;--red:#E0454C;
+      --ease:cubic-bezier(.22,.9,.32,1);--ease-spring:cubic-bezier(.34,1.42,.42,1);--ease-out:cubic-bezier(.16,1,.3,1)}
     *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
     body{font-family:'DM Sans',sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center;
-      padding:20px;background:linear-gradient(135deg,var(--or),var(--or-dk));color:var(--brun)}
-    .card{background:#fff;border-radius:22px;padding:36px 30px;width:100%;max-width:400px;box-shadow:0 20px 60px rgba(0,0,0,.25);text-align:center}
-    .logo{font-family:'Cormorant Garamond',serif;font-size:42px;font-weight:700;color:var(--or)}
-    h2{font-family:'Cormorant Garamond',serif;font-size:24px;margin:4px 0 6px}
+      padding:20px;color:var(--brun);position:relative;overflow:hidden;
+      -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;font-optical-sizing:auto;text-rendering:optimizeLegibility;
+      background:
+        radial-gradient(900px 500px at 78% -12%, rgba(255,255,255,.18), transparent 60%),
+        linear-gradient(150deg,var(--or) 0%,var(--or-dk) 55%,#9c500f 100%);
+      background-size:100% 100%,200% 200%;animation:bgShift 20s ease-in-out infinite}
+    @keyframes bgShift{0%,100%{background-position:78% -12%,0% 50%}50%{background-position:78% -12%,100% 50%}}
+    body::before,body::after{content:'';position:fixed;border-radius:50%;pointer-events:none;z-index:0;background:radial-gradient(circle,rgba(255,255,255,.14),transparent 68%)}
+    body::before{width:440px;height:440px;top:-130px;left:-110px;animation:orb 15s ease-in-out infinite}
+    body::after{width:360px;height:360px;bottom:-120px;right:-100px;animation:orb 12s ease-in-out infinite reverse}
+    @keyframes orb{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(32px,-26px) scale(1.14)}}
+    .card{background:#fff;border-radius:22px;padding:36px 30px;width:100%;max-width:400px;box-shadow:0 20px 60px rgba(0,0,0,.25),inset 0 1px 0 rgba(255,255,255,.6);text-align:center;position:relative;overflow:hidden;z-index:1;animation:cardUp .55s var(--ease-out) both}
+    @keyframes cardUp{from{opacity:0;transform:translateY(22px) scale(.96)}to{opacity:1;transform:none}}
+    .card::before{content:'';position:absolute;top:0;left:0;right:0;height:5px;background:linear-gradient(90deg,var(--or),var(--or-champ),var(--or));background-size:200% 100%;animation:barShine 3s linear infinite}
+    @keyframes barShine{0%{background-position:0% 0}100%{background-position:200% 0}}
+    .logo{font-family:'Cormorant Garamond',serif;font-size:42px;font-weight:700;letter-spacing:-.02em;color:var(--or)}
+    h2{font-family:'Cormorant Garamond',serif;font-size:24px;letter-spacing:-.015em;margin:4px 0 6px}
     p{color:var(--brun-l);font-size:14px;line-height:1.6;margin-bottom:20px}
     .field{margin-bottom:13px;text-align:left}
     .field label{display:block;font-size:13px;font-weight:600;margin-bottom:5px}
-    .field input{width:100%;padding:12px 14px;border:1.5px solid var(--cream2);border-radius:11px;font-size:14px;font-family:inherit}
-    .field input:focus{outline:none;border-color:var(--or);box-shadow:0 0 0 4px rgba(246,132,35,.1)}
-    .btn{padding:12px 20px;background:var(--or);color:#fff;border:none;border-radius:50px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;width:100%;transition:.2s}
-    .btn:hover:not(:disabled){background:var(--or-dk)}
+    .field input{width:100%;padding:12px 14px;border:1.5px solid var(--cream2);border-radius:11px;font-size:14px;font-family:inherit;transition:.25s var(--ease-out)}
+    .field input:focus{outline:none;border-color:var(--or);box-shadow:0 0 0 4px rgba(246,132,35,.1);transform:translateY(-1px)}
+    .btn{padding:12px 20px;background:linear-gradient(135deg,var(--or),var(--or-dk));color:#fff;border:none;border-radius:50px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;width:100%;transition:.25s var(--ease-out);position:relative;overflow:hidden;isolation:isolate;box-shadow:0 6px 18px rgba(246,132,35,.32)}
+    .btn::before{content:'';position:absolute;inset:0;z-index:-1;background:linear-gradient(115deg,transparent 35%,rgba(255,255,255,.4) 50%,transparent 65%);transform:translateX(-130%);transition:transform .6s var(--ease-out)}
+    .btn:hover:not(:disabled){background:var(--or-dk);transform:translateY(-1px);box-shadow:0 10px 24px rgba(246,132,35,.4)}
+    .btn:hover:not(:disabled)::before{transform:translateX(130%)}
+    .btn:active:not(:disabled){transform:scale(.96)}
     .btn:disabled{opacity:.5}
     .msg{font-size:13px;margin-top:12px;min-height:16px}
-    .home{display:block;margin-top:16px;font-size:13px;color:var(--brun-l);text-decoration:none}
+    .home{display:block;margin-top:16px;font-size:13px;color:var(--brun-l);text-decoration:none;transition:color .2s}
+    .home:hover{color:var(--or)}
     .hidden{display:none!important}
+    @media (prefers-reduced-motion:reduce){
+      body,body::before,body::after,.card,.card::before,.btn::before{animation:none!important}
+      *,*::before,*::after{transition-duration:.01ms!important}
+    }
+    @media (prefers-contrast:more){ .field input{border-color:var(--brun-l)} }
   </style>
 </head>
 <body>
