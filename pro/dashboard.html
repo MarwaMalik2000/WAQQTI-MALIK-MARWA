@@ -193,7 +193,7 @@
   <form class="login-card" id="login-form">
     <div class="logo"><img src="/assets/logo.svg" alt="Waqqti" style="height:82px;width:auto;display:block;margin:0 auto"/></div>
     <div class="sub" id="login-sub" data-i18n="pro.login_sub">Espace gérant Waqqti</div>
-
+ 
     <div class="field">
       <label data-i18n="pro.email">Email</label>
       <input type="email" id="email" autocomplete="username" required placeholder="salon@exemple.dz"/>
@@ -202,7 +202,7 @@
       <label data-i18n="pro.password">Mot de passe</label>
       <input type="password" id="password" autocomplete="current-password" required placeholder="••••••••"/>
     </div>
-
+ 
     <button type="submit" class="btn" id="btn-submit" style="width:100%" data-i18n="pro.connexion">Se connecter</button>
     <div class="err" id="login-err"></div>
     <p class="muted" style="text-align:center;font-size:12px;margin-top:14px">
@@ -211,7 +211,7 @@
     </p>
   </form>
 </section>
-
+ 
 <!-- ═══════════ APP ═══════════ -->
 <div id="app" class="hidden">
   <aside class="sidebar">
@@ -232,10 +232,10 @@
     <button type="button" data-lang-toggle class="btn btn-ghost btn-sm" style="margin-bottom:8px;font-family:'Tajawal',sans-serif;font-weight:700">العربية</button>
     <button class="btn btn-ghost btn-sm" id="btn-logout" data-i18n="pro.deconnexion">Se déconnecter</button>
   </aside>
-
+ 
   <main class="main" id="main"><div class="empty">Chargement…</div></main>
 </div>
-
+ 
 <!-- ═══════════ KILL SWITCH ═══════════ -->
 <div id="killswitch" class="hidden">
   <div class="ks-card">
@@ -247,14 +247,14 @@
     <a class="btn" href="https://wa.me/213549829949" target="_blank" rel="noopener" data-i18n="pro.ks_btn">Réactiver mon compte via WhatsApp</a>
   </div>
 </div>
-
+ 
 <script>
 /* ════════════════════════════════════════════════════════════
    ESPACE GÉRANT — logique SPA
    Dépend de : WAQQTI.supabase (config.js) · WQ (i18n.js)
    ════════════════════════════════════════════════════════════ */
 var STATE = { user:null, salon:null, view:'agenda' };
-
+ 
 function sb(){ return window.WAQQTI && window.WAQQTI.supabase; }
 function $(id){ return document.getElementById(id); }
 function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){
@@ -270,7 +270,7 @@ function algDate(iso){ return new Date(iso).toLocaleDateString('fr-FR',{timeZone
 // Enveloppe LTR générique (heures, dates, téléphones)
 function ltr(s){ return '<bdi dir="ltr">'+s+'</bdi>'; }
 function T(k, fr){ if(window.WQ && WQ.t){ var v=WQ.t(k); if(v && v!==k) return v; } return fr; }
-
+ 
 /* ---- Démarrage : attendre config.js puis vérifier la session ---- */
 function boot(){
   if(!sb()){ return setTimeout(boot, 60); } // attend WAQQTI.supabase
@@ -282,7 +282,7 @@ function boot(){
   });
 }
 document.addEventListener('DOMContentLoaded', boot);
-
+ 
 function bindStatic(){
   $('login-form').addEventListener('submit', doLogin);
   $('btn-logout').addEventListener('click', doLogout);
@@ -296,10 +296,10 @@ function bindStatic(){
   });
   majToggleLangue();
 }
-
+ 
 /* ---- Auth (email + mot de passe uniquement — comptes créés par Waqqti) ---- */
 function showLogin(){ $('login').classList.remove('hidden'); $('app').classList.add('hidden'); }
-
+ 
 async function doLogin(e){
   if(e) e.preventDefault();
   var err=$('login-err'); err.style.color='var(--red)'; err.textContent='';
@@ -311,7 +311,7 @@ async function doLogin(e){
   onLogin(r.data.user);
 }
 async function doLogout(){ await sb().auth.signOut(); location.reload(); }
-
+ 
 async function onLogin(user){
   STATE.user = user;
   // Charger le salon du gérant (RLS : owner = auth.uid())
@@ -333,17 +333,17 @@ async function onLogin(user){
   $('app').classList.remove('hidden');
   STATE.salon = r.data;
   $('side-salon').textContent = r.data.nom;
-
+ 
   // KILL SWITCH — double verrou : ici + RLS côté base
   var acces = await WAQQTI.verifierAcces(r.data);
   STATE.acces = acces;
   renderTrialPill(acces);
   if(!acces.actif){ $('killswitch').classList.remove('hidden'); return; }
-
+ 
   switchView('agenda');
   majBadgeAcomptes();
 }
-
+ 
 function majToggleLangue(){
   var tb=document.querySelector('[data-lang-toggle]');
   if(tb) tb.textContent=(document.documentElement.getAttribute('dir')==='rtl')?'Français':'العربية';
@@ -358,7 +358,7 @@ function renderTrialPill(acces){
     el.style.display='block';
   } else { el.style.display='none'; }
 }
-
+ 
 /* ---- Navigation ---- */
 function switchView(view){
   STATE.view=view;
@@ -368,7 +368,7 @@ function switchView(view){
   ({agenda:viewAgenda,acomptes:viewAcomptes,clients:viewClients,prestations:viewPrestations,
     equipe:viewEquipe,avis:viewAvis,attente:viewAttente,parametres:viewParametres,abonnement:viewAbonnement}[view]||viewAgenda)();
 }
-
+ 
 /* ════════════ AGENDA (Jour / Mois) ════════════ */
 async function viewAgenda(){
   var main=$('main');
@@ -497,7 +497,7 @@ async function terminerRdv(id){
   if(r.error) WAQQTI.toast(r.error.message,'error');
   else { WAQQTI.toast(T('pro.toast_termine','Rendez-vous terminé ✓')); loadAgenda($('agenda-date').value); }
 }
-
+ 
 /* ════════════ ACOMPTES (validation des justificatifs) ════════════ */
 async function viewAcomptes(){
   var main=$('main');
@@ -571,7 +571,7 @@ async function majBadgeAcomptes(){
   var n=r.count||0;
   if(n>0){ b.textContent=n; b.style.display='inline-block'; } else { b.style.display='none'; }
 }
-
+ 
 /* ════════════ CLIENTS ════════════ */
 async function viewClients(){
   var main=$('main');
@@ -607,7 +607,7 @@ function filterClients(q){
     tr.style.display = tr.getAttribute('data-s').indexOf(q)>=0 ? '' : 'none';
   });
 }
-
+ 
 /* ════════════ PRESTATIONS ════════════ */
 async function viewPrestations(){
   var main=$('main');
@@ -689,7 +689,7 @@ async function delPrestation(id){
   var r=await sb().from('prestations').delete().eq('id',id);
   if(r.error) WAQQTI.toast(r.error.message,'error'); else { WAQQTI.toast(T('pro.toast_supprimee','Supprimée')); loadPrestations(); }
 }
-
+ 
 /* ════════════ ÉQUIPE ════════════ */
 async function viewEquipe(){
   var main=$('main');
@@ -767,7 +767,7 @@ async function delEmploye(id){
   var r=await sb().from('employes').delete().eq('id',id);
   if(r.error) WAQQTI.toast(r.error.message,'error'); else { WAQQTI.toast(T('pro.toast_supprimee','Supprimée')); loadEquipe(); }
 }
-
+ 
 /* ════════════ AVIS ════════════ */
 function starPro(n){ n=Math.round(Number(n)||0); var s=''; for(var i=1;i<=5;i++) s+=(i<=n?'★':'☆'); return s; }
 async function viewAvis(){
@@ -820,7 +820,7 @@ async function delAvis(id){
   if(fr.data) STATE.salon=fr.data;
   viewAvis();
 }
-
+ 
 /* ════════════ LISTE D'ATTENTE ════════════ */
 async function viewAttente(){
   $('main').innerHTML='<div class="page-head"><h1>'+T('pro.attente','Liste d\'attente')+'</h1></div>'+
@@ -850,7 +850,7 @@ async function delAttente(id){
   if(r.error){ WAQQTI.toast(r.error.message,'error'); return; }
   WAQQTI.toast(T('pro.toast_supprimee','Supprimée')); loadAttente();
 }
-
+ 
 /* ════════════ PARAMÈTRES ════════════ */
 function viewParametres(){
   var s=STATE.salon, main=$('main');
@@ -890,7 +890,7 @@ function viewParametres(){
     '<div class="field"><label>'+T('pro.p_capacite_jour','Plafond de réservations / jour (mode journée)')+' <small style="color:var(--brun-l);font-weight:400">'+T('pro.p_capacite_jour_hint','vide = illimité')+'</small></label><input class="inp" type="number" id="s-capjour" min="1" dir="ltr" value="'+(s.capacite_jour!=null?s.capacite_jour:'')+'" placeholder="'+T('pro.p_capacite_jour_ph','ex : 10')+'"></div>'+
     '<div class="field"><label>'+T('pro.p_annul_max','Annulation en ligne autorisée jusqu\'à (heures avant le RDV)')+' <small style="color:var(--brun-l);font-weight:400">'+T('pro.p_annul_hint','0 = jusqu\'au dernier moment')+'</small></label><input class="inp" type="number" id="s-annul" min="0" dir="ltr" value="'+(s.annulation_max_h!=null?s.annulation_max_h:24)+'"></div>'+
     '<button class="btn" id="s-save">'+T('common.enregistrer','Enregistrer')+'</button></div>'+
-
+ 
     // ── Fermeture exceptionnelle ──
     '<div class="card" style="max-width:820px">'+
     '<h3 style="font-size:20px;margin-bottom:4px">'+T('pro.ferme_titre','🚫 Fermeture exceptionnelle')+'</h3>'+
@@ -902,7 +902,7 @@ function viewParametres(){
     '<button class="btn" id="ferme-save">'+T('pro.ferme_enregistrer','Enregistrer la fermeture')+'</button> '+
     '<button class="btn btn-ghost" id="ferme-clear">'+T('pro.ferme_annuler','Retirer la fermeture')+'</button>'+
     '</div>'+
-
+ 
     // ── Coordonnées de paiement (acompte) ──
     '<div class="card" style="max-width:820px">'+
     '<h3 style="font-size:20px;margin-bottom:4px">'+T('pro.p_paiement','💳 Coordonnées de paiement')+'</h3>'+
@@ -921,7 +921,7 @@ function viewParametres(){
     '<div class="field"><label>'+T('pro.p_cle','Clé (CCP)')+'</label><input class="inp" id="r-cle" dir="ltr" value="'+esc(s.rib_cle||'')+'" placeholder="00"></div></div>'+
     '<div class="field"><label>'+T('pro.p_instructions','Instructions (optionnel)')+'</label><input class="inp" id="r-instr" value="'+esc(s.rib_instructions||'')+'"></div>'+
     '<button class="btn" id="r-save">'+T('pro.p_save_coord','Enregistrer les coordonnées')+'</button></div>'+
-
+ 
     // ── Horaires & disponibilités ──
     '<div class="card" style="max-width:820px">'+
     '<h3 style="font-size:20px;margin-bottom:4px">'+T('pro.p_horaires','🕐 Horaires & disponibilités')+'</h3>'+
@@ -939,7 +939,7 @@ function viewParametres(){
       [0,1,2,3,4,5,6].map(function(i){var ch=(s.jours_fermes||[]).indexOf(i)>=0;return '<label style="font-weight:500;font-size:13px;display:flex;align-items:center;gap:5px;cursor:pointer"><input type="checkbox" class="h-jour" value="'+i+'"'+(ch?' checked':'')+'> '+T('pro.j'+i,['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'][i])+'</label>';}).join('')+
     '</div></div>'+
     '<button class="btn" id="h-save">'+T('pro.p_save_horaires','Enregistrer les horaires')+'</button></div>'+
-
+ 
     // ── Géolocalisation (annuaire "Autour de moi") ──
     '<div class="card" style="max-width:820px">'+
     '<h3 style="font-size:20px;margin-bottom:4px">'+T('pro.p_localisation','📍 Localisation')+'</h3>'+
@@ -1147,7 +1147,7 @@ async function saveParametres(){
   STATE.salon=r.data; $('side-salon').textContent=r.data.nom;
   WAQQTI.toast(T('pro.toast_param','Paramètres enregistrés'));
 }
-
+ 
 /* ════════════ ABONNEMENT ════════════ */
 async function viewAbonnement(){
   var s=STATE.salon, main=$('main');
