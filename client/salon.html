@@ -467,7 +467,6 @@
   </style>
 </head>
 <body>
-
 <!-- ═══════════ HEADER SALON ═══════════ -->
 <div class="header">
   <div class="top-bar">
@@ -477,7 +476,7 @@
       <button type="button" data-lang-toggle style="font-family:'Tajawal',sans-serif;font-weight:700;background:rgba(255,255,255,.2);color:#fff;border:none;border-radius:50px;padding:6px 14px;cursor:pointer;font-size:13px;backdrop-filter:blur(8px)">العربية</button>
     </div>
   </div>
-
+ 
   <div class="salon-hero">
     <div class="salon-avatar">Y</div>
     <div class="salon-info">
@@ -492,18 +491,18 @@
     </div>
   </div>
 </div>
-
+ 
 <div class="container">
-
+ 
   <!-- ═══════════ BANNIÈRE FERMETURE ═══════════ -->
   <div id="salon-ferme"></div>
-
+ 
   <!-- ═══════════ GALERIE DU SALON ═══════════ -->
   <div id="salon-gallery"></div>
-
+ 
   <!-- ═══════════ À PROPOS DU SALON ═══════════ -->
   <div id="salon-about"></div>
-
+ 
   <!-- ═══════════ ÉTAPES ═══════════ -->
   <div class="steps-bar">
     <div class="step-item active" data-step="1">
@@ -526,13 +525,13 @@
       <div class="step-label" data-i18n="book.step4">Confirmation</div>
     </div>
   </div>
-
+ 
   <!-- ═══════════ ÉTAPE 1 : PRESTATION ═══════════ -->
   <div class="step-content active" id="step-1">
     <div class="card">
       <h2 class="card-title" data-i18n="book.choix_prestation">Choisissez votre prestation</h2>
       <p class="card-sub" data-i18n="book.choix_prestation_sub">Sélectionnez le service souhaité</p>
-
+ 
       <div class="prest-categ">Coiffure</div>
       <div class="prest-item" data-id="1" data-name="Coupe + Brushing" data-duration="60" data-price="1800">
         <div class="prest-info">
@@ -555,7 +554,7 @@
         </div>
         <div class="prest-price">5 500 DA</div>
       </div>
-
+ 
       <div class="prest-categ">Soins visage</div>
       <div class="prest-item" data-id="4" data-name="Soin hydratant" data-duration="45" data-price="2500">
         <div class="prest-info">
@@ -571,7 +570,7 @@
         </div>
         <div class="prest-price">800 DA</div>
       </div>
-
+ 
       <div class="prest-categ">Nail art</div>
       <div class="prest-item" data-id="6" data-name="Manucure simple" data-duration="45" data-price="1500">
         <div class="prest-info">
@@ -589,14 +588,14 @@
       </div>
     </div>
   </div>
-
+ 
   <!-- ═══════════ ÉTAPE 2 : DATE + EMPLOYÉ + HEURE ═══════════ -->
   <div class="step-content" id="step-2">
     <!-- CHOIX EMPLOYÉ (formule confort/premium) -->
     <div class="card" id="employes-card">
       <h2 class="card-title" data-i18n="book.pref_titre">Choisissez votre préférence</h2>
       <p class="card-sub" data-i18n="book.pref_sub">Avec qui souhaitez-vous prendre rendez-vous ?</p>
-
+ 
       <div class="employes-grid">
         <div class="employe-card" data-emp="0" data-emp-name="">
           <div class="emp-avatar" style="background:var(--cream2);color:var(--brun)">?</div>
@@ -620,7 +619,7 @@
         </div>
       </div>
     </div>
-
+ 
     <!-- DATE -->
     <div class="card">
       <h2 class="card-title" data-i18n="book.choix_date">Choisissez la date</h2>
@@ -628,7 +627,7 @@
       <div class="dates-row" id="dates-row">
         <!-- Généré en JS -->
       </div>
-
+ 
       <!-- HEURE -->
       <div class="slots-section" id="slots-section" style="display:none">
         <div class="slots-period" data-i18n="booking.matin">Matin</div>
@@ -637,26 +636,31 @@
         <div class="slots-grid" id="slots-afternoon"></div>
       </div>
     </div>
-
-    <!-- LISTE D'ATTENTE -->
+ 
+    <!-- LISTE D'ATTENTE (repliable) -->
     <div class="card" id="attente-card">
-      <h2 class="card-title" data-i18n="book.liste_titre">Complet ou aucun créneau qui vous convient ?</h2>
-      <p class="card-sub" data-i18n="book.liste_sub">Laissez vos coordonnées : le salon vous prévient dès qu'une place se libère.</p>
-      <div id="attente-zone"></div>
+      <h2 class="card-title" onclick="toggleAttente()" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:10px;margin:0">
+        <span data-i18n="book.liste_titre">Complet ou aucun créneau qui vous convient ?</span>
+        <span id="attente-chevron" style="font-size:16px;color:var(--or);transition:.2s;flex-shrink:0">▾</span>
+      </h2>
+      <div id="attente-body" style="display:none">
+        <p class="card-sub" data-i18n="book.liste_sub" style="margin-top:8px">Laissez vos coordonnées : le salon vous prévient dès qu'une place se libère.</p>
+        <div id="attente-zone"></div>
+      </div>
     </div>
   </div>
-
+ 
   <!-- ═══════════ ÉTAPE 3 : COORDONNÉES ═══════════ -->
   <div class="step-content" id="step-3">
     <div class="card">
       <h2 class="card-title" data-i18n="book.coordonnees_titre">Vos coordonnées</h2>
       <p class="card-sub" data-i18n="book.coord_sub">Nous enverrons une confirmation par SMS</p>
-
+ 
       <div class="form-row">
         <label data-i18n="book.nom_label">Nom complet *</label>
         <input type="text" id="client-nom" placeholder="Ex: Amina Kaci" required>
       </div>
-
+ 
       <div class="form-row">
         <label data-i18n="book.tel_label">Numéro de téléphone *</label>
         <div style="display:flex;align-items:stretch;direction:ltr">
@@ -672,26 +676,26 @@
         </div>
         <div class="hint" data-i18n="book.tel_hint">Nous vous enverrons un SMS de confirmation et un rappel 24h avant</div>
       </div>
-
+ 
       <div class="form-row">
         <label data-i18n="book.email_label">E-mail (optionnel — pour la confirmation 24h avant)</label>
         <input type="email" id="client-email" dir="ltr" placeholder="vous@email.com">
       </div>
-
+ 
       <div class="form-row">
         <label data-i18n="book.note_label">Note pour le salon (optionnel)</label>
         <textarea id="client-note" rows="3" placeholder="Précisions, demandes particulières…"></textarea>
       </div>
     </div>
   </div>
-
+ 
   <!-- ═══════════ ÉTAPE 4 : CONFIRMATION ═══════════ -->
   <div class="step-content" id="step-4">
     <div class="card confirm-screen">
       <div class="confirm-icon" id="confirm-icon">✓</div>
       <h2 id="confirm-title" data-i18n="book.confirme_titre">Réservation confirmée !</h2>
       <p id="confirm-subtitle" data-i18n="book.confirme_sub">Une confirmation vous a été envoyée sur WhatsApp.</p>
-
+ 
       <div class="confirm-detail">
         <div><strong data-i18n="book.lbl_salon">Salon :</strong> <span id="confirm-salon"></span></div>
         <div><strong data-i18n="book.lbl_service">Service :</strong> <span id="confirm-prest"></span></div>
@@ -700,23 +704,23 @@
         <div><strong data-i18n="book.lbl_avec">Avec :</strong> <span id="confirm-emp"></span></div>
         <div><strong data-i18n="book.lbl_prix">Prix :</strong> <span id="confirm-prix"></span></div>
       </div>
-
+ 
       <!-- Preuve de paiement de l'acompte (injectée en JS si acompte requis) -->
       <div id="upload-acompte"></div>
-
+ 
       <!-- Actions : calendrier + contacter le salon (injectées en JS) -->
       <div id="confirm-actions" style="max-width:380px;margin:16px auto 0"></div>
-
+ 
       <p style="font-size:13px" data-i18n="book.annuler_note">
         Pour annuler ou modifier, contactez directement le salon.
       </p>
-
+ 
       <button class="btn-next" style="margin:20px auto 0" onclick="nouvelleReservation()" data-i18n="book.autre">
         Faire une autre réservation
       </button>
     </div>
   </div>
-
+ 
   <!-- ═══════════ AVIS CLIENTS ═══════════ -->
   <div class="card" id="avis-section" style="margin-top:18px;display:none">
     <h2 class="card-title" data-i18n="book.avis_titre">Avis clients</h2>
@@ -724,12 +728,12 @@
     <div id="avis-form-zone" style="margin:14px 0 6px"></div>
     <div id="avis-list"></div>
   </div>
-
+ 
   <div class="waqqti-footer" data-i18n-html="book.footer">
     Réservation propulsée par <a href="https://www.waqqti.com" target="_blank">Waqqti</a> · La référence beauté en Algérie
   </div>
 </div>
-
+ 
 <!-- ═══════════ BARRE RÉCAP FIXE ═══════════ -->
 <div class="recap-bar" id="recap-bar">
   <div class="recap-inner">
@@ -742,7 +746,7 @@
     </button>
   </div>
 </div>
-
+ 
 <script>
 // ── État global ──
 const reservation = {
@@ -754,10 +758,10 @@ const reservation = {
   id: null, acompteMontant: 0, acompteRequis: false,
 };
 let currentStep = 1;
-
+ 
 // Traduction avec repli français (si i18n absent ou clé manquante)
 function T(k, fr){ if(window.WQ && WQ.t){ var v=WQ.t(k); if(v && v!==k) return v; } return fr; }
-
+ 
 // Actions sur l'écran de confirmation : calendrier + contacter le salon
 function renderConfirmActions(){
   var host=document.getElementById('confirm-actions'); if(!host) return;
@@ -800,7 +804,7 @@ function telechargerICS(){
   a.download='rendez-vous-waqqti.ics'; document.body.appendChild(a); a.click();
   setTimeout(function(){ a.remove(); URL.revokeObjectURL(a.href); },100);
 }
-
+ 
 /* ─── Mémorisation de la réservation (persistance + suivi de statut) ─── */
 function savedKey(){ return 'waqqti_resa_' + getSalonSlug(); }
 function saveResa(id, token){ try{ localStorage.setItem(savedKey(), JSON.stringify({id:id, token:token||null})); }catch(e){} }
@@ -808,7 +812,7 @@ function getSavedResa(){ try{ var v=localStorage.getItem(savedKey()); if(!v) ret
 function getSavedResaId(){ var s=getSavedResa(); return s?s.id:null; }
 function clearSavedResa(){ try{ localStorage.removeItem(savedKey()); }catch(e){} }
 function nouvelleReservation(){ clearSavedResa(); location.reload(); }
-
+ 
 // Recharge l'état de la réservation depuis une ligne DB (au rafraîchissement)
 function prepareFromResa(resa){
   reservation.id = resa.id;
@@ -823,7 +827,7 @@ function prepareFromResa(resa){
   reservation.dateLabel = window.WQ ? WQ.dateLisible(d)
     : d.toLocaleDateString('fr-FR', { weekday:'long', day:'numeric', month:'long' });
 }
-
+ 
 // Affiche l'écran final (étape 4) selon le statut de la réservation
 function showStatusScreen(resa){
   goToStep(4);
@@ -840,7 +844,7 @@ function showStatusScreen(resa){
   renderAcompteZone(resa.acompte_statut, !!resa.justificatif_url);
   renderConfirmActions();
 }
-
+ 
 // Change l'icône + titre selon le statut d'acompte
 function updateStatusVisual(statut){
   var icon=document.getElementById('confirm-icon');
@@ -861,7 +865,7 @@ function updateStatusVisual(statut){
     sub.textContent=T('book.confirme_sub','Une confirmation vous a été envoyée sur WhatsApp.');
   }
 }
-
+ 
 // Zone acompte : upload, message d'attente, ou rien selon le statut
 function renderAcompteZone(statut, hasJustif){
   var host=document.getElementById('upload-acompte');
@@ -875,7 +879,7 @@ function renderAcompteZone(statut, hasJustif){
   // en_attente sans reçu, OU refusé → proposer l'upload
   renderUploadAcompte();
 }
-
+ 
 // Suivi en direct : rafraîchit le statut toutes les 12 s (auto passage à "confirmée")
 var statusTimer=null;
 function startStatusPolling(){
@@ -893,7 +897,7 @@ function startStatusPolling(){
     if(row.acompte_statut==='recu' || row.acompte_statut==='non_requis'){ clearInterval(statusTimer); }
   }, 12000);
 }
-
+ 
 // Lecture du slug dans l'URL : ?s=yasmine-beauty ou /yasmine-beauty
 function getSalonSlug() {
   const params = new URLSearchParams(window.location.search);
@@ -902,10 +906,10 @@ function getSalonSlug() {
   // Sinon, utiliser le démo
   return 'demo';
 }
-
+ 
 async function initSalon() {
   const slug = getSalonSlug();
-
+ 
   // Charger le salon
   const { data: salon, error } = await WAQQTI.supabase
     .from('salons')
@@ -913,17 +917,18 @@ async function initSalon() {
     .eq('slug', slug)
     .eq('actif', true)
     .single();
-
+ 
   if (error || !salon) {
     document.body.innerHTML = '<div style="padding:60px; text-align:center; font-family:DM Sans"><h1>Salon introuvable</h1><p>Vérifiez le lien.</p></div>';
     return;
   }
-
+ 
   reservation.salon = salon;
   reservation.salonId = salon.id;
-
+ 
   // Afficher header salon
   document.querySelector('.salon-info h1').textContent = salon.nom;
+  document.title = salon.nom + ' — Réservation Waqqti';
   const meta = document.querySelector('.salon-meta');
   const hOuv = (salon.heure_ouverture || '09:00').slice(0,5).replace(':','h');
   const hFer = (salon.heure_fermeture || '19:00').slice(0,5).replace(':','h');
@@ -939,10 +944,10 @@ async function initSalon() {
   const av = document.querySelector('.salon-avatar');
   if (salon.logo_url) { av.innerHTML = '<img src="'+salon.logo_url+'" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:24px">'; }
   else { av.textContent = salon.nom.charAt(0).toUpperCase(); }
-
+ 
   // Liste d'attente
   buildAttenteForm();
-
+ 
   // Bannière fermeture exceptionnelle (si la période couvre aujourd'hui ou le futur)
   var fb = document.getElementById('salon-ferme');
   if (fb) {
@@ -956,16 +961,16 @@ async function initSalon() {
         '<b>🚫 '+T('book.ferme_titre','Salon fermé')+'</b><div style="color:var(--brun-l);margin-top:4px"><bdi dir="ltr">'+periode+'</bdi></div></div>';
     } else { fb.innerHTML = ''; }
   }
-
+ 
   // Galerie du salon
   renderSalonGallery(salon.photos);
-
+ 
   // À propos (description + horaires + équipe)
   renderAbout(salon);
-
+ 
   // Avis clients
   loadAvis(salon);
-
+ 
   // Reprendre une réservation en cours (mémorisée) pour ce salon
   const savedId = getSavedResaId();
   if (savedId) {
@@ -982,10 +987,10 @@ async function initSalon() {
       clearSavedResa();
     }
   }
-
+ 
   // Charger prestations
   await loadPrestations(salon.id);
-
+ 
   // Charger employés (si formule ≥ confort)
   if (['confort', 'premium'].includes(salon.formule)) {
     await loadEmployes(salon.id);
@@ -994,11 +999,11 @@ async function initSalon() {
     const empCard = document.getElementById('employes-card');
     if (empCard) empCard.style.display = 'none';
   }
-
+ 
   // Régénérer les dates avec les jours de fermeture du salon
   generateDates();
 }
-
+ 
 function renderSalonGallery(photos){
   const box = document.getElementById('salon-gallery');
   if (!box) return;
@@ -1052,14 +1057,14 @@ function lbStep(d){
 }
 function closeLightbox(){ const ov=document.getElementById('gal-lightbox'); if(ov) ov.style.display='none'; }
 function openReviewPhoto(u){ window.__galPics=[u]; openLightbox(0); }
-
+ 
 /* ═══════════ AVIS CLIENTS ═══════════ */
 function escHtml(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
 function starHtml(n){ n=Math.round(Number(n)||0); var s=''; for(var i=1;i<=5;i++) s+=(i<=n?'★':'☆'); return s; }
-
+ 
 async function loadAvis(salon){
   const sec=document.getElementById('avis-section'); if(!sec) return;
-  sec.style.display='block';
+  sec.style.display = (currentStep===4 ? 'block' : 'none');   // avis uniquement à la fin
   const resume=document.getElementById('avis-resume');
   const listEl=document.getElementById('avis-list');
   if(salon.nb_avis>0){
@@ -1090,7 +1095,7 @@ async function loadAvis(salon){
   }).join('');
   await buildAvisForm(salon);
 }
-
+ 
 async function buildAvisForm(salon){
   const zone=document.getElementById('avis-form-zone'); if(!zone) return;
   const sess=await WAQQTI.supabase.auth.getSession();
@@ -1154,7 +1159,7 @@ async function soumettreAvis(salonId){
   if(fresh.data){ reservation.salon=fresh.data; await loadAvis(fresh.data); }
 }
 document.addEventListener('wq:langchange', function(){ if(reservation.salon) loadAvis(reservation.salon); });
-
+ 
 /* ═══════════ À PROPOS ═══════════ */
 function jNom(i){ var d=new Date(2024,0,7+i); return (window.WQ&&WQ.jourCourt)?WQ.jourCourt(d):['dim','lun','mar','mer','jeu','ven','sam'][i]; }
 async function renderAbout(salon){
@@ -1187,15 +1192,22 @@ async function renderAbout(salon){
   if(location.hash==='#salon-about'){ setTimeout(function(){about.scrollIntoView({behavior:'smooth',block:'start'});},350); }
 }
 function esc2(s){ return escHtml(s); }
-
+ 
 /* ═══════════ LISTE D'ATTENTE ═══════════ */
+function toggleAttente(){
+  var b=document.getElementById('attente-body'), c=document.getElementById('attente-chevron');
+  if(!b) return;
+  var open=b.style.display!=='none';
+  b.style.display=open?'none':'block';
+  if(c) c.style.transform=open?'rotate(0deg)':'rotate(180deg)';
+}
 async function buildAttenteForm(){
   var zone=document.getElementById('attente-zone'); if(!zone) return;
   var email='';
   try{ var s=await WAQQTI.supabase.auth.getSession(); if(s&&s.data&&s.data.session) email=s.data.session.user.email||''; }catch(e){}
   var inp='width:100%;padding:12px 14px;border:1.5px solid var(--cream2);border-radius:12px;font-size:15px;font-family:inherit';
   zone.innerHTML=
-    '<div class="form-row"><label>'+T('book.nom_label','Nom complet')+' *</label><input type="text" id="att-nom" style="'+inp+'" placeholder="'+T('book.liste_nom_ph','Ex : Amina K.')+'"></div>'+
+    '<div class="form-row"><label>'+T('book.nom_label','Nom complet *')+'</label><input type="text" id="att-nom" style="'+inp+'" placeholder="'+T('book.liste_nom_ph','Ex : Amina K.')+'"></div>'+
     '<div class="form-row" style="margin-top:10px"><label>'+T('book.liste_email','E-mail')+' *</label><input type="email" id="att-email" dir="ltr" style="'+inp+'" value="'+escHtml(email)+'" placeholder="vous@email.com"></div>'+
     '<div class="form-row" style="margin-top:10px"><label>'+T('book.liste_tel','Téléphone (optionnel)')+'</label><input type="tel" id="att-tel" dir="ltr" style="'+inp+'" placeholder="0770 12 34 56"></div>'+
     '<div class="form-grid" style="display:flex;gap:10px;margin-top:10px;flex-wrap:wrap">'+
@@ -1222,7 +1234,7 @@ async function soumettreAttente(){
   st.style.color='var(--green)'; st.textContent='✓ '+T('book.liste_ok','Vous êtes sur la liste ! Le salon vous préviendra.');
   var btn=document.querySelector('#attente-zone .btn-next'); if(btn){ btn.disabled=true; }
 }
-
+ 
 async function loadPrestations(salonId) {
   const { data: prestations } = await WAQQTI.supabase
     .from('prestations')
@@ -1231,13 +1243,13 @@ async function loadPrestations(salonId) {
     .eq('actif', true)
     .order('categorie', { ascending: true })
     .order('ordre', { ascending: true });
-
+ 
   const step1 = document.querySelector('#step-1 .card');
   if (!prestations || prestations.length === 0) {
     step1.innerHTML += '<p style="text-align:center; color:var(--brun-l); padding:20px">Aucune prestation disponible. Le salon les ajoute prochainement.</p>';
     return;
   }
-
+ 
   // Stocker + insérer le contrôle de tri (une seule fois)
   window.__PRESTS = prestations;
   if (!document.getElementById('prest-sort')) {
@@ -1293,7 +1305,7 @@ function drawPrests(mode){
     });
   }
 }
-
+ 
 function selectPrestation(item, p) {
   document.querySelectorAll('.prest-item').forEach(x => x.classList.remove('selected'));
   item.classList.add('selected');
@@ -1314,7 +1326,7 @@ function selectPrestation(item, p) {
   document.getElementById('recap-bar').classList.add('visible');
   document.getElementById('btn-next').disabled = false;
 }
-
+ 
 // Bloc d'information acompte + coordonnées de paiement du salon
 function acompteInfoHTML() {
   const s = reservation.salon || {};
@@ -1332,7 +1344,7 @@ function acompteInfoHTML() {
       </div>
     </div>`;
 }
-
+ 
 // Un compte n'est exigé QUE si la prestation demande un acompte
 async function getUid(){
   var s=await WAQQTI.supabase.auth.getSession();
@@ -1351,7 +1363,7 @@ async function injectAcompteLoginBanner(){
     '<a href="/auth.html" target="_blank" rel="noopener" class="btn-next" style="display:inline-flex;text-decoration:none">'+T('book.avis_login_cta','Se connecter')+'</a>';
   host.parentNode.insertBefore(div, host.nextSibling);
 }
-
+ 
 async function loadEmployes(salonId) {
   const { data: employes } = await WAQQTI.supabase
     .from('employes')
@@ -1359,14 +1371,14 @@ async function loadEmployes(salonId) {
     .eq('salon_id', salonId)
     .eq('actif', true)
     .order('ordre', { ascending: true });
-
+ 
   const grid = document.querySelector('.employes-grid');
   if (!grid) return;
-
+ 
   // Garder seulement "Peu importe"
   const items = grid.querySelectorAll('.employe-card');
   for (let i = 1; i < items.length; i++) items[i].remove();
-
+ 
   // Ajouter les vrais employés
   (employes || []).forEach((emp, idx) => {
     const colors = ['#F68423', '#4A6FE0', '#2D9E5F', '#9333EA', '#EC4899'];
@@ -1387,7 +1399,7 @@ async function loadEmployes(salonId) {
     });
     grid.appendChild(card);
   });
-
+ 
   // Réattacher event sur "Peu importe"
   const anyOne = grid.querySelector('[data-emp="0"]');
   if (anyOne) {
@@ -1399,7 +1411,7 @@ async function loadEmployes(salonId) {
     });
   }
 }
-
+ 
 // ─── DATES ───
 function generateDates() {
   const datesRow = document.getElementById('dates-row');
@@ -1407,12 +1419,12 @@ function generateDates() {
   const today = new Date();
   const days = ['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'];
   const months = ['Jan','Fév','Mar','Avr','Mai','Juin','Juil','Août','Sep','Oct','Nov','Déc'];
-
+ 
   const s0 = reservation.salon || {};
   const fermes = s0.jours_fermes || [];
   const dstr = d => d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
   const inFermeture = ds => !!s0.ferme_du && ds >= s0.ferme_du && (s0.ferme_au ? ds <= s0.ferme_au : ds === s0.ferme_du);
-
+ 
   for (let i = 0; i < 14; i++) {
     const date = new Date(today);
     date.setDate(today.getDate() + i);
@@ -1428,13 +1440,14 @@ function generateDates() {
     datesRow.appendChild(card);
   }
 }
-
+ 
 async function selectDate(card, date) {
   document.querySelectorAll('.date-card').forEach(c => c.classList.remove('selected'));
   card.classList.add('selected');
   const days = ['dimanche','lundi','mardi','mercredi','jeudi','vendredi','samedi'];
   const months = ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
-  reservation.date = date.toISOString().slice(0,10);
+  // Date LOCALE (pas UTC) : évite tout décalage de jour
+  reservation.date = date.getFullYear()+'-'+String(date.getMonth()+1).padStart(2,'0')+'-'+String(date.getDate()).padStart(2,'0');
   reservation.dateLabel = `${days[date.getDay()]} ${date.getDate()} ${months[date.getMonth()]}`;
   // Mode "à la journée" : pas d'heure à choisir
   if (reservation.salon && reservation.salon.mode_reservation === 'journee') {
@@ -1448,18 +1461,18 @@ async function selectDate(card, date) {
   }
   await generateSlots();
 }
-
+ 
 async function generateSlots() {
   document.getElementById('slots-section').style.display = 'block';
   const morning = document.getElementById('slots-morning');
   const afternoon = document.getElementById('slots-afternoon');
   morning.innerHTML = '<div style="grid-column:span 4; color:var(--brun-l); font-size:12px">Chargement...</div>';
   afternoon.innerHTML = '';
-
+ 
   // Charger les RDV existants pour cette date
   const startOfDay = new Date(reservation.date + 'T00:00:00').toISOString();
   const endOfDay = new Date(reservation.date + 'T23:59:59').toISOString();
-
+ 
   // Dispos via RPC sécurisée (n'expose pas les données client). Repli direct si besoin.
   let existingRdvs = [];
   const rpc = await WAQQTI.supabase.rpc('get_creneaux_pris', {
@@ -1481,7 +1494,7 @@ async function generateSlots() {
     const res = await query;
     existingRdvs = res.data || [];
   }
-
+ 
   // Créneaux possibles — générés selon les horaires du salon
   const s = reservation.salon || {};
   const t2m = (t) => { const p = String(t).split(':'); return (+p[0]) * 60 + (+p[1]); };
@@ -1494,7 +1507,7 @@ async function generateSlots() {
   const dur = reservation.duree || 30;
   const isToday = reservation.date === new Date().toISOString().slice(0, 10);
   const nowMin = isToday ? (new Date().getHours() * 60 + new Date().getMinutes()) : -1;
-
+ 
   const allSlots = [];
   for (let t = open; t + dur <= close; t += step) {
     if (pD != null && pF != null && t < pF && (t + dur) > pD) continue; // chevauche la pause
@@ -1503,7 +1516,7 @@ async function generateSlots() {
   }
   const morningSlots = allSlots.filter(x => t2m(x) < 720);
   const afternoonSlots = allSlots.filter(x => t2m(x) >= 720);
-
+ 
   // Cacher les sections vides (ex : salon ouvert seulement l'après-midi)
   if (morning.previousElementSibling) morning.previousElementSibling.style.display = morningSlots.length ? '' : 'none';
   if (afternoon.previousElementSibling) afternoon.previousElementSibling.style.display = afternoonSlots.length ? '' : 'none';
@@ -1513,7 +1526,7 @@ async function generateSlots() {
     if (morning.previousElementSibling) morning.previousElementSibling.style.display = 'none';
     return;
   }
-
+ 
   // Identifier les créneaux pris
   const isSlotTaken = (slot) => {
     const slotStart = new Date(`${reservation.date}T${slot}:00`);
@@ -1524,7 +1537,7 @@ async function generateSlots() {
       return slotStart < rEnd && slotEnd > rStart;
     });
   };
-
+ 
   morning.innerHTML = '';
   morningSlots.forEach(slot => {
     const btn = document.createElement('button');
@@ -1534,7 +1547,7 @@ async function generateSlots() {
     if (!btn.disabled) btn.addEventListener('click', () => selectSlot(btn, slot));
     morning.appendChild(btn);
   });
-
+ 
   afternoonSlots.forEach(slot => {
     const btn = document.createElement('button');
     btn.className = 'slot-btn';
@@ -1544,7 +1557,7 @@ async function generateSlots() {
     afternoon.appendChild(btn);
   });
 }
-
+ 
 function selectSlot(btn, slot) {
   document.querySelectorAll('.slot-btn').forEach(s => s.classList.remove('selected'));
   btn.classList.add('selected');
@@ -1554,7 +1567,7 @@ function selectSlot(btn, slot) {
     `${reservation.prestation}${reservation.employeNom ? ' · ' + reservation.employeNom : ''}`;
   document.getElementById('btn-next').disabled = false;
 }
-
+ 
 // ─── NAVIGATION ───
 function goToStep(n) {
   document.querySelectorAll('.step-content').forEach(s => s.classList.remove('active'));
@@ -1566,9 +1579,12 @@ function goToStep(n) {
     if (stepNum === n) s.classList.add('active');
   });
   currentStep = n;
+  // Galerie + à-propos : sur l'accueil (étape 1). Avis : seulement à la confirmation (étape 4).
+  ['salon-gallery','salon-about'].forEach(function(id){ var el=document.getElementById(id); if(el) el.style.display=(n===1?'block':'none'); });
+  var av=document.getElementById('avis-section'); if(av) av.style.display=(n===4?'block':'none');
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
-
+ 
 function nextStep() {
   if (currentStep === 1) {
     if (!reservation.prestation) return;
@@ -1608,14 +1624,14 @@ function nextStep() {
     confirmReservation();
   }
 }
-
+ 
 // ─── CONFIRMATION FINALE ───
 async function confirmReservation() {
   const btn = document.getElementById('btn-next');
   const originalText = btn.textContent;
   btn.disabled = true;
   btn.textContent = T('book.enregistrement','⏳ Enregistrement...');
-
+ 
   const nom = document.getElementById('client-nom').value.trim();
   const tel = document.getElementById('client-tel').value.trim();
   const telCode = (document.getElementById('client-tel-code') || {}).value || '+213';
@@ -1624,12 +1640,13 @@ async function confirmReservation() {
     ? WAQQTI.formatPhone(tel)
     : (telCode + tel.replace(/[^\d]/g, '').replace(/^0+/, ''));
   const note = document.getElementById('client-note').value.trim();
-  const dateRdv = `${reservation.date}T${reservation.heure}:00`;
-
+  // Heure d'Algérie (UTC+1, pas de changement d'heure) → stockage non ambigu
+  const dateRdv = `${reservation.date}T${reservation.heure}:00+01:00`;
+ 
   // Rattacher au compte si le client est connecté (pour « Mes réservations »)
   var _sess = await WAQQTI.supabase.auth.getSession();
   var _uid = (_sess && _sess.data && _sess.data.session) ? _sess.data.session.user.id : null;
-
+ 
   // Compte OBLIGATOIRE uniquement si la prestation demande un acompte
   if (reservation.acompteRequis && !_uid) {
     btn.disabled = false; btn.textContent = originalText;
@@ -1637,7 +1654,7 @@ async function confirmReservation() {
     alert(T('book.acompte_login_requis','Pour réserver avec un acompte, connectez-vous d\'abord (bouton « Se connecter »). Vos informations restent saisies ici.'));
     return;
   }
-
+ 
   // Création via RPC : Kill Switch + anti-surbooking + calcul acompte côté serveur
   const { data, error } = await WAQQTI.supabase.rpc('creer_reservation', {
     p_salon_id: reservation.salonId,
@@ -1653,21 +1670,21 @@ async function confirmReservation() {
     p_user_id: _uid,
     p_email: ((document.getElementById('client-email')||{}).value||'').trim() || null,
   });
-
+ 
   if (error) {
     alert('Erreur : ' + error.message);
     btn.disabled = false;
     btn.textContent = originalText;
     return;
   }
-
+ 
   // data = ligne réservation (l'acompte réel est calculé par la base)
   reservation.id = data.id;
   reservation.acompteMontant = Number(data.acompte_montant || 0);
   reservation.acompteRequis = data.acompte_statut === 'en_attente';
   reservation.annulToken = data.annul_token || null;
   saveResa(data.id, data.annul_token);   // mémorise la réservation + token d'annulation
-
+ 
   goToStep(4);
   document.getElementById('recap-bar').classList.remove('visible');
   var cSalon=document.getElementById('confirm-salon');
@@ -1678,13 +1695,13 @@ async function confirmReservation() {
     (reservation.salon && reservation.salon.mode_reservation === 'journee') ? T('book.journee','Journée') : reservation.heure;
   document.getElementById('confirm-emp').textContent = reservation.employeNom || T('booking.premier_dispo','Premier disponible');
   document.getElementById('confirm-prix').textContent = reservation.prix.toLocaleString('fr') + ' DA';
-
+ 
   updateStatusVisual(data.acompte_statut);
   renderAcompteZone(data.acompte_statut, !!data.justificatif_url);
   renderConfirmActions();
   if (data.acompte_statut === 'en_attente') startStatusPolling();
 }
-
+ 
 // Ajoute (une seule fois) le bloc d'upload de la preuve de paiement en étape 4
 function renderUploadAcompte() {
   const host = document.getElementById('upload-acompte');
@@ -1725,7 +1742,7 @@ function renderUploadAcompte() {
     }
   });
 }
-
+ 
 // Init
 generateDates();
 window.addEventListener('load', async () => {
