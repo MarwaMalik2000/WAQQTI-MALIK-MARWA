@@ -3,1152 +3,1719 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Espace gérant — Waqqti</title>
+  <title>Salon Yasmine Beauty — Réservation Waqqti</title>
   <link rel="icon" href="/assets/logo.svg"/>
-  <meta name="theme-color" content="#F68423"/>
-  <link rel="manifest" href="../manifest.json"/>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=DM+Sans:wght@300;400;500;600;700&family=Amiri:wght@700&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@700&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet"/>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-  <!-- i18n.js dans le <head> (obligatoire : jourCourt() utilisé au chargement) -->
+  <!-- Moteur de traduction FR / AR (dans le <head>) -->
   <script src="../assets/i18n.js"></script>
   <script src="../assets/config.js" defer></script>
   <style>
-    :root{
+    :root {
       --or:#F68423; --or-dk:#D26F1A; --or-lt:#F5B865;
       --cream:#FDEFE2; --cream2:#F5E2CC;
-      --brun:#3D1F00; --brun-l:#7A5030; --brun-d:#2C1A0E;
-      --green:#2D9E5F; --red:#E0454C; --or-champ:#D9A86C;
-      --ink:#3D1F00;
-      --sh:0 6px 24px rgba(61,31,0,.06);
-      --sh-md:0 12px 40px rgba(61,31,0,.10);
-      --sh-or:0 8px 22px rgba(246,132,35,.35);
-      --line:#EFE4D6;
+      --brun:#3D1F00; --brun-l:#7A5030;
+      --green:#2D9E5F; --red:#E0454C;
+      --sh:0 4px 30px rgba(246,132,35,.15);
+      --sh-lg:0 12px 50px rgba(246,132,35,.22);
       --ease:cubic-bezier(.22,.9,.32,1);
+      --r-lg:22px; --r-md:16px; --r-sm:12px;
     }
-    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
-    html{scroll-behavior:smooth}
-    body{font-family:'DM Sans',sans-serif;background:
-      radial-gradient(1200px 600px at 110% -10%, rgba(246,132,35,.07), transparent 60%),
-      radial-gradient(900px 500px at -10% 110%, rgba(217,168,108,.10), transparent 55%),
-      #FBF7F2;color:var(--brun);min-height:100vh;-webkit-font-smoothing:antialiased}
-    h1,h2,h3{font-family:'Cormorant Garamond',serif;letter-spacing:.2px}
-    a{color:inherit}
-    .hidden{display:none!important}
-    :focus-visible{outline:2.5px solid var(--or);outline-offset:2px;border-radius:6px}
-    ::-webkit-scrollbar{height:8px;width:8px}
-    ::-webkit-scrollbar-thumb{background:rgba(246,132,35,.35);border-radius:8px}
-    ::-webkit-scrollbar-thumb:hover{background:rgba(246,132,35,.55)}
-
-    /* ── LOGIN ── */
-    #login{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;
+    *,*::before,*::after { box-sizing:border-box; margin:0; padding:0 }
+    html { scroll-behavior:smooth }
+    body {
+      font-family:'DM Sans',sans-serif; background:var(--cream); color:var(--brun);
+      min-height:100vh; padding-bottom:120px;
+    }
+    /* Fond décoratif très discret (n'entrave rien, pointer-events off) */
+    body::before {
+      content:''; position:fixed; inset:0; z-index:0; pointer-events:none;
       background:
-        radial-gradient(900px 500px at 80% -10%, rgba(255,255,255,.18), transparent 60%),
-        linear-gradient(150deg,var(--or) 0%,var(--or-dk) 55%,#9c500f 100%);
-      background-size:100% 100%, 200% 200%;
-      animation:loginShift 18s ease-in-out infinite}
-    @keyframes loginShift{0%,100%{background-position:80% -10%, 0% 50%}50%{background-position:80% -10%, 100% 50%}}
-    /* Halos flottants derrière la carte de login */
-    #login::before,#login::after{content:'';position:absolute;border-radius:50%;pointer-events:none;
-      background:radial-gradient(circle,rgba(255,255,255,.16),transparent 68%)}
-    #login::before{width:420px;height:420px;top:-120px;left:-100px;animation:loginOrb 14s ease-in-out infinite}
-    #login::after{width:340px;height:340px;bottom:-110px;right:-90px;animation:loginOrb 11s ease-in-out infinite reverse}
-    @keyframes loginOrb{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(30px,-24px) scale(1.14)}}
-    .login-card{background:#fff;border-radius:26px;padding:40px 34px;width:100%;max-width:400px;
-      box-shadow:0 30px 80px rgba(44,26,14,.35);border:1px solid rgba(255,255,255,.6);position:relative;overflow:hidden;
-      z-index:1;animation:cardUp .6s var(--ease) both}
-    @keyframes cardUp{from{opacity:0;transform:translateY(22px) scale(.98)}to{opacity:1;transform:none}}
-    .login-card::before{content:'';position:absolute;top:0;left:0;right:0;height:5px;
-      background:linear-gradient(90deg,var(--or),var(--or-champ),var(--or));background-size:200% 100%;
-      animation:barShine 3s linear infinite}
-    @keyframes barShine{0%{background-position:0% 0}100%{background-position:200% 0}}
-    .login-card .logo{font-family:'Cormorant Garamond',serif;font-size:46px;font-weight:700;color:var(--or);text-align:center;margin-bottom:2px;line-height:1}
-    .login-card .sub{text-align:center;color:var(--brun-l);font-size:14px;margin-bottom:24px}
-    .field{margin-bottom:14px}
-    .field label{display:block;font-size:13px;font-weight:600;margin-bottom:6px;color:var(--brun)}
-    .field input{width:100%;padding:13px 15px;border:1.5px solid var(--line);border-radius:13px;font-size:14px;font-family:inherit;background:#FDFBF9;transition:.2s var(--ease)}
-    /* Les cases à cocher ne doivent PAS prendre toute la largeur */
-    .field input[type=checkbox]{width:auto;flex:0 0 auto;margin:0;padding:0;accent-color:var(--or);vertical-align:middle}
-    .field label input[type=checkbox]{width:16px;height:16px}
-    .field input:focus{outline:none;border-color:var(--or);background:#fff;box-shadow:0 0 0 4px rgba(246,132,35,.12);transform:translateY(-1px)}
-    .btn{padding:13px 24px;background:linear-gradient(135deg,var(--or),var(--or-dk));color:#fff;border:none;border-radius:50px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;transition:.2s var(--ease);box-shadow:var(--sh-or);position:relative;overflow:hidden;isolation:isolate}
-    .btn::before{content:'';position:absolute;inset:0;z-index:-1;background:linear-gradient(115deg,transparent 35%,rgba(255,255,255,.4) 50%,transparent 65%);transform:translateX(-130%);transition:transform .6s var(--ease)}
-    .btn:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 12px 28px rgba(246,132,35,.42)}
-    .btn:hover:not(:disabled)::before{transform:translateX(130%)}
-    .btn:active:not(:disabled){transform:scale(.97)}
-    .btn:disabled{opacity:.5;cursor:default;box-shadow:none}
-    .btn-ghost{background:var(--cream);color:var(--brun);box-shadow:none}
-    .btn-ghost::before{display:none}
-    .btn-ghost:hover:not(:disabled){background:var(--cream2);transform:none;box-shadow:none}
-    .btn-sm{padding:8px 15px;font-size:13px}
-    .err{color:var(--red);font-size:13px;margin-top:10px;min-height:16px;text-align:center}
+        radial-gradient(520px 520px at 88% -6%, rgba(246,132,35,.08), transparent 70%),
+        radial-gradient(480px 480px at -8% 108%, rgba(246,132,35,.06), transparent 70%);
+    }
+    :focus-visible { outline:2.5px solid var(--or-dk); outline-offset:3px; border-radius:6px }
 
-    /* ── APP LAYOUT ── */
-    #app{display:grid;grid-template-columns:248px 1fr;min-height:100vh}
-    .sidebar{background:linear-gradient(180deg,var(--brun-d),var(--brun));color:#fff;padding:26px 16px;display:flex;flex-direction:column;position:sticky;top:0;height:100vh}
-    .sidebar .brand{font-family:'Cormorant Garamond',serif;font-size:32px;font-weight:700;color:#fff;margin-bottom:2px;padding:0 10px}
-    .sidebar .salon-nom{font-size:12px;color:var(--or-champ);padding:0 10px;margin-bottom:26px;font-weight:600;letter-spacing:.4px;text-transform:uppercase}
-    .nav-item{display:flex;align-items:center;gap:12px;padding:11px 12px;border-radius:13px;cursor:pointer;font-size:14px;font-weight:500;color:#D8C6B4;transition:.2s var(--ease);margin-bottom:4px;position:relative}
-    /* Indicateur latéral de l'onglet actif */
-    .nav-item::before{content:'';position:absolute;left:2px;top:50%;transform:translateY(-50%) scaleY(0);width:3px;height:20px;border-radius:3px;background:var(--or-champ);transition:transform .25s var(--ease)}
-    .nav-item:hover{background:rgba(255,255,255,.07);color:#fff}
-    .nav-item:hover::before{transform:translateY(-50%) scaleY(.6)}
-    .nav-item.active{background:linear-gradient(135deg,var(--or),var(--or-dk));color:#fff;box-shadow:0 8px 20px rgba(246,132,35,.30)}
-    .nav-item.active::before{transform:translateY(-50%) scaleY(0)}
-    .nav-item .ico{font-size:16px;width:30px;height:30px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.08);border-radius:9px;flex-shrink:0;transition:.2s var(--ease)}
-    .nav-item:hover .ico{transform:scale(1.08)}
-    .nav-item.active .ico{background:rgba(255,255,255,.22)}
-    .sidebar .spacer{flex:1}
-    .trial-pill{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:13px;font-size:12px;color:#F0E0CF;margin-bottom:12px;line-height:1.5}
-    .trial-pill b{color:var(--or-champ);font-size:14px}
-    .main{padding:34px 40px;overflow-y:auto;max-width:1180px}
-    .page-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px}
-    .page-head h1{font-size:38px;color:var(--brun);position:relative;padding-left:16px}
-    .page-head h1::before{content:'';position:absolute;left:0;top:8px;bottom:8px;width:5px;border-radius:5px;background:linear-gradient(180deg,var(--or),var(--or-champ))}
-    .card{background:#fff;border-radius:20px;padding:24px;box-shadow:var(--sh);border:1px solid var(--line);margin-bottom:18px;transition:box-shadow .3s var(--ease),transform .3s var(--ease)}
-    .card:hover{box-shadow:var(--sh-md)}
-    .row{display:flex;align-items:center;justify-content:space-between;padding:14px 4px;border-bottom:1px solid var(--line);transition:.15s var(--ease)}
-    .row:last-child{border-bottom:none}
-    .muted{color:var(--brun-l);font-size:13px}
-    .pill{padding:4px 12px;border-radius:50px;font-size:11px;font-weight:700;display:inline-block;letter-spacing:.2px}
-    .pill.green{background:#E6F7EE;color:#1A7A4A}
-    .pill.red{background:#FDECEC;color:#C0332F}
-    .pill.gray{background:#EFEAE2;color:var(--brun-l)}
-    .pill.or{background:#FFE7D2;color:var(--or-dk)}
-    .stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:16px;margin-bottom:20px}
-    .stat{background:linear-gradient(180deg,#fff,#FFFaf5);border-radius:18px;padding:20px 18px;border:1px solid var(--line);text-align:center;box-shadow:var(--sh);transition:.22s var(--ease);position:relative;overflow:hidden}
-    .stat::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--or),var(--or-champ))}
-    /* Balayage lumineux au survol des stats */
-    .stat::after{content:'';position:absolute;inset:0;background:linear-gradient(120deg,transparent 42%,rgba(246,132,35,.10) 50%,transparent 58%);transform:translateX(-130%);transition:transform .7s var(--ease)}
-    .stat:hover{transform:translateY(-3px);box-shadow:var(--sh-md)}
-    .stat:hover::after{transform:translateX(130%)}
-    .stat .v{font-family:'Cormorant Garamond',serif;font-size:34px;font-weight:700;color:var(--or-dk);line-height:1;position:relative}
-    .stat .l{font-size:12px;color:var(--brun-l);margin-top:6px;font-weight:500;position:relative}
-    table{width:100%;border-collapse:collapse;font-size:14px}
-    thead th{background:#FBF3EA;position:sticky;top:0}
-    th,td{text-align:left;padding:13px 12px;border-bottom:1px solid var(--line)}
-    th{font-size:11px;color:var(--brun-l);font-weight:700;text-transform:uppercase;letter-spacing:.06em}
-    tbody tr{transition:.14s var(--ease)}
-    tbody tr:hover{background:#FDF6EF}
-    tbody tr:last-child td{border-bottom:none}
-    .card:has(table){padding:8px 14px}
-    input.inp,select.inp{padding:12px 14px;border:1.5px solid var(--line);border-radius:12px;font-size:14px;font-family:inherit;width:100%;background:#FDFBF9;transition:.2s var(--ease)}
-    input.inp:focus,select.inp:focus{outline:none;border-color:var(--or);background:#fff;box-shadow:0 0 0 4px rgba(246,132,35,.1)}
-    .field-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-    .toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-    .empty{text-align:center;color:var(--brun-l);padding:40px 20px;font-size:15px}
-    .card h3{color:var(--brun)}
+    /* ── HEADER SALON ── */
+    .header {
+      background:linear-gradient(135deg,var(--or) 0%,var(--or-dk) 100%);
+      padding:32px 5% 80px;
+      color:#fff;
+      position:relative;
+      overflow:hidden;
+      background-size:180% 180%;
+      animation:hdrShift 16s ease-in-out infinite;
+    }
+    @keyframes hdrShift { 0%,100%{background-position:0% 50%} 50%{background-position:100% 50%} }
+    /* Orbes lumineux flottants dans le header */
+    .header::after {
+      content:''; position:absolute; top:-120px; right:-80px;
+      width:360px; height:360px; border-radius:50%;
+      background:radial-gradient(circle, rgba(255,255,255,.22), transparent 68%);
+      pointer-events:none; animation:hdrOrb 12s ease-in-out infinite;
+    }
+    @keyframes hdrOrb { 0%,100%{transform:translate(0,0) scale(1)} 50%{transform:translate(-30px,26px) scale(1.12)} }
+    .header::before {
+      content:''; position:absolute; bottom:-1px; left:0; right:0; height:30px;
+      background:var(--cream); z-index:1;
+      clip-path:polygon(0 100%, 100% 100%, 100% 0, 0 70%);
+    }
+    .top-bar {
+      max-width:900px; margin:0 auto; position:relative; z-index:2;
+      display:flex; align-items:center; justify-content:space-between;
+      font-size:13px;
+    }
+    .top-bar a { color:rgba(255,255,255,.85); text-decoration:none; display:flex; align-items:center; gap:6px; transition:color .2s, transform .2s var(--ease) }
+    .top-bar a:hover { color:#fff; transform:translateY(-1px) }
+    .salon-hero {
+      max-width:900px; margin:32px auto 0; position:relative; z-index:2;
+      display:flex; align-items:center; gap:24px;
+      animation:heroUp .6s var(--ease) both;
+    }
+    @keyframes heroUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:none} }
+    .salon-avatar {
+      width:90px; height:90px; border-radius:24px;
+      background:#fff;
+      display:flex; align-items:center; justify-content:center;
+      font-family:'Cormorant Garamond',serif; font-size:42px;
+      font-weight:700; color:var(--or);
+      box-shadow:0 8px 24px rgba(0,0,0,.15), 0 0 0 0 rgba(255,255,255,.5);
+      flex-shrink:0; position:relative;
+      transition:transform .3s var(--ease);
+      animation:avatarGlow 3.2s ease-in-out infinite;
+    }
+    @keyframes avatarGlow {
+      0%,100% { box-shadow:0 8px 24px rgba(0,0,0,.15), 0 0 0 0 rgba(255,255,255,0) }
+      50%     { box-shadow:0 8px 30px rgba(0,0,0,.18), 0 0 26px 3px rgba(255,255,255,.35) }
+    }
+    .salon-avatar:hover { transform:scale(1.05) rotate(-3deg) }
+    .salon-info h1 {
+      font-family:'Cormorant Garamond',serif;
+      font-size:36px; font-weight:700;
+      margin-bottom:4px; line-height:1.1;
+    }
+    .salon-meta { display:flex; gap:18px; flex-wrap:wrap; font-size:14px; opacity:.92 }
+    .salon-meta span { display:flex; align-items:center; gap:5px }
+    .open-pill {
+      display:inline-flex; align-items:center; gap:6px;
+      background:rgba(255,255,255,.2); padding:5px 14px;
+      border-radius:50px; font-size:12px; font-weight:500;
+      margin-top:8px; backdrop-filter:blur(8px);
+      border:1px solid rgba(255,255,255,.25);
+    }
+    .open-pill .dot {
+      position:relative; width:7px; height:7px; border-radius:50%;
+      background:#3eea90;
+      animation:pulse 2s infinite;
+    }
+    .open-pill .dot::before {
+      content:''; position:absolute; inset:-4px; border-radius:50%;
+      border:1.5px solid #3eea90; opacity:0; animation:ping 2s ease-out infinite;
+    }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+    @keyframes ping { 0%{transform:scale(.6);opacity:.7} 100%{transform:scale(2.6);opacity:0} }
 
-    /* ── KILL SWITCH OVERLAY ── */
-    #killswitch{position:fixed;inset:0;z-index:9998;background:rgba(44,26,14,.94);backdrop-filter:blur(7px);
-      display:flex;align-items:center;justify-content:center;padding:24px;animation:ksFade .4s var(--ease) both}
-    @keyframes ksFade{from{opacity:0}to{opacity:1}}
-    .ks-card{background:#fff;border-radius:24px;padding:44px 36px;max-width:440px;text-align:center;
-      box-shadow:0 30px 80px rgba(0,0,0,.45);position:relative;overflow:hidden;animation:ksPop .5s var(--ease) .05s both}
-    @keyframes ksPop{from{opacity:0;transform:translateY(24px) scale(.94)}to{opacity:1;transform:none}}
-    .ks-card::before{content:'';position:absolute;top:0;left:0;right:0;height:5px;
-      background:linear-gradient(90deg,var(--red),var(--or))}
-    .ks-card .big{font-size:54px;margin-bottom:10px;display:inline-block;animation:ksPulse 2.4s ease-in-out infinite}
-    @keyframes ksPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
-    .ks-card h2{font-size:32px;color:var(--brun);margin-bottom:10px}
-    .ks-card p{color:var(--brun-l);font-size:15px;line-height:1.65;margin-bottom:24px}
+    /* ── CONTAINER ── */
+    .container { max-width:900px; margin:-40px auto 0; padding:0 5%; position:relative; z-index:2 }
 
-    @media(max-width:820px){
-      #app{grid-template-columns:1fr}
-      .sidebar{flex-direction:row;align-items:center;overflow-x:auto;position:sticky;top:0;height:auto;z-index:10;padding:10px 12px;gap:6px}
-      .sidebar .brand,.sidebar .salon-nom,.trial-pill{display:none}
-      .sidebar .spacer{display:none}
-      .nav-item{white-space:nowrap;margin-bottom:0;flex:0 0 auto;padding:9px 13px}
-      .nav-item::before{display:none}
-      .nav-item .ico{width:22px;height:22px;background:transparent}
-      .nav-item.active .ico{background:transparent}
-      #btn-logout{flex:0 0 auto}
-      .main{padding:22px 18px}
-      .page-head h1{font-size:30px}
-      .field-grid{grid-template-columns:1fr}
+    /* ── ÉTAPES (BREADCRUMB) ── */
+    .steps-bar {
+      background:#fff; border-radius:20px; padding:18px 24px;
+      box-shadow:var(--sh); margin-bottom:24px;
+      display:flex; align-items:center; justify-content:space-between; gap:12px;
+      position:relative; overflow:hidden;
+    }
+    .step-item {
+      display:flex; align-items:center; gap:10px;
+      flex:1; font-size:13px;
+    }
+    .step-num {
+      width:30px; height:30px; border-radius:50%;
+      background:var(--cream2); color:var(--brun-l);
+      display:flex; align-items:center; justify-content:center;
+      font-weight:600; font-size:13px; flex-shrink:0;
+      transition:all .35s var(--ease);
+    }
+    .step-item.active .step-num {
+      background:var(--or); color:#fff;
+      transform:scale(1.12);
+      box-shadow:0 4px 14px rgba(246,132,35,.4);
+    }
+    .step-item.done .step-num { background:var(--green); color:#fff }
+    .step-item.done .step-num::before { content:'✓'; }
+    .step-item.done .step-num span { display:none }
+    .step-item.active .step-label { color:var(--or); font-weight:600 }
+    .step-label { transition:color .3s var(--ease) }
+    .step-arrow { color:var(--brun-l); opacity:.3; transition:opacity .3s }
+
+    /* ── CARD ── */
+    .card {
+      background:#fff; border-radius:20px;
+      padding:28px; margin-bottom:20px;
+      box-shadow:var(--sh);
+      position:relative;
+      transition:box-shadow .35s var(--ease), transform .35s var(--ease);
+    }
+    .card:hover { box-shadow:var(--sh-lg) }
+    .card-title {
+      font-family:'Cormorant Garamond',serif;
+      font-size:24px; font-weight:700;
+      color:var(--brun); margin-bottom:6px;
+    }
+    .card-sub { font-size:14px; color:var(--brun-l); margin-bottom:24px }
+
+    /* ── PRESTATIONS LIST ── */
+    .prest-categ {
+      font-size:11px; font-weight:600; letter-spacing:2px;
+      color:var(--or); text-transform:uppercase;
+      margin:24px 0 12px;
+      display:flex; align-items:center; gap:10px;
+    }
+    .prest-categ::after {
+      content:''; flex:1; height:1px;
+      background:linear-gradient(90deg, rgba(246,132,35,.35), transparent);
+    }
+    .prest-categ:first-child { margin-top:0 }
+    .prest-item {
+      display:flex; align-items:center; justify-content:space-between;
+      padding:16px; border:1.5px solid var(--cream2);
+      border-radius:14px; margin-bottom:10px;
+      cursor:pointer; transition:all .22s var(--ease);
+      position:relative; overflow:hidden;
+    }
+    /* Accent latéral qui se déploie */
+    .prest-item::before {
+      content:''; position:absolute; left:0; top:0; bottom:0; width:4px;
+      background:var(--or); transform:scaleY(0); transform-origin:center;
+      transition:transform .25s var(--ease);
+    }
+    .prest-item:hover {
+      border-color:var(--or-lt);
+      background:rgba(246,132,35,.03);
+      transform:translateX(3px);
+    }
+    .prest-item:hover::before { transform:scaleY(.55) }
+    .prest-item.selected {
+      border-color:var(--or); background:rgba(246,132,35,.07);
+      box-shadow:0 4px 16px rgba(246,132,35,.15);
+    }
+    .prest-item.selected::before { transform:scaleY(1) }
+    .prest-info { flex:1 }
+    .prest-name { font-weight:600; font-size:15px; margin-bottom:3px; color:var(--brun) }
+    .prest-duration { font-size:12px; color:var(--brun-l) }
+    .prest-price {
+      font-family:'Cormorant Garamond',serif;
+      font-size:22px; font-weight:700; color:var(--or);
+      margin-left:16px;
+    }
+
+    /* ── EMPLOYÉS (formule confort/premium) ── */
+    .employes-grid {
+      display:grid; grid-template-columns:repeat(auto-fit, minmax(140px,1fr));
+      gap:12px; margin-bottom:20px;
+    }
+    .employe-card {
+      padding:18px; border:1.5px solid var(--cream2);
+      border-radius:14px; text-align:center;
+      cursor:pointer; transition:all .22s var(--ease);
+      position:relative; overflow:hidden;
+    }
+    .employe-card::after {
+      content:''; position:absolute; inset:0; z-index:0;
+      background:linear-gradient(120deg, transparent 40%, rgba(246,132,35,.12) 50%, transparent 60%);
+      transform:translateX(-130%); transition:transform .7s var(--ease);
+    }
+    .employe-card:hover { border-color:var(--or-lt); transform:translateY(-3px); box-shadow:0 8px 20px rgba(246,132,35,.14) }
+    .employe-card:hover::after { transform:translateX(130%) }
+    .employe-card.selected {
+      border-color:var(--or); background:rgba(246,132,35,.07);
+      box-shadow:0 4px 16px rgba(246,132,35,.15);
+    }
+    .employe-card > * { position:relative; z-index:1 }
+    .emp-avatar {
+      width:50px; height:50px; border-radius:50%;
+      background:var(--or); color:#fff;
+      display:flex; align-items:center; justify-content:center;
+      font-family:'Cormorant Garamond',serif;
+      font-size:22px; font-weight:700;
+      margin:0 auto 10px;
+      transition:transform .25s var(--ease);
+    }
+    .employe-card:hover .emp-avatar { transform:scale(1.08) }
+    .emp-name { font-weight:600; font-size:14px; margin-bottom:2px }
+    .emp-role { font-size:11px; color:var(--brun-l) }
+
+    .formule-note {
+      background:rgba(246,132,35,.06);
+      border-left:3px solid var(--or);
+      padding:12px 14px;
+      font-size:13px; color:var(--brun-l);
+      border-radius:0 10px 10px 0; margin-bottom:18px;
+    }
+
+    /* ── DATE PICKER ── */
+    .dates-row {
+      display:flex; gap:10px; overflow-x:auto;
+      padding-bottom:8px; margin-bottom:20px;
+      scrollbar-width:thin; scrollbar-color:var(--or-lt) transparent;
+    }
+    .dates-row::-webkit-scrollbar { height:5px }
+    .dates-row::-webkit-scrollbar-thumb { background:var(--or-lt); border-radius:5px }
+    .date-card {
+      min-width:74px; padding:12px 8px;
+      border:1.5px solid var(--cream2); border-radius:14px;
+      text-align:center; cursor:pointer; transition:all .22s var(--ease);
+      background:#fff; flex-shrink:0;
+    }
+    .date-card:hover:not(.closed) { border-color:var(--or-lt); transform:translateY(-2px); box-shadow:0 6px 16px rgba(246,132,35,.16) }
+    .date-card.selected {
+      background:var(--or); color:#fff; border-color:var(--or);
+      box-shadow:0 4px 14px rgba(246,132,35,.3);
+      transform:translateY(-2px);
+    }
+    .date-card.closed { opacity:.35; cursor:not-allowed; background:var(--cream2) }
+    .date-day { font-size:11px; text-transform:uppercase; letter-spacing:.5px; opacity:.7 }
+    .date-num { font-size:22px; font-weight:700; margin:2px 0 }
+    .date-month { font-size:10px; opacity:.7; text-transform:uppercase }
+    .date-card.selected .date-day,
+    .date-card.selected .date-month { opacity:.9 }
+
+    /* ── SLOTS HORAIRES ── */
+    .slots-section { margin-top:16px }
+    .slots-period {
+      font-size:11px; font-weight:600; letter-spacing:1.5px;
+      color:var(--brun-l); text-transform:uppercase;
+      margin:18px 0 10px;
+    }
+    .slots-grid {
+      display:grid; grid-template-columns:repeat(auto-fill, minmax(80px, 1fr));
+      gap:8px;
+    }
+    .slot-btn {
+      padding:11px 6px; text-align:center;
+      background:#fff; border:1.5px solid var(--cream2);
+      border-radius:10px; font-size:14px; font-weight:600;
+      color:var(--brun); cursor:pointer; transition:all .18s var(--ease);
+      font-family:'DM Sans',sans-serif;
+    }
+    .slot-btn:hover:not(:disabled) { border-color:var(--or); color:var(--or); transform:translateY(-2px); box-shadow:0 4px 12px rgba(246,132,35,.18) }
+    .slot-btn:active:not(:disabled) { transform:scale(.94) }
+    .slot-btn.selected {
+      background:var(--or); color:#fff; border-color:var(--or);
+      transform:scale(1.03);
+      box-shadow:0 4px 14px rgba(246,132,35,.35);
+    }
+    .slot-btn:disabled {
+      background:var(--cream2); color:#ccc;
+      cursor:not-allowed; text-decoration:line-through;
+    }
+
+    /* ── FORM COORDONNÉES ── */
+    .form-row { margin-bottom:16px }
+    .form-row label {
+      display:block; font-size:13px; font-weight:600;
+      color:var(--brun); margin-bottom:6px;
+    }
+    .form-row input,
+    .form-row textarea {
+      width:100%; padding:13px 16px;
+      border:1.5px solid var(--cream2); border-radius:12px;
+      font-size:15px; font-family:inherit;
+      background:#fff; color:var(--brun); transition:all .22s var(--ease);
+    }
+    .form-row input:focus,
+    .form-row textarea:focus {
+      outline:none; border-color:var(--or);
+      box-shadow:0 0 0 4px rgba(246,132,35,.1);
+      transform:translateY(-1px);
+    }
+    .form-row .hint { font-size:11px; color:var(--brun-l); margin-top:5px }
+
+    /* ── BARRE RÉCAP FIXE EN BAS ── */
+    .recap-bar {
+      position:fixed; bottom:0; left:0; right:0; z-index:50;
+      background:rgba(255,255,255,.92); backdrop-filter:blur(14px);
+      border-top:1px solid var(--cream2);
+      padding:14px 5%; box-shadow:0 -8px 30px rgba(0,0,0,.06);
+      transform:translateY(100%); transition:transform .35s var(--ease);
+    }
+    .recap-bar.visible { transform:translateY(0) }
+    .recap-inner {
+      max-width:900px; margin:0 auto;
+      display:flex; align-items:center; justify-content:space-between; gap:16px;
+    }
+    .recap-info { flex:1 }
+    .recap-label { font-size:11px; color:var(--brun-l); text-transform:uppercase; letter-spacing:1px }
+    .recap-value { font-size:15px; font-weight:600; color:var(--brun); margin-top:2px }
+    .btn-next {
+      background:var(--or); color:#fff;
+      padding:14px 28px; border-radius:50px;
+      font-size:15px; font-weight:600;
+      border:none; cursor:pointer; transition:all .22s var(--ease);
+      box-shadow:0 4px 16px rgba(246,132,35,.35);
+      display:flex; align-items:center; gap:8px;
+      position:relative; overflow:hidden; isolation:isolate;
+    }
+    .btn-next::before {
+      content:''; position:absolute; inset:0; z-index:-1;
+      background:linear-gradient(115deg, transparent 35%, rgba(255,255,255,.4) 50%, transparent 65%);
+      transform:translateX(-130%); transition:transform .6s var(--ease);
+    }
+    .btn-next:hover:not(:disabled) { background:var(--or-dk); transform:translateY(-2px); box-shadow:0 8px 24px rgba(246,132,35,.45) }
+    .btn-next:hover:not(:disabled)::before { transform:translateX(130%) }
+    .btn-next:active:not(:disabled) { transform:scale(.97) }
+    .btn-next:disabled { opacity:.5; cursor:not-allowed; transform:none }
+
+    /* ── CONFIRMATION ── */
+    .confirm-screen {
+      text-align:center; padding:40px 20px;
+    }
+    .confirm-icon {
+      width:90px; height:90px; border-radius:50%;
+      background:var(--green); color:#fff;
+      display:flex; align-items:center; justify-content:center;
+      font-size:46px; margin:0 auto 24px;
+      animation:bounce .6s ease;
+      position:relative;
+    }
+    .confirm-icon::before {
+      content:''; position:absolute; inset:-8px; border-radius:50%;
+      border:2px solid var(--green); opacity:0; animation:confirmRing 1.6s ease-out .3s infinite;
+    }
+    @keyframes confirmRing { 0%{transform:scale(.85);opacity:.7} 100%{transform:scale(1.5);opacity:0} }
+    @keyframes bounce {
+      0% { transform:scale(0); opacity:0 }
+      60% { transform:scale(1.15) }
+      100% { transform:scale(1); opacity:1 }
+    }
+    .confirm-screen h2 {
+      font-family:'Cormorant Garamond',serif;
+      font-size:32px; font-weight:700;
+      color:var(--brun); margin-bottom:8px;
+    }
+    .confirm-screen p { color:var(--brun-l); margin-bottom:24px; line-height:1.7 }
+    .confirm-detail {
+      background:var(--cream); border-radius:14px;
+      padding:20px; text-align:left;
+      max-width:380px; margin:0 auto 24px;
+    }
+    .confirm-detail div { margin-bottom:10px; font-size:14px }
+    .confirm-detail div:last-child { margin-bottom:0 }
+    .confirm-detail strong { color:var(--brun); display:inline-block; min-width:90px }
+
+    /* ── WAQQTI BADGE ── */
+    .waqqti-footer {
+      text-align:center; padding:30px 0 20px;
+      font-size:11px; color:var(--brun-l);
+    }
+    .waqqti-footer a { color:var(--or); text-decoration:none; font-weight:600 }
+
+    /* ── ANIMATIONS ── */
+    .step-content { display:none; animation:fadeIn .4s var(--ease) }
+    .step-content.active { display:block }
+    @keyframes fadeIn {
+      from { opacity:0; transform:translateY(12px) }
+      to { opacity:1; transform:translateY(0) }
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width:600px) {
+      .salon-hero { flex-direction:column; text-align:center; gap:16px }
+      .salon-meta { justify-content:center }
+      .steps-bar { padding:14px; flex-wrap:wrap; gap:8px }
+      .step-item { font-size:11px }
+      .step-num { width:26px; height:26px; font-size:12px }
+      .step-arrow { display:none }
+      .step-label { display:none }
+      .card { padding:20px }
+      .card-title { font-size:20px }
+      .recap-inner { flex-direction:column; gap:10px }
+      .recap-info { width:100%; text-align:center }
+      .btn-next { width:100%; justify-content:center }
     }
 
     /* Accessibilité : coupe les animations si demandé au niveau système */
-    @media (prefers-reduced-motion: reduce){
-      html{scroll-behavior:auto}
-      #login,#login::before,#login::after,.login-card,.login-card::before,
-      .btn::before,.nav-item::before,.stat::after,
-      #killswitch,.ks-card,.ks-card .big{animation:none!important}
-      *,*::before,*::after{transition-duration:.01ms!important}
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior:auto }
+      .header, .header::after, .salon-avatar, .salon-hero,
+      .open-pill .dot, .open-pill .dot::before,
+      .confirm-icon::before, .prest-item, .employe-card::after,
+      .btn-next::before {
+        animation:none !important;
+      }
+      *, *::before, *::after { transition-duration:.01ms !important }
     }
   </style>
 </head>
 <body>
 
-<!-- ═══════════ LOGIN ═══════════ -->
-<section id="login">
-  <form class="login-card" id="login-form">
-    <div class="logo"><img src="/assets/logo.svg" alt="Waqqti" style="height:82px;width:auto;display:block;margin:0 auto"/></div>
-    <div class="sub" id="login-sub" data-i18n="pro.login_sub">Espace gérant Waqqti</div>
-
-    <div class="field">
-      <label data-i18n="pro.email">Email</label>
-      <input type="email" id="email" autocomplete="username" required placeholder="salon@exemple.dz"/>
+<!-- ═══════════ HEADER SALON ═══════════ -->
+<div class="header">
+  <div class="top-bar">
+    <a href="#" onclick="if(history.length>1){history.back()}else{location.href='/'}return false;" data-i18n="book.retour">← Retour</a>
+    <div style="display:flex;align-items:center;gap:14px">
+      <a href="https://wa.me/+213549829949" target="_blank" data-i18n="book.aide">💬 Aide WhatsApp</a>
+      <button type="button" data-lang-toggle style="font-family:'Tajawal',sans-serif;font-weight:700;background:rgba(255,255,255,.2);color:#fff;border:none;border-radius:50px;padding:6px 14px;cursor:pointer;font-size:13px;backdrop-filter:blur(8px)">العربية</button>
     </div>
-    <div class="field">
-      <label data-i18n="pro.password">Mot de passe</label>
-      <input type="password" id="password" autocomplete="current-password" required placeholder="••••••••"/>
+  </div>
+
+  <div class="salon-hero">
+    <div class="salon-avatar">Y</div>
+    <div class="salon-info">
+      <h1>Salon Yasmine Beauty</h1>
+      <div class="salon-meta">
+        <span>📍 Alger Centre, Rue Didouche</span>
+        <span>⏰ 09h–19h</span>
+      </div>
+      <span class="open-pill">
+        <span class="dot"></span> <span data-i18n="book.ouvert">Ouvert maintenant</span>
+      </span>
     </div>
-
-    <button type="submit" class="btn" id="btn-submit" style="width:100%" data-i18n="pro.connexion">Se connecter</button>
-    <div class="err" id="login-err"></div>
-    <p class="muted" style="text-align:center;font-size:12px;margin-top:14px">
-      <span data-i18n="pro.support_txt">Identifiants fournis par Waqqti. Un souci de connexion ?</span>
-      <a href="https://wa.me/213549829949" target="_blank" style="color:var(--or);font-weight:600;text-decoration:none" data-i18n="pro.support_link">Contacter le support</a>
-    </p>
-  </form>
-</section>
-
-<!-- ═══════════ APP ═══════════ -->
-<div id="app" class="hidden">
-  <aside class="sidebar">
-    <a href="#" title="Retour" aria-label="Retour" onclick="if(history.length>1){history.back()}else{location.href='/'}return false;" style="color:#D8C6B4;text-decoration:none;font-size:13px;font-weight:600;padding:0 8px 12px;display:inline-flex;align-items:center;gap:6px;white-space:nowrap" data-i18n="pro.retour">← Retour</a>
-    <div class="brand"><img src="/assets/logo.svg" alt="Waqqti" style="height:60px;width:auto;filter:brightness(0) invert(1)"/></div>
-    <div class="salon-nom" id="side-salon">—</div>
-    <div class="nav-item active" data-view="agenda"><span class="ico">📅</span><span data-i18n="pro.agenda">Agenda</span></div>
-    <div class="nav-item" data-view="acomptes"><span class="ico">💳</span><span data-i18n="pro.acomptes">Acomptes</span><span id="badge-acomptes" class="pill or" style="margin-left:6px;display:none"></span></div>
-    <div class="nav-item" data-view="clients"><span class="ico">👥</span><span data-i18n="pro.clients">Clients</span></div>
-    <div class="nav-item" data-view="prestations"><span class="ico">✂️</span><span data-i18n="pro.prestations">Prestations</span></div>
-    <div class="nav-item" data-view="equipe"><span class="ico">🧑‍🤝‍🧑</span><span data-i18n="pro.equipe">Équipe</span></div>
-    <div class="nav-item" data-view="avis"><span class="ico">⭐</span><span data-i18n="pro.avis">Avis</span></div>
-    <div class="nav-item" data-view="attente"><span class="ico">🔔</span><span data-i18n="pro.attente">Liste d'attente</span></div>
-    <div class="nav-item" data-view="parametres"><span class="ico">⚙️</span><span data-i18n="pro.parametres">Paramètres</span></div>
-    <div class="nav-item" data-view="abonnement"><span class="ico">💳</span><span data-i18n="pro.abonnement">Abonnement</span></div>
-    <div class="spacer"></div>
-    <div class="trial-pill" id="trial-pill"></div>
-    <button type="button" data-lang-toggle class="btn btn-ghost btn-sm" style="margin-bottom:8px;font-family:'Tajawal',sans-serif;font-weight:700">العربية</button>
-    <button class="btn btn-ghost btn-sm" id="btn-logout" data-i18n="pro.deconnexion">Se déconnecter</button>
-  </aside>
-
-  <main class="main" id="main"><div class="empty">Chargement…</div></main>
+  </div>
 </div>
 
-<!-- ═══════════ KILL SWITCH ═══════════ -->
-<div id="killswitch" class="hidden">
-  <div class="ks-card">
-    <div class="big">🔒</div>
-    <h2 data-i18n="pro.ks_titre">Votre essai est terminé</h2>
-    <p id="ks-msg" data-i18n="pro.ks_txt">Votre période d'essai de 30 jours est arrivée à échéance.
-       Pour réactiver votre espace et continuer à recevoir des réservations,
-       contactez-nous pour choisir votre formule.</p>
-    <a class="btn" href="https://wa.me/213549829949" target="_blank" rel="noopener" data-i18n="pro.ks_btn">Réactiver mon compte via WhatsApp</a>
+<div class="container">
+
+  <!-- ═══════════ BANNIÈRE FERMETURE ═══════════ -->
+  <div id="salon-ferme"></div>
+
+  <!-- ═══════════ GALERIE DU SALON ═══════════ -->
+  <div id="salon-gallery"></div>
+
+  <!-- ═══════════ À PROPOS DU SALON ═══════════ -->
+  <div id="salon-about"></div>
+
+  <!-- ═══════════ ÉTAPES ═══════════ -->
+  <div class="steps-bar">
+    <div class="step-item active" data-step="1">
+      <div class="step-num"><span>1</span></div>
+      <div class="step-label" data-i18n="book.step1">Prestation</div>
+    </div>
+    <span class="step-arrow">→</span>
+    <div class="step-item" data-step="2">
+      <div class="step-num"><span>2</span></div>
+      <div class="step-label" data-i18n="book.step2">Date & heure</div>
+    </div>
+    <span class="step-arrow">→</span>
+    <div class="step-item" data-step="3">
+      <div class="step-num"><span>3</span></div>
+      <div class="step-label" data-i18n="book.step3">Coordonnées</div>
+    </div>
+    <span class="step-arrow">→</span>
+    <div class="step-item" data-step="4">
+      <div class="step-num"><span>4</span></div>
+      <div class="step-label" data-i18n="book.step4">Confirmation</div>
+    </div>
+  </div>
+
+  <!-- ═══════════ ÉTAPE 1 : PRESTATION ═══════════ -->
+  <div class="step-content active" id="step-1">
+    <div class="card">
+      <h2 class="card-title" data-i18n="book.choix_prestation">Choisissez votre prestation</h2>
+      <p class="card-sub" data-i18n="book.choix_prestation_sub">Sélectionnez le service souhaité</p>
+
+      <div class="prest-categ">Coiffure</div>
+      <div class="prest-item" data-id="1" data-name="Coupe + Brushing" data-duration="60" data-price="1800">
+        <div class="prest-info">
+          <div class="prest-name">Coupe + Brushing</div>
+          <div class="prest-duration">1h00</div>
+        </div>
+        <div class="prest-price">1 800 DA</div>
+      </div>
+      <div class="prest-item" data-id="2" data-name="Coloration complète" data-duration="120" data-price="4500">
+        <div class="prest-info">
+          <div class="prest-name">Coloration complète</div>
+          <div class="prest-duration">2h00</div>
+        </div>
+        <div class="prest-price">4 500 DA</div>
+      </div>
+      <div class="prest-item" data-id="3" data-name="Mèches + Brushing" data-duration="150" data-price="5500">
+        <div class="prest-info">
+          <div class="prest-name">Mèches + Brushing</div>
+          <div class="prest-duration">2h30</div>
+        </div>
+        <div class="prest-price">5 500 DA</div>
+      </div>
+
+      <div class="prest-categ">Soins visage</div>
+      <div class="prest-item" data-id="4" data-name="Soin hydratant" data-duration="45" data-price="2500">
+        <div class="prest-info">
+          <div class="prest-name">Soin hydratant</div>
+          <div class="prest-duration">45min</div>
+        </div>
+        <div class="prest-price">2 500 DA</div>
+      </div>
+      <div class="prest-item" data-id="5" data-name="Épilation visage" data-duration="20" data-price="800">
+        <div class="prest-info">
+          <div class="prest-name">Épilation visage (sourcils + lèvres)</div>
+          <div class="prest-duration">20min</div>
+        </div>
+        <div class="prest-price">800 DA</div>
+      </div>
+
+      <div class="prest-categ">Nail art</div>
+      <div class="prest-item" data-id="6" data-name="Manucure simple" data-duration="45" data-price="1500">
+        <div class="prest-info">
+          <div class="prest-name">Manucure simple</div>
+          <div class="prest-duration">45min</div>
+        </div>
+        <div class="prest-price">1 500 DA</div>
+      </div>
+      <div class="prest-item" data-id="7" data-name="Vernis semi-permanent" data-duration="60" data-price="2200">
+        <div class="prest-info">
+          <div class="prest-name">Vernis semi-permanent</div>
+          <div class="prest-duration">1h00</div>
+        </div>
+        <div class="prest-price">2 200 DA</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════ ÉTAPE 2 : DATE + EMPLOYÉ + HEURE ═══════════ -->
+  <div class="step-content" id="step-2">
+    <!-- CHOIX EMPLOYÉ (formule confort/premium) -->
+    <div class="card" id="employes-card">
+      <h2 class="card-title" data-i18n="book.pref_titre">Choisissez votre préférence</h2>
+      <p class="card-sub" data-i18n="book.pref_sub">Avec qui souhaitez-vous prendre rendez-vous ?</p>
+
+      <div class="employes-grid">
+        <div class="employe-card" data-emp="0" data-emp-name="">
+          <div class="emp-avatar" style="background:var(--cream2);color:var(--brun)">?</div>
+          <div class="emp-name" data-i18n="book.peu_importe">Peu importe</div>
+          <div class="emp-role" data-i18n="booking.premier_dispo">1er disponible</div>
+        </div>
+        <div class="employe-card" data-emp="1" data-emp-name="Yasmine">
+          <div class="emp-avatar">Y</div>
+          <div class="emp-name">Yasmine</div>
+          <div class="emp-role">Coiffure</div>
+        </div>
+        <div class="employe-card" data-emp="2" data-emp-name="Samira">
+          <div class="emp-avatar">S</div>
+          <div class="emp-name">Samira</div>
+          <div class="emp-role">Soins · Nail</div>
+        </div>
+        <div class="employe-card" data-emp="3" data-emp-name="Nadia">
+          <div class="emp-avatar">N</div>
+          <div class="emp-name">Nadia</div>
+          <div class="emp-role">Coiffure</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DATE -->
+    <div class="card">
+      <h2 class="card-title" data-i18n="book.choix_date">Choisissez la date</h2>
+      <p class="card-sub" data-i18n="book.dates_sub">Faites défiler pour voir plus de dates</p>
+      <div class="dates-row" id="dates-row">
+        <!-- Généré en JS -->
+      </div>
+
+      <!-- HEURE -->
+      <div class="slots-section" id="slots-section" style="display:none">
+        <div class="slots-period" data-i18n="booking.matin">Matin</div>
+        <div class="slots-grid" id="slots-morning"></div>
+        <div class="slots-period" data-i18n="booking.apresmidi">Après-midi</div>
+        <div class="slots-grid" id="slots-afternoon"></div>
+      </div>
+    </div>
+
+    <!-- LISTE D'ATTENTE -->
+    <div class="card" id="attente-card">
+      <h2 class="card-title" data-i18n="book.liste_titre">Complet ou aucun créneau qui vous convient ?</h2>
+      <p class="card-sub" data-i18n="book.liste_sub">Laissez vos coordonnées : le salon vous prévient dès qu'une place se libère.</p>
+      <div id="attente-zone"></div>
+    </div>
+  </div>
+
+  <!-- ═══════════ ÉTAPE 3 : COORDONNÉES ═══════════ -->
+  <div class="step-content" id="step-3">
+    <div class="card">
+      <h2 class="card-title" data-i18n="book.coordonnees_titre">Vos coordonnées</h2>
+      <p class="card-sub" data-i18n="book.coord_sub">Nous enverrons une confirmation par SMS</p>
+
+      <div class="form-row">
+        <label data-i18n="book.nom_label">Nom complet *</label>
+        <input type="text" id="client-nom" placeholder="Ex: Amina Kaci" required>
+      </div>
+
+      <div class="form-row">
+        <label data-i18n="book.tel_label">Numéro de téléphone *</label>
+        <div style="display:flex;align-items:stretch;direction:ltr">
+          <select id="client-tel-code" style="border:1.5px solid var(--cream2);border-right:none;border-radius:12px 0 0 12px;background:var(--cream2);color:var(--brun);font-weight:600;font-family:inherit;font-size:14px;padding:0 6px;max-width:118px">
+            <option value="+213" selected>🇩🇿 +213</option>
+            <option value="+33">🇫🇷 +33</option>
+            <option value="+34">🇪🇸 +34</option>
+            <option value="+32">🇧🇪 +32</option>
+            <option value="+1">🇨🇦 +1</option>
+          </select>
+          <input type="tel" id="client-tel" placeholder="770 12 34 56" required
+                 style="border-radius:0 12px 12px 0;flex:1" maxlength="15">
+        </div>
+        <div class="hint" data-i18n="book.tel_hint">Nous vous enverrons un SMS de confirmation et un rappel 24h avant</div>
+      </div>
+
+      <div class="form-row">
+        <label data-i18n="book.email_label">E-mail (optionnel — pour la confirmation 24h avant)</label>
+        <input type="email" id="client-email" dir="ltr" placeholder="vous@email.com">
+      </div>
+
+      <div class="form-row">
+        <label data-i18n="book.note_label">Note pour le salon (optionnel)</label>
+        <textarea id="client-note" rows="3" placeholder="Précisions, demandes particulières…"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════ ÉTAPE 4 : CONFIRMATION ═══════════ -->
+  <div class="step-content" id="step-4">
+    <div class="card confirm-screen">
+      <div class="confirm-icon" id="confirm-icon">✓</div>
+      <h2 id="confirm-title" data-i18n="book.confirme_titre">Réservation confirmée !</h2>
+      <p id="confirm-subtitle" data-i18n="book.confirme_sub">Une confirmation vous a été envoyée sur WhatsApp.</p>
+
+      <div class="confirm-detail">
+        <div><strong data-i18n="book.lbl_salon">Salon :</strong> <span id="confirm-salon"></span></div>
+        <div><strong data-i18n="book.lbl_service">Service :</strong> <span id="confirm-prest"></span></div>
+        <div><strong data-i18n="book.lbl_date">Date :</strong> <span id="confirm-date"></span></div>
+        <div><strong data-i18n="book.lbl_heure">Heure :</strong> <span id="confirm-heure"></span></div>
+        <div><strong data-i18n="book.lbl_avec">Avec :</strong> <span id="confirm-emp"></span></div>
+        <div><strong data-i18n="book.lbl_prix">Prix :</strong> <span id="confirm-prix"></span></div>
+      </div>
+
+      <!-- Preuve de paiement de l'acompte (injectée en JS si acompte requis) -->
+      <div id="upload-acompte"></div>
+
+      <!-- Actions : calendrier + contacter le salon (injectées en JS) -->
+      <div id="confirm-actions" style="max-width:380px;margin:16px auto 0"></div>
+
+      <p style="font-size:13px" data-i18n="book.annuler_note">
+        Pour annuler ou modifier, contactez directement le salon.
+      </p>
+
+      <button class="btn-next" style="margin:20px auto 0" onclick="nouvelleReservation()" data-i18n="book.autre">
+        Faire une autre réservation
+      </button>
+    </div>
+  </div>
+
+  <!-- ═══════════ AVIS CLIENTS ═══════════ -->
+  <div class="card" id="avis-section" style="margin-top:18px;display:none">
+    <h2 class="card-title" data-i18n="book.avis_titre">Avis clients</h2>
+    <div id="avis-resume" style="margin-bottom:6px"></div>
+    <div id="avis-form-zone" style="margin:14px 0 6px"></div>
+    <div id="avis-list"></div>
+  </div>
+
+  <div class="waqqti-footer" data-i18n-html="book.footer">
+    Réservation propulsée par <a href="https://www.waqqti.com" target="_blank">Waqqti</a> · La référence beauté en Algérie
+  </div>
+</div>
+
+<!-- ═══════════ BARRE RÉCAP FIXE ═══════════ -->
+<div class="recap-bar" id="recap-bar">
+  <div class="recap-inner">
+    <div class="recap-info">
+      <div class="recap-label" id="recap-label" data-i18n="book.recap_prestation">Prestation choisie</div>
+      <div class="recap-value" id="recap-value">—</div>
+    </div>
+    <button class="btn-next" id="btn-next" onclick="nextStep()" data-i18n="book.continuer">
+      Continuer →
+    </button>
   </div>
 </div>
 
 <script>
-/* ════════════════════════════════════════════════════════════
-   ESPACE GÉRANT — logique SPA
-   Dépend de : WAQQTI.supabase (config.js) · WQ (i18n.js)
-   ════════════════════════════════════════════════════════════ */
-var STATE = { user:null, salon:null, view:'agenda' };
+// ── État global ──
+const reservation = {
+  salon: null, salonId: null,
+  prestation: null, prestationId: null, prestationObj: null, duree: null, prix: null,
+  employe: null, employeId: null, employeNom: null,
+  date: null, dateLabel: null,
+  heure: null,
+  id: null, acompteMontant: 0, acompteRequis: false,
+};
+let currentStep = 1;
 
-function sb(){ return window.WAQQTI && window.WAQQTI.supabase; }
-function $(id){ return document.getElementById(id); }
-function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){
-  return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
-// Prix isolé en LTR (évite l'inversion des chiffres en arabe)
-function fmtPrix(n){ var v = window.WAQQTI ? WAQQTI.formatPrix(n) : (n+' DA'); return '<bdi dir="ltr">'+v+'</bdi>'; }
-function fmtPrixP(p){ return (p.prix_max!=null && Number(p.prix_max)>Number(p.prix)) ? (fmtPrix(p.prix)+' – '+fmtPrix(p.prix_max)) : fmtPrix(p.prix); }
-// Enveloppe LTR générique (heures, dates, téléphones)
-function ltr(s){ return '<bdi dir="ltr">'+s+'</bdi>'; }
+// Traduction avec repli français (si i18n absent ou clé manquante)
 function T(k, fr){ if(window.WQ && WQ.t){ var v=WQ.t(k); if(v && v!==k) return v; } return fr; }
 
-/* ---- Démarrage : attendre config.js puis vérifier la session ---- */
-function boot(){
-  if(!sb()){ return setTimeout(boot, 60); } // attend WAQQTI.supabase
-  bindStatic();
-  sb().auth.getSession().then(function(res){
-    var session = res && res.data && res.data.session;
-    if(session && session.user){ onLogin(session.user); }
-    else { showLogin(); }
-  });
+// Actions sur l'écran de confirmation : calendrier + contacter le salon
+function renderConfirmActions(){
+  var host=document.getElementById('confirm-actions'); if(!host) return;
+  var s=reservation.salon||{}; var html='';
+  if(s.telephone){
+    var wa=String(s.telephone).replace(/[^\d]/g,'');
+    var quand=reservation.dateLabel+((s.mode_reservation==='journee')?'':(' à '+reservation.heure));
+    var msg=encodeURIComponent('Bonjour '+(s.nom||'')+', je viens de réserver via Waqqti : '+(reservation.prestation||'')+' — '+quand+'.');
+    html+='<a href="https://wa.me/'+wa+'?text='+msg+'" target="_blank" class="btn-next" style="display:flex;justify-content:center;background:#25D366;margin-bottom:10px;text-decoration:none;width:100%">💬 '+T('book.contacter_salon','Contacter le salon')+'</a>';
+  }
+  html+='<button type="button" class="btn-next" style="width:100%;justify-content:center;background:var(--cream2);color:var(--brun)" onclick="telechargerICS()">📅 '+T('book.calendrier','Ajouter au calendrier')+'</button>';
+  html+='<button type="button" onclick="annulerRDV()" style="width:100%;margin-top:10px;padding:11px;background:none;border:1.5px solid #E0454C;color:#C0272E;border-radius:12px;font-weight:600;font-family:inherit;cursor:pointer">✕ '+T('book.annuler_rdv','Annuler mon rendez-vous')+'</button>';
+  host.innerHTML=html;
 }
-document.addEventListener('DOMContentLoaded', boot);
-
-function bindStatic(){
-  $('login-form').addEventListener('submit', doLogin);
-  $('btn-logout').addEventListener('click', doLogout);
-  document.querySelectorAll('.nav-item').forEach(function(el){
-    el.addEventListener('click', function(){ switchView(el.dataset.view); });
-  });
-  // Re-rendre la vue courante quand la langue change (contenu généré en JS)
-  document.addEventListener('wq:langchange', function(){ if(STATE.salon) switchView(STATE.view); });
+async function annulerRDV(){
+  if(!reservation.id){ return; }
+  if(!confirm(T('book.annuler_confirm','Voulez-vous vraiment annuler ce rendez-vous ?'))) return;
+  var saved=getSavedResa();
+  var token=(saved&&saved.token)||reservation.annulToken||null;
+  var r=await WAQQTI.supabase.rpc('annuler_reservation',{ p_id:reservation.id, p_token:token });
+  if(r.error){ alert('❌ '+r.error.message); return; }
+  alert(T('book.annuler_ok','Rendez-vous annulé. À bientôt !'));
+  clearSavedResa();
+  location.href='/client/salon.html?s='+encodeURIComponent(getSalonSlug());
+}
+function telechargerICS(){
+  var start=new Date(reservation.date+'T'+(reservation.heure||'09:00')+':00');
+  var end=new Date(start.getTime()+((reservation.duree||30)*60000));
+  function p(n){return (n<10?'0':'')+n;}
+  function fmt(d){return d.getFullYear()+p(d.getMonth()+1)+p(d.getDate())+'T'+p(d.getHours())+p(d.getMinutes())+'00';}
+  var s=reservation.salon||{};
+  var ics=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Waqqti//FR','BEGIN:VEVENT',
+    'UID:'+(reservation.id||Date.now())+'@waqqti.com','DTSTAMP:'+fmt(new Date()),
+    'DTSTART:'+fmt(start),'DTEND:'+fmt(end),
+    'SUMMARY:'+(reservation.prestation||'Rendez-vous')+' — '+(s.nom||'Waqqti'),
+    'LOCATION:'+(s.adresse||''),'DESCRIPTION:Réservation via Waqqti',
+    'END:VEVENT','END:VCALENDAR'].join('\r\n');
+  var blob=new Blob([ics],{type:'text/calendar'});
+  var a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+  a.download='rendez-vous-waqqti.ics'; document.body.appendChild(a); a.click();
+  setTimeout(function(){ a.remove(); URL.revokeObjectURL(a.href); },100);
 }
 
-/* ---- Auth (email + mot de passe uniquement — comptes créés par Waqqti) ---- */
-function showLogin(){ $('login').classList.remove('hidden'); $('app').classList.add('hidden'); }
+/* ─── Mémorisation de la réservation (persistance + suivi de statut) ─── */
+function savedKey(){ return 'waqqti_resa_' + getSalonSlug(); }
+function saveResa(id, token){ try{ localStorage.setItem(savedKey(), JSON.stringify({id:id, token:token||null})); }catch(e){} }
+function getSavedResa(){ try{ var v=localStorage.getItem(savedKey()); if(!v) return null; try{ return JSON.parse(v); }catch(e){ return {id:v, token:null}; } }catch(e){ return null; } }
+function getSavedResaId(){ var s=getSavedResa(); return s?s.id:null; }
+function clearSavedResa(){ try{ localStorage.removeItem(savedKey()); }catch(e){} }
+function nouvelleReservation(){ clearSavedResa(); location.reload(); }
 
-async function doLogin(e){
-  if(e) e.preventDefault();
-  var err=$('login-err'); err.style.color='var(--red)'; err.textContent='';
-  var email=$('email').value.trim(), password=$('password').value;
-  var btn=$('btn-submit'); btn.disabled=true; btn.textContent=T('pro.connexion_load','Connexion…');
-  var r = await sb().auth.signInWithPassword({ email:email, password:password });
-  btn.disabled=false; btn.textContent=T('pro.connexion','Se connecter');
-  if(r.error){ err.textContent = '❌ '+ (r.error.message || T('pro.identifiants_invalides','Identifiants invalides')); return; }
-  onLogin(r.data.user);
+// Recharge l'état de la réservation depuis une ligne DB (au rafraîchissement)
+function prepareFromResa(resa){
+  reservation.id = resa.id;
+  reservation.salonId = resa.salon_id;
+  reservation.prestation = resa.prestation_nom;
+  reservation.prix = Number(resa.prix || 0);
+  reservation.duree = resa.duree_minutes;
+  reservation.acompteMontant = Number(resa.acompte_montant || 0);
+  reservation.acompteRequis = (resa.acompte_statut === 'en_attente' || resa.acompte_statut === 'refuse');
+  var d = new Date(resa.date_rdv);
+  reservation.heure = d.toTimeString().slice(0,5);
+  reservation.dateLabel = window.WQ ? WQ.dateLisible(d)
+    : d.toLocaleDateString('fr-FR', { weekday:'long', day:'numeric', month:'long' });
 }
-async function doLogout(){ await sb().auth.signOut(); location.reload(); }
 
-async function onLogin(user){
-  STATE.user = user;
-  // Charger le salon du gérant (RLS : owner = auth.uid())
-  var r = await sb().from('salons').select('*').eq('owner', user.id).limit(1).maybeSingle();
-  if(r.error || !r.data){
-    // Ce compte n'est rattaché à aucun salon → PAS un compte pro.
-    // On garde l'écran de connexion (on n'ouvre pas le dashboard) et on explique.
-    showLogin();
-    var err=$('login-err'); err.style.color='var(--red)';
-    err.innerHTML = 'Ce compte (<b>'+esc(user.email)+'</b>) n\'est pas rattaché à un salon.<br>'+
-      'L\'espace pro est réservé aux gérants.<br>'+
-      '<a href="/auth.html" style="color:var(--or);font-weight:700;text-decoration:none">← Aller à l\'espace client</a>'+
-      ' &nbsp;·&nbsp; <a href="#" id="switch-account" style="color:var(--brun-l);font-weight:600;text-decoration:none">Changer de compte</a>';
-    var sw=$('switch-account');
-    if(sw) sw.addEventListener('click', async function(e){ e.preventDefault(); await sb().auth.signOut(); location.reload(); });
+// Affiche l'écran final (étape 4) selon le statut de la réservation
+function showStatusScreen(resa){
+  goToStep(4);
+  document.getElementById('recap-bar').classList.remove('visible');
+  var cs=document.getElementById('confirm-salon');
+  if(cs) cs.textContent = (reservation.salon && reservation.salon.nom) || '';
+  document.getElementById('confirm-prest').textContent = resa.prestation_nom || '';
+  document.getElementById('confirm-date').textContent = reservation.dateLabel || '';
+  document.getElementById('confirm-heure').textContent =
+    (reservation.salon && reservation.salon.mode_reservation === 'journee') ? T('book.journee','Journée') : (reservation.heure || '');
+  document.getElementById('confirm-emp').textContent = T('booking.premier_dispo','Premier disponible');
+  document.getElementById('confirm-prix').textContent = Number(resa.prix||0).toLocaleString('fr') + ' DA';
+  updateStatusVisual(resa.acompte_statut);
+  renderAcompteZone(resa.acompte_statut, !!resa.justificatif_url);
+  renderConfirmActions();
+}
+
+// Change l'icône + titre selon le statut d'acompte
+function updateStatusVisual(statut){
+  var icon=document.getElementById('confirm-icon');
+  var title=document.getElementById('confirm-title');
+  var sub=document.getElementById('confirm-subtitle');
+  if(!icon||!title||!sub) return;
+  if(statut==='en_attente'){
+    icon.textContent='⏳'; icon.style.background='var(--or)';
+    title.textContent=T('book.attente_titre','Réservation en attente');
+    sub.textContent=T('book.attente_sub','Votre réservation sera confirmée une fois votre acompte validé par le salon.');
+  } else if(statut==='refuse'){
+    icon.textContent='✕'; icon.style.background='var(--red)';
+    title.textContent=T('book.refuse_titre','Acompte refusé');
+    sub.textContent=T('book.refuse_sub','Votre justificatif a été refusé. Merci d\'en renvoyer un valide.');
+  } else { // recu ou non_requis
+    icon.textContent='✓'; icon.style.background='var(--green)';
+    title.textContent=T('book.confirme_titre','Réservation confirmée !');
+    sub.textContent=T('book.confirme_sub','Une confirmation vous a été envoyée sur WhatsApp.');
+  }
+}
+
+// Zone acompte : upload, message d'attente, ou rien selon le statut
+function renderAcompteZone(statut, hasJustif){
+  var host=document.getElementById('upload-acompte');
+  if(!host) return;
+  if(statut==='non_requis' || statut==='recu'){ host.innerHTML=''; return; }
+  if(statut==='en_attente' && hasJustif){
+    host.innerHTML='<div class="confirm-detail" style="background:rgba(246,132,35,.07);border:1.5px solid var(--or);text-align:center">'+
+      '<div style="font-weight:700">🕒 '+T('book.recu_attente','Reçu envoyé — en attente de validation par le salon.')+'</div></div>';
     return;
   }
-  $('login').classList.add('hidden');
-  $('app').classList.remove('hidden');
-  STATE.salon = r.data;
-  $('side-salon').textContent = r.data.nom;
-
-  // KILL SWITCH — double verrou : ici + RLS côté base
-  var acces = await WAQQTI.verifierAcces(r.data);
-  renderTrialPill(acces);
-  if(!acces.actif){ $('killswitch').classList.remove('hidden'); return; }
-
-  switchView('agenda');
-  majBadgeAcomptes();
+  // en_attente sans reçu, OU refusé → proposer l'upload
+  renderUploadAcompte();
 }
 
-function renderTrialPill(acces){
-  var el=$('trial-pill');
-  if(STATE.salon.formule==='trial' && acces.jours_restants!=null){
-    el.innerHTML = T('pro.essai_gratuit','Essai gratuit')+'<br><b>'+ltr(acces.jours_restants+' '+T('pro.jours_restants','jours restants'))+'</b>';
-    el.style.display='block';
-  } else if(STATE.salon.formule!=='trial'){
-    el.innerHTML = T('pro.formule','Formule')+'<br><b>'+T('pro.f_'+STATE.salon.formule, esc(STATE.salon.formule))+'</b>';
-    el.style.display='block';
-  } else { el.style.display='none'; }
+// Suivi en direct : rafraîchit le statut toutes les 12 s (auto passage à "confirmée")
+var statusTimer=null;
+function startStatusPolling(){
+  if(statusTimer) clearInterval(statusTimer);
+  statusTimer=setInterval(async function(){
+    if(!reservation.id){ return; }
+    var row=null;
+    var rr=await WAQQTI.supabase.rpc('statut_reservation', { p_id: reservation.id });
+    if(!rr.error && rr.data && rr.data.length) row=rr.data[0];
+    else { var dd=await WAQQTI.supabase.from('reservations').select('acompte_statut,justificatif_url,statut').eq('id',reservation.id).maybeSingle(); row=dd.data; }
+    if(!row){ return; }
+    if(row.statut==='annule'){ clearInterval(statusTimer); return; }
+    updateStatusVisual(row.acompte_statut);
+    renderAcompteZone(row.acompte_statut, !!row.justificatif_url);
+    if(row.acompte_statut==='recu' || row.acompte_statut==='non_requis'){ clearInterval(statusTimer); }
+  }, 12000);
 }
 
-/* ---- Navigation ---- */
-function switchView(view){
-  STATE.view=view;
-  document.querySelectorAll('.nav-item').forEach(function(el){
-    el.classList.toggle('active', el.dataset.view===view);
-  });
-  ({agenda:viewAgenda,acomptes:viewAcomptes,clients:viewClients,prestations:viewPrestations,
-    equipe:viewEquipe,avis:viewAvis,attente:viewAttente,parametres:viewParametres,abonnement:viewAbonnement}[view]||viewAgenda)();
+// Lecture du slug dans l'URL : ?s=yasmine-beauty ou /yasmine-beauty
+function getSalonSlug() {
+  const params = new URLSearchParams(window.location.search);
+  const fromParam = params.get('s') || params.get('salon');
+  if (fromParam) return fromParam;
+  // Sinon, utiliser le démo
+  return 'demo';
 }
 
-/* ════════════ AGENDA (Jour / Mois) ════════════ */
-async function viewAgenda(){
-  var main=$('main');
-  var today=new Date().toISOString().slice(0,10);
-  var geoBanner=(!STATE.salon.latitude||!STATE.salon.longitude)
-    ? '<div class="card" style="background:#FFF6EE;border:1px solid var(--or-lt);display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">'+
-      '<span>📍 '+T('pro.geo_txt','Renseignez votre position pour apparaître dans « Autour de moi » de l\'annuaire.')+'</span>'+
-      '<button class="btn btn-sm" onclick="switchView(\'parametres\')">'+T('pro.geo_btn','Ajouter ma position')+'</button></div>'
+async function initSalon() {
+  const slug = getSalonSlug();
+
+  // Charger le salon
+  const { data: salon, error } = await WAQQTI.supabase
+    .from('salons')
+    .select('*')
+    .eq('slug', slug)
+    .eq('actif', true)
+    .single();
+
+  if (error || !salon) {
+    document.body.innerHTML = '<div style="padding:60px; text-align:center; font-family:DM Sans"><h1>Salon introuvable</h1><p>Vérifiez le lien.</p></div>';
+    return;
+  }
+
+  reservation.salon = salon;
+  reservation.salonId = salon.id;
+
+  // Afficher header salon
+  document.querySelector('.salon-info h1').textContent = salon.nom;
+  const meta = document.querySelector('.salon-meta');
+  const hOuv = (salon.heure_ouverture || '09:00').slice(0,5).replace(':','h');
+  const hFer = (salon.heure_fermeture || '19:00').slice(0,5).replace(':','h');
+  const hStr = (salon.mode_reservation === 'journee') ? '' : `<span>⏰ ${hOuv}–${hFer}</span>`;
+  const rStr = (salon.nb_avis > 0)
+    ? `<span title="${salon.nb_avis} avis">⭐ <bdi dir="ltr">${Number(salon.note_moyenne).toFixed(1)}</bdi> (<bdi dir="ltr">${salon.nb_avis}</bdi>)</span>`
     : '';
-  main.innerHTML = geoBanner + '<div class="page-head"><h1>'+T('pro.agenda','Agenda')+'</h1>'+
-    '<div class="toolbar">'+
-      '<button class="btn btn-sm" id="tab-jour">'+T('pro.jour','Jour')+'</button>'+
-      '<button class="btn btn-ghost btn-sm" id="tab-mois">'+T('pro.mois','Mois')+'</button>'+
-    '</div></div>'+
-    '<div id="agenda-controls"></div>'+
-    '<div id="agenda-body"><div class="empty">'+T('common.chargement','Chargement…')+'</div></div>';
-  $('tab-jour').addEventListener('click', function(){ showJour(today); });
-  $('tab-mois').addEventListener('click', function(){ var d=new Date(); showMois(d.getFullYear(), d.getMonth()); });
-  showJour(today);
-}
-function showJour(dateStr){
-  $('tab-jour').className='btn btn-sm'; $('tab-mois').className='btn btn-ghost btn-sm';
-  $('agenda-controls').innerHTML='<input type="date" class="inp" id="agenda-date" style="width:auto" value="'+dateStr+'">';
-  $('agenda-date').addEventListener('change', function(){ loadAgenda(this.value); });
-  loadAgenda(dateStr);
-}
-var MOIS_NOMS=['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
-function showMois(y,m){
-  $('tab-jour').className='btn btn-ghost btn-sm'; $('tab-mois').className='btn btn-sm';
-  $('agenda-controls').innerHTML='<div class="toolbar" style="justify-content:center;margin-bottom:14px">'+
-    '<button class="btn btn-ghost btn-sm" id="m-prev">◀</button>'+
-    '<b style="min-width:170px;text-align:center;font-size:17px;font-family:\'Cormorant Garamond\',serif">'+(window.WQ?WQ.moisNom(m):MOIS_NOMS[m])+' '+y+'</b>'+
-    '<button class="btn btn-ghost btn-sm" id="m-next">▶</button></div>';
-  $('m-prev').addEventListener('click', function(){ var d=new Date(y,m-1,1); showMois(d.getFullYear(),d.getMonth()); });
-  $('m-next').addEventListener('click', function(){ var d=new Date(y,m+1,1); showMois(d.getFullYear(),d.getMonth()); });
-  loadMois(y,m);
-}
-async function loadMois(y,m){
-  var body=$('agenda-body'); if(!body) return;
-  body.innerHTML='<div class="empty">'+T('common.chargement','Chargement…')+'</div>';
-  var start=new Date(y,m,1).toISOString().slice(0,10)+'T00:00:00';
-  var end=new Date(y,m+1,0).toISOString().slice(0,10)+'T23:59:59';
-  var r=await sb().from('reservations').select('date_rdv,prix,statut')
-    .eq('salon_id',STATE.salon.id).gte('date_rdv',start).lte('date_rdv',end);
-  if(r.error){ body.innerHTML='<div class="card empty">Erreur : '+esc(r.error.message)+'</div>'; return; }
-  var byDay={};
-  (r.data||[]).forEach(function(x){
-    if(x.statut==='annule') return;
-    var d=new Date(x.date_rdv).getDate();
-    if(!byDay[d]) byDay[d]={n:0,ca:0};
-    byDay[d].n++; byDay[d].ca+=Number(x.prix||0);
-  });
-  var totalN=0, totalCA=0;
-  Object.keys(byDay).forEach(function(k){ totalN+=byDay[k].n; totalCA+=byDay[k].ca; });
-  var jours=[1,2,3,4,5,6,0].map(function(d){return T('pro.j'+d,['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'][d]);});
-  var startDow=(new Date(y,m,1).getDay()+6)%7; // Lundi=0
-  var nbDays=new Date(y,m+1,0).getDate();
-  var todayStr=new Date().toDateString();
-  var cells='';
-  for(var i=0;i<startDow;i++) cells+='<div></div>';
-  for(var day=1;day<=nbDays;day++){
-    var info=byDay[day];
-    var dateISO=new Date(y,m,day).toLocaleDateString('en-CA'); // YYYY-MM-DD local
-    var isToday=new Date(y,m,day).toDateString()===todayStr;
-    cells+='<div onclick="showJour(\''+dateISO+'\')" style="cursor:pointer;border:1px solid var(--line);border-radius:10px;padding:8px;min-height:66px;transition:.12s;'+
-      (isToday?'box-shadow:inset 0 0 0 2px var(--or);':'')+(info?'background:#FFF6EE;':'background:#fff;')+'">'+
-      '<div style="font-weight:600;font-size:13px;color:'+(isToday?'var(--or-dk)':'var(--brun)')+'">'+day+'</div>'+
-      (info?'<div style="font-size:12px;color:var(--or-dk);font-weight:700;margin-top:6px">'+info.n+' '+T('pro.rdv_court','RDV')+'</div>'+
-             '<div style="font-size:11px;color:var(--brun-l)">'+fmtPrix(info.ca)+'</div>':'')+
-      '</div>';
+  meta.innerHTML = `
+    <span>📍 ${salon.adresse || 'Algérie'}</span>
+    ${hStr}
+    ${rStr}
+  `;
+  const av = document.querySelector('.salon-avatar');
+  if (salon.logo_url) { av.innerHTML = '<img src="'+salon.logo_url+'" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:24px">'; }
+  else { av.textContent = salon.nom.charAt(0).toUpperCase(); }
+
+  // Liste d'attente
+  buildAttenteForm();
+
+  // Bannière fermeture exceptionnelle (si la période couvre aujourd'hui ou le futur)
+  var fb = document.getElementById('salon-ferme');
+  if (fb) {
+    var todayStr = new Date().toISOString().slice(0,10);
+    var finFerm = salon.ferme_au || salon.ferme_du;
+    if (salon.ferme_du && finFerm >= todayStr) {
+      var periode = salon.ferme_au && salon.ferme_au !== salon.ferme_du
+        ? new Date(salon.ferme_du).toLocaleDateString('fr') + ' → ' + new Date(salon.ferme_au).toLocaleDateString('fr')
+        : new Date(salon.ferme_du).toLocaleDateString('fr');
+      fb.innerHTML = '<div class="card" style="border:1.5px solid var(--or);background:#FFF6EE;text-align:center">'+
+        '<b>🚫 '+T('book.ferme_titre','Salon fermé')+'</b><div style="color:var(--brun-l);margin-top:4px"><bdi dir="ltr">'+periode+'</bdi></div></div>';
+    } else { fb.innerHTML = ''; }
   }
-  var head='<div class="stat-grid"><div class="stat"><div class="v">'+totalN+'</div><div class="l">'+T('pro.rdv_mois','RDV ce mois')+'</div></div>'+
-    '<div class="stat"><div class="v">'+fmtPrix(totalCA)+'</div><div class="l">'+T('pro.ca_mois','CA du mois')+'</div></div></div>';
-  body.innerHTML=head+'<div class="card">'+
-    '<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:6px">'+
-    jours.map(function(j){return '<div style="text-align:center;font-size:11px;color:var(--brun-l);font-weight:700">'+j+'</div>';}).join('')+'</div>'+
-    '<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px">'+cells+'</div>'+
-    '<p class="muted" style="text-align:center;margin-top:12px">'+T('pro.clic_jour','Cliquez sur un jour pour voir le détail.')+'</p></div>';
-}
-async function loadAgenda(jour){
-  var body=$('agenda-body'); if(!body) return;
-  var start=jour+'T00:00:00', end=jour+'T23:59:59';
-  var r = await sb().from('reservations').select('*')
-    .eq('salon_id', STATE.salon.id)
-    .gte('date_rdv', start).lte('date_rdv', end)
-    .order('date_rdv',{ascending:true});
-  if(r.error){ body.innerHTML='<div class="card empty">Erreur : '+esc(r.error.message)+'</div>'; return; }
-  var list=r.data||[];
-  var actifs=list.filter(function(x){return x.statut!=='annule';});
-  var ca=actifs.reduce(function(s,x){return s+Number(x.prix||0);},0);
-  var head='<div class="stat-grid">'+
-    '<div class="stat"><div class="v">'+actifs.length+'</div><div class="l">'+T('pro.rdv_jour','RDV du jour')+'</div></div>'+
-    '<div class="stat"><div class="v">'+fmtPrix(ca)+'</div><div class="l">'+T('pro.ca_prevu','CA prévu')+'</div></div>'+
-    '<div class="stat"><div class="v">'+list.filter(function(x){return x.statut==='annule';}).length+'</div><div class="l">'+T('pro.annules','Annulés')+'</div></div></div>';
-  if(!list.length){ body.innerHTML=head+'<div class="card empty">'+T('pro.aucun_rdv','Aucun rendez-vous ce jour.')+'</div>'; return; }
-  var rows=list.map(function(x){
-    var h=new Date(x.date_rdv).toTimeString().slice(0,5);
-    var st=x.statut==='annule'?'<span class="pill red">'+T('pro.st_annule','Annulé')+'</span>'
-         :x.statut==='termine'?'<span class="pill gray">'+T('pro.st_termine','Terminé')+'</span>'
-         :'<span class="pill green">'+T('pro.st_confirme','Confirmé')+'</span>';
-    // Indicateur d'acompte directement dans l'agenda
-    var ac=x.acompte_statut==='en_attente'?' <span class="pill or">💳 '+T('pro.ac_verifier','à vérifier')+'</span>'
-         :x.acompte_statut==='recu'?' <span class="pill green">💳 '+T('pro.ac_paye','payé')+'</span>'
-         :x.acompte_statut==='refuse'?' <span class="pill red">💳 '+T('pro.ac_refuse','refusé')+'</span>':'';
-    // Actions seulement si le RDV est encore actif
-    var actions=(x.statut==='confirme')
-      ? '<button class="btn btn-sm" onclick="terminerRdv(\''+x.id+'\')">'+T('pro.terminer','Terminer')+'</button> '+
-        '<button class="btn btn-ghost btn-sm" onclick="annulerRdv(\''+x.id+'\')">'+T('common.annuler','Annuler')+'</button>'
-      : '<span class="muted">—</span>';
-    return '<tr><td><b>'+ltr(h)+'</b></td><td>'+esc(x.prestation_nom||'—')+'</td>'+
-      '<td>'+esc(x.client_nom)+'<div class="muted" dir="ltr">'+esc(x.client_telephone||'')+'</div></td>'+
-      '<td>'+fmtPrix(x.prix)+'</td><td>'+st+ac+'</td>'+
-      '<td>'+actions+'</td></tr>';
-  }).join('');
-  body.innerHTML=head+'<div class="card"><table><thead><tr><th>'+T('pro.th_heure','Heure')+'</th><th>'+T('pro.th_prestation','Prestation')+'</th>'+
-    '<th>'+T('pro.th_client','Client')+'</th><th>'+T('pro.th_prix','Prix')+'</th><th>'+T('pro.th_statut','Statut')+'</th><th></th></tr></thead><tbody>'+rows+'</tbody></table></div>';
-}
-async function annulerRdv(id){
-  if(!confirm(T('pro.confirm_annuler','Annuler ce rendez-vous ?'))) return;
-  var r=await sb().from('reservations').update({statut:'annule'}).eq('id',id);
-  if(r.error) WAQQTI.toast(r.error.message,'error');
-  else { WAQQTI.toast(T('pro.toast_annule','Rendez-vous annulé')); loadAgenda($('agenda-date').value); }
-}
-async function terminerRdv(id){
-  var r=await sb().from('reservations').update({statut:'termine'}).eq('id',id);
-  if(r.error) WAQQTI.toast(r.error.message,'error');
-  else { WAQQTI.toast(T('pro.toast_termine','Rendez-vous terminé ✓')); loadAgenda($('agenda-date').value); }
-}
 
-/* ════════════ ACOMPTES (validation des justificatifs) ════════════ */
-async function viewAcomptes(){
-  var main=$('main');
-  main.innerHTML='<div class="page-head"><h1>'+T('pro.acomptes','Acomptes')+'</h1>'+
-    '<div class="toolbar"><select class="inp" id="ac-filtre" style="width:auto">'+
-      '<option value="en_attente">'+T('pro.filtre_verifier','À vérifier')+'</option>'+
-      '<option value="recu">'+T('pro.filtre_valides','Validés')+'</option>'+
-      '<option value="refuse">'+T('pro.filtre_refuses','Refusés')+'</option>'+
-      '<option value="tous">'+T('pro.filtre_tous','Tous')+'</option>'+
-    '</select></div></div>'+
-    '<div id="ac-body"><div class="empty">'+T('common.chargement','Chargement…')+'</div></div>';
-  $('ac-filtre').addEventListener('change', function(){ loadAcomptes(this.value); });
-  loadAcomptes('en_attente');
-}
-async function loadAcomptes(filtre){
-  var body=$('ac-body'); if(!body) return;
-  var q=sb().from('reservations').select('*')
-    .eq('salon_id',STATE.salon.id)
-    .neq('acompte_statut','non_requis')
-    .order('date_rdv',{ascending:true});
-  if(filtre && filtre!=='tous') q=q.eq('acompte_statut',filtre);
-  var r=await q;
-  if(r.error){ body.innerHTML='<div class="card empty">Erreur : '+esc(r.error.message)+'</div>'; return; }
-  var list=r.data||[];
-  if(!list.length){ body.innerHTML='<div class="card empty">'+T('pro.aucun_acompte','Aucun acompte à vérifier.')+'</div>'; return; }
-  var rows=list.map(function(x){
-    var d=new Date(x.date_rdv);
-    var st=x.acompte_statut==='recu'?'<span class="pill green">'+T('pro.ac_valide','Validé')+'</span>'
-         :x.acompte_statut==='refuse'?'<span class="pill red">'+T('pro.ac_refuse','refusé')+'</span>'
-         :'<span class="pill or">'+T('pro.filtre_verifier','À vérifier')+'</span>';
-    var actions=x.acompte_statut==='en_attente'
-      ? '<button class="btn btn-sm" onclick="statuerAcompte(\''+x.id+'\',\'recu\')">'+T('pro.valider','✓ Valider')+'</button> '+
-        '<button class="btn btn-ghost btn-sm" onclick="statuerAcompte(\''+x.id+'\',\'refuse\')">'+T('pro.refuser','✗ Refuser')+'</button>'
-      : '<button class="btn btn-ghost btn-sm" onclick="statuerAcompte(\''+x.id+'\',\'recu\')">'+T('pro.revalider','Re-valider')+'</button>';
-    var justif=x.justificatif_url
-      ? '<button class="btn btn-ghost btn-sm" onclick="voirJustif(\''+esc(x.justificatif_url)+'\')">'+T('pro.voir_recu','🖼 Voir le reçu')+'</button>'
-      : '<span class="muted">'+T('pro.aucun_recu','Aucun reçu reçu')+'</span>';
-    return '<tr><td><b>'+ltr(d.toLocaleDateString('fr-FR'))+'</b><div class="muted">'+
-        ltr(d.toTimeString().slice(0,5))+'</div></td>'+
-      '<td>'+esc(x.client_nom)+'<div class="muted" dir="ltr">'+esc(x.client_telephone||'')+'</div></td>'+
-      '<td>'+esc(x.prestation_nom||'—')+'</td>'+
-      '<td><b>'+fmtPrix(x.acompte_montant)+'</b></td>'+
-      '<td>'+justif+'</td>'+
-      '<td>'+st+'</td><td>'+actions+'</td></tr>';
-  }).join('');
-  body.innerHTML='<div class="card"><table><thead><tr><th>'+T('pro.th_rdv','RDV')+'</th><th>'+T('pro.th_client','Client')+'</th>'+
-    '<th>'+T('pro.th_prestation','Prestation')+'</th><th>'+T('pro.th_acompte','Acompte')+'</th><th>'+T('pro.th_recu','Reçu')+'</th><th>'+T('pro.th_statut','Statut')+'</th><th></th></tr></thead>'+
-    '<tbody>'+rows+'</tbody></table></div>';
-}
-async function statuerAcompte(id, decision){
-  if(decision==='refuse' && !confirm(T('pro.confirm_refuser','Refuser ce justificatif ?'))) return;
-  var r=await sb().rpc('statuer_acompte',{p_reservation_id:id,p_decision:decision});
-  if(r.error) WAQQTI.toast(r.error.message,'error');
-  else { WAQQTI.toast(decision==='recu'?T('pro.toast_valide','Acompte validé ✓'):T('pro.toast_refuse','Justificatif refusé'));
-    loadAcomptes($('ac-filtre').value); majBadgeAcomptes(); }
-}
-async function voirJustif(chemin){
-  var url=await WAQQTI.urlSigneeJustificatif(chemin, 3600);
-  if(!url){ WAQQTI.toast(T('pro.img_indispo','Image indisponible'),'error'); return; }
-  var ov=document.createElement('div');
-  ov.style.cssText='position:fixed;inset:0;z-index:9999;background:rgba(61,31,0,.9);'+
-    'display:flex;align-items:center;justify-content:center;padding:20px;cursor:zoom-out';
-  ov.innerHTML='<img src="'+url+'" style="max-width:95%;max-height:90vh;border-radius:12px;box-shadow:0 20px 60px rgba(0,0,0,.5)">';
-  ov.addEventListener('click', function(){ ov.remove(); });
-  document.body.appendChild(ov);
-}
-// Compteur d'acomptes en attente (pastille sidebar)
-async function majBadgeAcomptes(){
-  var r=await sb().from('reservations').select('id',{count:'exact',head:true})
-    .eq('salon_id',STATE.salon.id).eq('acompte_statut','en_attente');
-  var b=$('badge-acomptes'); if(!b) return;
-  var n=r.count||0;
-  if(n>0){ b.textContent=n; b.style.display='inline-block'; } else { b.style.display='none'; }
-}
+  // Galerie du salon
+  renderSalonGallery(salon.photos);
 
-/* ════════════ CLIENTS ════════════ */
-async function viewClients(){
-  var main=$('main');
-  main.innerHTML='<div class="page-head"><h1>'+T('pro.clients','Clients')+'</h1>'+
-    '<input class="inp" id="cl-search" placeholder="'+T('pro.rechercher_client','🔍 Rechercher un client…')+'" style="width:auto" oninput="filterClients(this.value)"></div>'+
-    '<div id="cl-body"><div class="empty">'+T('common.chargement','Chargement…')+'</div></div>';
-  var r=await sb().from('reservations').select('client_nom,client_telephone,date_rdv,prix')
-    .eq('salon_id',STATE.salon.id).order('date_rdv',{ascending:false});
-  if(r.error){ $('cl-body').innerHTML='<div class="card empty">Erreur.</div>'; return; }
-  var map={};
-  (r.data||[]).forEach(function(x){
-    var k=(x.client_telephone||x.client_nom||'?');
-    if(!map[k]) map[k]={nom:x.client_nom,tel:x.client_telephone,visites:0,total:0,dernier:x.date_rdv};
-    map[k].visites++; map[k].total+=Number(x.prix||0);
-    if(x.date_rdv>map[k].dernier) map[k].dernier=x.date_rdv;
-  });
-  var clients=Object.values(map).sort(function(a,b){return b.visites-a.visites;});
-  if(!clients.length){ $('cl-body').innerHTML='<div class="card empty">'+T('pro.aucun_client','Aucun client pour l\'instant.')+'</div>'; return; }
-  var rows=clients.map(function(c){
-    var s=((c.nom||'')+' '+(c.tel||'')).toLowerCase();
-    return '<tr data-s="'+esc(s)+'"><td><b>'+esc(c.nom)+'</b></td><td dir="ltr">'+esc(c.tel||'—')+'</td>'+
-      '<td>'+c.visites+'</td><td>'+fmtPrix(c.total)+'</td>'+
-      '<td class="muted">'+ltr(new Date(c.dernier).toLocaleDateString('fr-FR'))+'</td></tr>';
-  }).join('');
-  $('cl-body').innerHTML='<div class="stat-grid"><div class="stat"><div class="v">'+clients.length+
-    '</div><div class="l">'+T('pro.clients_uniques','Clients uniques')+'</div></div></div>'+
-    '<div class="card"><table><thead><tr><th>'+T('pro.th_nom','Nom')+'</th><th>'+T('pro.th_telephone','Téléphone')+'</th><th>'+T('pro.th_visites','Visites')+'</th>'+
-    '<th>'+T('pro.th_total','Total')+'</th><th>'+T('pro.th_dernier','Dernier RDV')+'</th></tr></thead><tbody id="cl-tbody">'+rows+'</tbody></table></div>';
-}
-function filterClients(q){
-  q=(q||'').toLowerCase();
-  document.querySelectorAll('#cl-tbody tr').forEach(function(tr){
-    tr.style.display = tr.getAttribute('data-s').indexOf(q)>=0 ? '' : 'none';
-  });
-}
+  // À propos (description + horaires + équipe)
+  renderAbout(salon);
 
-/* ════════════ PRESTATIONS ════════════ */
-async function viewPrestations(){
-  var main=$('main');
-  main.innerHTML='<div class="page-head"><h1>'+T('pro.prestations','Prestations')+'</h1>'+
-    '<button class="btn" onclick="formPrestation()">'+T('pro.ajouter','+ Ajouter')+'</button></div>'+
-    '<div id="pr-body"><div class="empty">'+T('common.chargement','Chargement…')+'</div></div>';
-  loadPrestations();
-}
-async function loadPrestations(){
-  var r=await sb().from('prestations').select('*').eq('salon_id',STATE.salon.id)
-    .order('ordre',{ascending:true});
-  var b=$('pr-body'); if(!b) return;
-  var list=r.data||[];
-  if(!list.length){ b.innerHTML='<div class="card empty">'+T('pro.aucune_prestation','Aucune prestation. Ajoute ta première prestation.')+'</div>'; return; }
-  b.innerHTML='<div class="card">'+list.map(function(p){
-    var acBadge=p.acompte_actif?' <span class="pill or">💳 '+ltr(p.acompte_type==='fixe'?fmtPrix(p.acompte_valeur):(p.acompte_valeur+'%'))+'</span>':'';
-    var desc=p.description?'<div class="muted" style="margin-top:2px;max-width:340px">'+esc(p.description)+'</div>':'';
-    return '<div class="row"><div style="display:flex;align-items:center;gap:10px"><div><b>'+esc(p.nom)+'</b>'+
-      (p.actif?'':' <span class="pill gray">'+T('pro.masquee','masquée')+'</span>')+acBadge+
-      '<div class="muted">'+esc(p.categorie||'')+' · '+p.duree_minutes+' '+T('pro.min','min')+'</div>'+desc+'</div></div>'+
-      '<div class="toolbar"><b>'+fmtPrixP(p)+'</b>'+
-      '<button class="btn btn-ghost btn-sm" onclick=\'formPrestation('+JSON.stringify(p)+')\'>'+T('pro.modifier','Modifier')+'</button>'+
-      '<button class="btn btn-ghost btn-sm" onclick="delPrestation(\''+p.id+'\')">🗑</button></div></div>';
-  }).join('')+'</div>';
-}
-function formPrestation(p){
-  p=p||{}; var isEdit=!!p.id;
-  var main=$('main');
-  main.innerHTML='<div class="page-head"><h1>'+(isEdit?T('pro.modifier_prestation','Modifier prestation'):T('pro.nouvelle_prestation','Nouvelle prestation'))+'</h1>'+
-    '<button class="btn btn-ghost" onclick="viewPrestations()">'+T('pro.retour','← Retour')+'</button></div>'+
-    '<div class="card" style="max-width:560px">'+
-    '<div class="field"><label>'+T('pro.th_nom','Nom')+' *</label><input class="inp" id="p-nom" value="'+esc(p.nom||'')+'"></div>'+
-    '<div class="field-grid">'+
-    '<div class="field"><label>'+T('pro.f_categorie','Catégorie')+'</label><input class="inp" id="p-cat" value="'+esc(p.categorie||'Général')+'"></div>'+
-    '<div class="field"><label>'+T('pro.f_ordre','Ordre')+'</label><input class="inp" type="number" id="p-ordre" value="'+(p.ordre||0)+'"></div></div>'+
-    '<div class="field-grid">'+
-    '<div class="field"><label id="lbl-prix">'+(p.prix_max!=null?T('pro.f_prix_min','Prix mini (DA)'):T('pro.f_prix','Prix (DA)'))+' *</label><input class="inp" type="number" id="p-prix" value="'+(p.prix||0)+'"></div>'+
-    '<div class="field"><label>'+T('pro.f_duree','Durée (min)')+' *</label><input class="inp" type="number" id="p-duree" value="'+(p.duree_minutes||30)+'"></div></div>'+
-    '<div class="field"><label><input type="checkbox" id="p-fourchette" '+(p.prix_max!=null?'checked':'')+' onchange="document.getElementById(\'pmax-box\').style.display=this.checked?\'block\':\'none\';document.getElementById(\'lbl-prix\').textContent=this.checked?(window.WQ&&WQ.t(\'pro.f_prix_min\')!=\'pro.f_prix_min\'?WQ.t(\'pro.f_prix_min\'):\'Prix mini (DA)\')+\' *\':(window.WQ&&WQ.t(\'pro.f_prix\')!=\'pro.f_prix\'?WQ.t(\'pro.f_prix\'):\'Prix (DA)\')+\' *\'"> '+T('pro.f_fourchette','Prix variable (fourchette)')+'</label></div>'+
-    '<div class="field" id="pmax-box" style="display:'+(p.prix_max!=null?'block':'none')+'"><label>'+T('pro.f_prix_max','Prix maxi (DA)')+'</label><input class="inp" type="number" id="p-prix-max" value="'+(p.prix_max!=null?p.prix_max:'')+'" placeholder="'+T('pro.f_prix_max_ph','ex : 3000')+'"></div>'+
-    '<div class="field"><label>'+T('pro.f_description','Description (optionnel)')+'</label><textarea class="inp" id="p-desc" rows="3" style="resize:vertical" placeholder="'+T('pro.f_description_ph','Détaillez la prestation, ce qu\'elle inclut…')+'">'+esc(p.description||'')+'</textarea></div>'+
-    '<div class="field"><label><input type="checkbox" id="p-actif" '+(p.actif===false?'':'checked')+'> '+T('pro.f_visible','Visible pour les clients')+'</label></div>'+
-    // ── Acompte ──
-    '<div style="border-top:1px solid #F3EADD;margin:6px 0 14px;padding-top:14px">'+
-    '<label style="font-weight:600;font-size:14px"><input type="checkbox" id="p-ac-actif" '+(p.acompte_actif?'checked':'')+' onchange="document.getElementById(\'ac-box\').style.display=this.checked?\'grid\':\'none\'"> '+T('pro.f_ac_demander','Demander un acompte pour cette prestation')+'</label>'+
-    '<div class="field-grid" id="ac-box" style="margin-top:12px;display:'+(p.acompte_actif?'grid':'none')+'">'+
-    '<div class="field"><label>'+T('pro.f_ac_type','Type d\'acompte')+'</label><select class="inp" id="p-ac-type">'+
-      '<option value="pourcentage"'+(p.acompte_type!=='fixe'?' selected':'')+'>'+T('pro.f_ac_pct','Pourcentage (%)')+'</option>'+
-      '<option value="fixe"'+(p.acompte_type==='fixe'?' selected':'')+'>'+T('pro.f_ac_fixe','Montant fixe (DA)')+'</option>'+
-    '</select></div>'+
-    '<div class="field"><label>'+T('pro.f_ac_valeur','Valeur')+'</label><input class="inp" type="number" id="p-ac-val" value="'+(p.acompte_valeur!=null?p.acompte_valeur:0)+'" placeholder="20 (%) / 500 (DA)"></div>'+
-    '</div></div>'+
-    '<button class="btn" id="p-save">'+T('common.enregistrer','Enregistrer')+'</button></div>';
-  $('p-save').addEventListener('click', function(){ savePrestation(p.id); });
-}
-async function savePrestation(id){
-  var payload={
-    salon_id:STATE.salon.id,
-    nom:$('p-nom').value.trim(),
-    categorie:$('p-cat').value.trim()||'Général',
-    ordre:parseInt($('p-ordre').value)||0,
-    prix:parseFloat($('p-prix').value)||0,
-    prix_max:($('p-fourchette').checked && $('p-prix-max').value!=='')?(parseFloat($('p-prix-max').value)||null):null,
-    description:$('p-desc').value.trim()||null,
-    duree_minutes:parseInt($('p-duree').value)||30,
-    actif:$('p-actif').checked,
-    acompte_actif:$('p-ac-actif').checked,
-    acompte_type:$('p-ac-type').value,
-    acompte_valeur:parseFloat($('p-ac-val').value)||0
-  };
-  if(!payload.nom){ WAQQTI.toast(T('pro.nom_requis','Le nom est requis'),'error'); return; }
-  var r = id ? await sb().from('prestations').update(payload).eq('id',id)
-             : await sb().from('prestations').insert(payload);
-  if(r.error){ WAQQTI.toast(r.error.message,'error'); return; }
-  WAQQTI.toast(T('pro.toast_prest_ok','Prestation enregistrée')); viewPrestations();
-}
-async function delPrestation(id){
-  if(!confirm(T('pro.confirm_del_prest','Supprimer cette prestation ?'))) return;
-  var r=await sb().from('prestations').delete().eq('id',id);
-  if(r.error) WAQQTI.toast(r.error.message,'error'); else { WAQQTI.toast(T('pro.toast_supprimee','Supprimée')); loadPrestations(); }
-}
+  // Avis clients
+  loadAvis(salon);
 
-/* ════════════ ÉQUIPE ════════════ */
-async function viewEquipe(){
-  var main=$('main');
-  var locked=!['confort','premium'].includes(STATE.salon.formule) && STATE.salon.formule!=='trial';
-  main.innerHTML='<div class="page-head"><h1>'+T('pro.equipe','Équipe')+'</h1>'+
-    '<button class="btn" onclick="formEmploye()">'+T('pro.ajouter','+ Ajouter')+'</button></div>'+
-    (locked?'<div class="card"><span class="pill or">Confort+</span> '+
-       '<span class="muted">'+T('pro.equipe_confort','Les profils d\'employés sont visibles par les clients à partir de la formule Confort.')+'</span></div>':'')+
-    '<div id="eq-body"><div class="empty">'+T('common.chargement','Chargement…')+'</div></div>';
-  loadEquipe();
-}
-async function loadEquipe(){
-  var r=await sb().from('employes').select('*').eq('salon_id',STATE.salon.id).order('ordre',{ascending:true});
-  var b=$('eq-body'); if(!b) return; var list=r.data||[];
-  if(!list.length){ b.innerHTML='<div class="card empty">'+T('pro.aucun_membre','Aucun membre. Ajoute ton équipe.')+'</div>'; return; }
-  // Compter les RDV (non annulés) par membre
-  var counts={};
-  var rc=await sb().from('reservations').select('employe_id,statut').eq('salon_id',STATE.salon.id);
-  (rc.data||[]).forEach(function(x){ if(x.employe_id && x.statut!=='annule') counts[x.employe_id]=(counts[x.employe_id]||0)+1; });
-  b.innerHTML='<div class="card">'+list.map(function(e){
-    var n=counts[e.id]||0;
-    return '<div class="row"><div><b>'+esc(e.nom)+'</b>'+(e.actif?'':' <span class="pill gray">'+T('pro.inactif','inactif')+'</span>')+
-      ' <span class="pill or">'+ltr(n+' '+T('pro.rdv','RDV'))+'</span>'+
-      '<div class="muted" style="margin-top:2px;cursor:pointer;text-decoration:underline" onclick="viewEmployeRdv(\''+e.id+'\','+JSON.stringify(e.nom).replace(/"/g,'&quot;')+')">'+T('pro.voir_rdv','Voir ses rendez-vous')+'</div></div>'+
-      '<div class="toolbar">'+
-      '<button class="btn btn-ghost btn-sm" onclick=\'formEmploye('+JSON.stringify(e)+')\'>'+T('pro.modifier','Modifier')+'</button>'+
-      '<button class="btn btn-ghost btn-sm" onclick="delEmploye(\''+e.id+'\')">🗑</button></div></div>';
-  }).join('')+'</div>';
-}
-async function viewEmployeRdv(id, nom){
-  var main=$('main');
-  main.innerHTML='<div class="page-head"><h1>'+esc(nom)+'</h1>'+
-    '<button class="btn btn-ghost" onclick="viewEquipe()">'+T('pro.retour','← Retour')+'</button></div>'+
-    '<div id="emp-rdv"><div class="card empty">'+T('common.chargement','Chargement…')+'</div></div>';
-  var r=await sb().from('reservations').select('*').eq('salon_id',STATE.salon.id).eq('employe_id',id)
-    .order('date_rdv',{ascending:false}).limit(200);
-  var box=$('emp-rdv'); var list=(r.data||[]).filter(function(x){return x.statut!=='annule';});
-  if(!list.length){ box.innerHTML='<div class="card empty">'+T('pro.aucun_rdv_membre','Aucun rendez-vous pour ce membre.')+'</div>'; return; }
-  var now=new Date();
-  var fut=list.filter(function(x){return new Date(x.date_rdv)>=now;});
-  var pas=list.filter(function(x){return new Date(x.date_rdv)<now;});
-  function ligne(x){
-    var d=new Date(x.date_rdv);
-    return '<div class="row"><div><b>'+esc(x.prestation_nom||'')+'</b>'+
-      '<div class="muted">'+esc(x.client_nom||'')+' · '+ltr(d.toLocaleDateString('fr')+' '+d.toLocaleTimeString('fr',{hour:'2-digit',minute:'2-digit'}))+'</div></div>'+
-      '<div class="toolbar"><b>'+fmtPrix(x.prix||0)+'</b></div></div>';
+  // Reprendre une réservation en cours (mémorisée) pour ce salon
+  const savedId = getSavedResaId();
+  if (savedId) {
+    let resa = null;
+    const rr = await WAQQTI.supabase.rpc('statut_reservation', { p_id: savedId });
+    if (!rr.error && rr.data && rr.data.length) resa = rr.data[0];
+    else { const dd = await WAQQTI.supabase.from('reservations').select('*').eq('id', savedId).maybeSingle(); resa = dd.data; }
+    if (resa && resa.statut !== 'annule') {
+      prepareFromResa(resa);
+      showStatusScreen(resa);
+      startStatusPolling();
+      return; // on n'affiche pas le parcours de réservation
+    } else {
+      clearSavedResa();
+    }
   }
-  box.innerHTML=
-    '<div class="card"><h3 style="font-size:18px;margin-bottom:8px">'+T('pro.a_venir','À venir')+' ('+ltr(fut.length+'')+')</h3>'+
-      (fut.length?fut.map(ligne).join(''):'<div class="muted">'+T('pro.aucun','Aucun')+'</div>')+'</div>'+
-    '<div class="card" style="margin-top:12px"><h3 style="font-size:18px;margin-bottom:8px">'+T('pro.passes','Passés')+' ('+ltr(pas.length+'')+')</h3>'+
-      (pas.length?pas.map(ligne).join(''):'<div class="muted">'+T('pro.aucun','Aucun')+'</div>')+'</div>';
-}
-function formEmploye(e){
-  e=e||{}; var main=$('main');
-  main.innerHTML='<div class="page-head"><h1>'+(e.id?T('pro.modifier_membre','Modifier membre'):T('pro.nouveau_membre','Nouveau membre'))+'</h1>'+
-    '<button class="btn btn-ghost" onclick="viewEquipe()">'+T('pro.retour','← Retour')+'</button></div>'+
-    '<div class="card" style="max-width:460px">'+
-    '<div class="field"><label>'+T('pro.th_nom','Nom')+' *</label><input class="inp" id="e-nom" value="'+esc(e.nom||'')+'"></div>'+
-    '<div class="field"><label>'+T('pro.f_ordre','Ordre')+'</label><input class="inp" type="number" id="e-ordre" value="'+(e.ordre||0)+'"></div>'+
-    '<div class="field"><label><input type="checkbox" id="e-actif" '+(e.actif===false?'':'checked')+'> '+T('pro.f_actif','Actif')+'</label></div>'+
-    '<button class="btn" id="e-save">'+T('common.enregistrer','Enregistrer')+'</button></div>';
-  $('e-save').addEventListener('click', function(){ saveEmploye(e.id); });
-}
-async function saveEmploye(id){
-  var payload={salon_id:STATE.salon.id,nom:$('e-nom').value.trim(),
-    ordre:parseInt($('e-ordre').value)||0,actif:$('e-actif').checked};
-  if(!payload.nom){ WAQQTI.toast(T('pro.nom_requis','Le nom est requis'),'error'); return; }
-  var r= id ? await sb().from('employes').update(payload).eq('id',id)
-            : await sb().from('employes').insert(payload);
-  if(r.error) WAQQTI.toast(r.error.message,'error'); else { WAQQTI.toast(T('pro.toast_enregistre','Enregistré')); viewEquipe(); }
-}
-async function delEmploye(id){
-  if(!confirm(T('pro.confirm_del_membre','Supprimer ce membre ?'))) return;
-  var r=await sb().from('employes').delete().eq('id',id);
-  if(r.error) WAQQTI.toast(r.error.message,'error'); else { WAQQTI.toast(T('pro.toast_supprimee','Supprimée')); loadEquipe(); }
+
+  // Charger prestations
+  await loadPrestations(salon.id);
+
+  // Charger employés (si formule ≥ confort)
+  if (['confort', 'premium'].includes(salon.formule)) {
+    await loadEmployes(salon.id);
+  } else {
+    // Cacher la section employés
+    const empCard = document.getElementById('employes-card');
+    if (empCard) empCard.style.display = 'none';
+  }
+
+  // Régénérer les dates avec les jours de fermeture du salon
+  generateDates();
 }
 
-/* ════════════ AVIS ════════════ */
-function starPro(n){ n=Math.round(Number(n)||0); var s=''; for(var i=1;i<=5;i++) s+=(i<=n?'★':'☆'); return s; }
-async function viewAvis(){
-  var s=STATE.salon, main=$('main');
-  var moy=(s.note_moyenne!=null)?Number(s.note_moyenne).toFixed(1):'—';
-  main.innerHTML='<div class="page-head"><h1>'+T('pro.avis','Avis')+'</h1></div>'+
-    '<div class="card" style="max-width:640px;margin-bottom:14px">'+
-    '<div style="font-size:16px"><span style="color:#F6A623;font-size:20px;letter-spacing:2px">'+starPro(s.note_moyenne)+'</span> <b>'+ltr(moy)+'</b> · '+ltr((s.nb_avis||0)+'')+' '+T('pro.avis_count','avis')+'</div>'+
-    '<p class="muted" style="margin-top:6px">'+T('pro.avis_info','Les clients laissent un avis après leur rendez-vous. Plus vous avez de bons avis, mieux votre salon est classé dans l\'annuaire.')+'</p>'+
-    '</div>'+
-    '<div id="avis-body"><div class="card empty">'+T('common.chargement','Chargement…')+'</div></div>';
-  loadAvisPro();
-}
-async function loadAvisPro(){
-  var r=await sb().from('avis').select('*').eq('salon_id',STATE.salon.id).order('created_at',{ascending:false});
-  var b=$('avis-body'); if(!b) return; var list=r.data||[];
-  if(!list.length){ b.innerHTML='<div class="card empty">'+T('pro.avis_aucun','Aucun avis pour le moment.')+'</div>'; return; }
-  b.innerHTML='<div class="card">'+list.map(function(a){
-    var d=new Date(a.created_at);
-    var photo=a.photo_url?'<img src="'+esc(a.photo_url)+'" onclick="window.open(\''+esc(a.photo_url)+'\',\'_blank\')" style="width:60px;height:60px;border-radius:8px;object-fit:cover;cursor:pointer;flex-shrink:0">':'';
-    var rep=a.reponse?'<div style="margin-top:8px;background:var(--cream);border-radius:10px;padding:9px 12px"><b style="font-size:12px">↳ '+T('pro.avis_votre_reponse','Votre réponse')+'</b><div style="margin-top:2px">'+esc(a.reponse)+'</div></div>':'';
-    return '<div style="border-bottom:1px solid #F3EADD;padding:12px 0">'+
-      '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px">'+
-        '<div style="display:flex;gap:12px;min-width:0">'+photo+'<div style="min-width:0">'+
-        '<b>'+esc(a.auteur_nom||T('pro.avis_client','Client'))+'</b> <span style="color:#F6A623;letter-spacing:1px">'+starPro(a.note)+'</span>'+
-        '<div class="muted">'+(a.prestation_nom?esc(a.prestation_nom)+' · ':'')+ltr(d.toLocaleDateString('fr'))+'</div>'+
-        (a.commentaire?'<div style="margin-top:4px">'+esc(a.commentaire)+'</div>':'')+
-        '</div></div>'+
-        '<button class="btn btn-ghost btn-sm" onclick="delAvis(\''+a.id+'\')" title="'+T('common.supprimer','Supprimer')+'">🗑</button>'+
-      '</div>'+rep+
-      '<div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap">'+
-        '<input class="inp" id="rep-'+a.id+'" placeholder="'+T('pro.avis_repondre_ph','Répondre publiquement à cet avis…')+'" value="'+esc(a.reponse||'')+'" style="font-size:13px;flex:1;min-width:200px">'+
-        '<button class="btn btn-sm" onclick="repondreAvis(\''+a.id+'\')">'+(a.reponse?T('pro.avis_modifier_rep','Modifier'):T('pro.avis_repondre','Répondre'))+'</button>'+
+function renderSalonGallery(photos){
+  const box = document.getElementById('salon-gallery');
+  if (!box) return;
+  const pics = Array.isArray(photos) ? photos.filter(Boolean) : [];
+  if (!pics.length) { box.innerHTML = ''; return; }
+  const T = (k,fb)=>{ if(window.WQ && WQ.t){ const v=WQ.t(k); if(v && v!==k) return v; } return fb; };
+  box.innerHTML =
+    '<div class="card" style="padding:16px 18px">'+
+      '<h2 class="card-title" style="margin-bottom:12px" data-i18n="book.galerie">'+T('book.galerie','Le salon en photos')+'</h2>'+
+      '<div style="display:flex;gap:12px;overflow-x:auto;padding-bottom:4px;-webkit-overflow-scrolling:touch">'+
+        pics.map(function(u,i){
+          return '<img src="'+u+'" alt="" loading="lazy" onclick="openLightbox('+i+')" '+
+            'style="height:150px;min-width:150px;width:auto;border-radius:14px;object-fit:cover;cursor:pointer;flex-shrink:0;border:1px solid #F0E7DA">';
+        }).join('')+
       '</div>'+
     '</div>';
-  }).join('')+'</div>';
+  window.__galPics = pics;
 }
-async function repondreAvis(id){
-  var el=$('rep-'+id); if(!el) return;
-  var r=await sb().rpc('repondre_avis',{p_avis_id:id, p_reponse: el.value.trim()||null});
-  if(r.error){ WAQQTI.toast(r.error.message,'error'); return; }
-  WAQQTI.toast(T('pro.avis_rep_ok','Réponse publiée ✓')); loadAvisPro();
+function openLightbox(i){
+  const pics = window.__galPics || [];
+  if (!pics.length) return;
+  let idx = i;
+  let ov = document.getElementById('gal-lightbox');
+  if (!ov){
+    ov = document.createElement('div');
+    ov.id = 'gal-lightbox';
+    // Overlay centré ; les contrôles sont en position:fixed → ils NE bougent PAS
+    // d'une photo à l'autre, quel que soit le format de l'image.
+    ov.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:9999;display:flex;align-items:center;justify-content:center';
+    ov.innerHTML =
+      '<button onclick="closeLightbox()" aria-label="Fermer" style="position:fixed;top:16px;right:16px;background:#fff;color:#000;border:none;width:44px;height:44px;border-radius:50%;font-size:18px;font-weight:700;cursor:pointer;z-index:2">✕</button>'+
+      '<button id="lb-prev" onclick="lbStep(-1)" aria-label="Précédent" style="position:fixed;left:14px;top:50%;transform:translateY(-50%);background:rgba(255,255,255,.18);color:#fff;border:none;width:52px;height:52px;border-radius:50%;font-size:26px;line-height:1;cursor:pointer;z-index:2">‹</button>'+
+      '<button id="lb-next" onclick="lbStep(1)" aria-label="Suivant" style="position:fixed;right:14px;top:50%;transform:translateY(-50%);background:rgba(255,255,255,.18);color:#fff;border:none;width:52px;height:52px;border-radius:50%;font-size:26px;line-height:1;cursor:pointer;z-index:2">›</button>'+
+      '<img id="lb-img" style="max-width:88vw;max-height:86vh;border-radius:14px;box-shadow:0 10px 40px rgba(0,0,0,.5)">';
+    document.body.appendChild(ov);
+    ov.addEventListener('click', function(e){ if(e.target===ov) closeLightbox(); });
+  }
+  ov.style.display = 'flex';
+  window.__lbIdx = idx;
+  document.getElementById('lb-img').src = pics[idx];
+  // Masquer les flèches s'il n'y a qu'une seule photo
+  var multi = pics.length > 1 ? 'block' : 'none';
+  document.getElementById('lb-prev').style.display = multi;
+  document.getElementById('lb-next').style.display = multi;
 }
-async function delAvis(id){
-  if(!confirm(T('pro.avis_confirm_del','Supprimer cet avis ? (réservé aux avis abusifs)'))) return;
-  var r=await sb().from('avis').delete().eq('id',id);
-  if(r.error){ WAQQTI.toast(r.error.message,'error'); return; }
-  WAQQTI.toast(T('pro.toast_supprimee','Supprimée'));
-  var fr=await sb().from('salons').select('*').eq('id',STATE.salon.id).single();
-  if(fr.data) STATE.salon=fr.data;
-  viewAvis();
+function lbStep(d){
+  const pics = window.__galPics || [];
+  if (!pics.length) return;
+  window.__lbIdx = (window.__lbIdx + d + pics.length) % pics.length;
+  document.getElementById('lb-img').src = pics[window.__lbIdx];
+}
+function closeLightbox(){ const ov=document.getElementById('gal-lightbox'); if(ov) ov.style.display='none'; }
+function openReviewPhoto(u){ window.__galPics=[u]; openLightbox(0); }
+
+/* ═══════════ AVIS CLIENTS ═══════════ */
+function escHtml(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
+function starHtml(n){ n=Math.round(Number(n)||0); var s=''; for(var i=1;i<=5;i++) s+=(i<=n?'★':'☆'); return s; }
+
+async function loadAvis(salon){
+  const sec=document.getElementById('avis-section'); if(!sec) return;
+  sec.style.display='block';
+  const resume=document.getElementById('avis-resume');
+  const listEl=document.getElementById('avis-list');
+  if(salon.nb_avis>0){
+    resume.innerHTML='<span style="color:#F6A623;font-size:20px;letter-spacing:2px">'+starHtml(salon.note_moyenne)+'</span> '+
+      '<b><bdi dir="ltr">'+Number(salon.note_moyenne).toFixed(1)+'</bdi></b> · <bdi dir="ltr">'+salon.nb_avis+'</bdi> '+T('book.avis_count','avis');
+  } else {
+    resume.innerHTML='<p style="color:var(--brun-l)">'+T('book.avis_aucun','Aucun avis pour le moment. Soyez le premier après votre visite !')+'</p>';
+  }
+  const r=await WAQQTI.supabase.from('avis').select('*').eq('salon_id',salon.id)
+    .order('created_at',{ascending:false}).limit(50);
+  const avis=(r.data)||[];
+  listEl.innerHTML=avis.map(function(a){
+    const d=new Date(a.created_at);
+    const photo=a.photo_url
+      ? '<img src="'+a.photo_url+'" loading="lazy" onclick="openReviewPhoto(\''+a.photo_url+'\')" style="margin-top:8px;width:92px;height:92px;border-radius:10px;object-fit:cover;cursor:pointer;border:1px solid #F0E7DA">'
+      : '';
+    const meta=(a.prestation_nom?escHtml(a.prestation_nom)+' · ':'')+'<bdi dir="ltr">'+d.toLocaleDateString('fr')+'</bdi>';
+    return '<div style="border-top:1px solid #F0E7DA;padding:14px 0">'+
+      '<div style="display:flex;justify-content:space-between;align-items:center;gap:10px">'+
+        '<b>'+escHtml(a.auteur_nom||T('book.avis_client','Client'))+'</b>'+
+        '<span style="color:#F6A623;letter-spacing:1px;white-space:nowrap">'+starHtml(a.note)+'</span>'+
+      '</div>'+
+      '<div style="font-size:12px;color:var(--brun-l)">'+meta+'</div>'+
+      (a.commentaire?'<p style="margin-top:6px">'+escHtml(a.commentaire)+'</p>':'')+
+      photo+
+      (a.reponse?'<div style="margin-top:8px;margin-left:12px;background:var(--cream);border-left:3px solid var(--or);border-radius:8px;padding:8px 12px"><b style="font-size:12px;color:var(--or-dk)">↳ '+T('book.avis_reponse','Réponse du salon')+'</b><div style="margin-top:2px;font-size:13.5px">'+escHtml(a.reponse)+'</div></div>':'')+
+    '</div>';
+  }).join('');
+  await buildAvisForm(salon);
 }
 
-/* ════════════ LISTE D'ATTENTE ════════════ */
-async function viewAttente(){
-  $('main').innerHTML='<div class="page-head"><h1>'+T('pro.attente','Liste d\'attente')+'</h1></div>'+
-    '<div class="card" style="max-width:640px;margin-bottom:14px"><p class="muted">'+T('pro.att_info','Clients à prévenir dès qu\'une place se libère. Contactez-les d\'un clic (WhatsApp / e-mail).')+'</p></div>'+
-    '<div id="att-body"><div class="card empty">'+T('common.chargement','Chargement…')+'</div></div>';
-  loadAttente();
+async function buildAvisForm(salon){
+  const zone=document.getElementById('avis-form-zone'); if(!zone) return;
+  const sess=await WAQQTI.supabase.auth.getSession();
+  const uid=(sess&&sess.data&&sess.data.session)?sess.data.session.user.id:null;
+  if(!uid){
+    zone.innerHTML='<div style="background:var(--cream);border-radius:12px;padding:14px;font-size:14px">'+
+      T('book.avis_login','Connectez-vous et réservez pour laisser un avis.')+' '+
+      '<a href="/auth.html" style="color:var(--or);font-weight:600">'+T('book.avis_login_cta','Se connecter')+'</a></div>';
+    return;
+  }
+  const rr=await WAQQTI.supabase.rpc('mes_resa_a_noter',{p_salon_id:salon.id});
+  const resas=(rr.data)||[];
+  if(!resas.length){
+    zone.innerHTML='<div style="background:var(--cream);border-radius:12px;padding:14px;font-size:14px;color:var(--brun-l)">'+
+      T('book.avis_apres','Vous pourrez laisser un avis après votre rendez-vous.')+'</div>';
+    return;
+  }
+  const opts=resas.map(function(x){var d=new Date(x.date_rdv);
+    return '<option value="'+x.id+'">'+escHtml(x.prestation_nom||'Prestation')+' — '+d.toLocaleDateString('fr')+'</option>';}).join('');
+  const inp='width:100%;padding:11px;border:1.5px solid var(--cream2);border-radius:10px;font-family:inherit;font-size:14px';
+  zone.innerHTML=
+    '<div style="background:var(--cream);border-radius:14px;padding:16px">'+
+    '<div style="font-weight:700;margin-bottom:12px">'+T('book.avis_form_titre','Laissez votre avis')+'</div>'+
+    '<label style="font-size:13px;font-weight:600;display:block;margin-bottom:4px">'+T('book.avis_prestation','Votre prestation')+'</label>'+
+    '<select id="av-resa" style="'+inp+';margin-bottom:12px">'+opts+'</select>'+
+    '<div id="av-stars" style="font-size:32px;color:#F6A623;letter-spacing:5px;cursor:pointer;margin-bottom:12px;user-select:none">'+
+      [1,2,3,4,5].map(function(i){return '<span data-v="'+i+'" onclick="setAvisNote('+i+')">☆</span>';}).join('')+'</div>'+
+    '<textarea id="av-comment" rows="3" placeholder="'+T('book.avis_comment_ph','Racontez votre expérience…')+'" style="'+inp+';margin-bottom:12px;resize:vertical"></textarea>'+
+    '<label style="font-size:13px;font-weight:600;display:block;margin-bottom:6px">'+T('book.avis_photo','Photo (facultatif)')+'</label>'+
+    '<input type="file" id="av-photo" accept="image/*" style="font-size:13px;width:100%;margin-bottom:14px">'+
+    '<button type="button" class="btn-next" id="av-submit" style="width:100%;justify-content:center" onclick="soumettreAvis(\''+salon.id+'\')">'+T('book.avis_envoyer','Publier mon avis')+'</button>'+
+    '<div id="av-status" style="font-size:13px;margin-top:8px"></div>'+
+    '</div>';
+  window.__avisNote=0;
 }
-async function loadAttente(){
-  var r=await sb().from('liste_attente').select('*').eq('salon_id',STATE.salon.id).order('created_at',{ascending:false});
-  var b=$('att-body'); if(!b) return; var list=r.data||[];
-  if(!list.length){ b.innerHTML='<div class="card empty">'+T('pro.att_aucun','Personne en liste d\'attente.')+'</div>'; return; }
-  b.innerHTML='<div class="card">'+list.map(function(a){
-    var d=new Date(a.created_at);
-    var wa=a.client_telephone?String(a.client_telephone).replace(/[^\d]/g,''):'';
-    var msg=encodeURIComponent(T('pro.att_msg','Bonjour')+' '+(a.client_nom||'')+', '+T('pro.att_msg2','une place vient de se libérer chez')+' '+STATE.salon.nom+(a.prestation_nom?' ('+a.prestation_nom+')':'')+'. '+T('pro.att_msg3','Souhaitez-vous réserver ?'));
-    var act='';
-    if(wa) act+='<a class="btn btn-sm" href="https://wa.me/'+wa+'?text='+msg+'" target="_blank" style="background:#25D366">💬</a> ';
-    if(a.client_email) act+='<a class="btn btn-sm btn-ghost" href="mailto:'+esc(a.client_email)+'?subject='+encodeURIComponent('Waqqti')+'&body='+msg+'">✉️</a> ';
-    var meta=(a.prestation_nom?esc(a.prestation_nom)+' · ':'')+(a.jour_souhaite?ltr(new Date(a.jour_souhaite).toLocaleDateString('fr'))+' · ':'')+(a.client_telephone?'<bdi dir="ltr">'+esc(a.client_telephone)+'</bdi>':'');
-    return '<div class="row"><div style="min-width:0"><b>'+esc(a.client_nom)+'</b>'+
-      '<div class="muted">'+meta+'</div></div>'+
-      '<div class="toolbar">'+act+'<button class="btn btn-ghost btn-sm" onclick="delAttente(\''+a.id+'\')" title="'+T('common.supprimer','Supprimer')+'">🗑</button></div></div>';
-  }).join('')+'</div>';
+function setAvisNote(n){
+  window.__avisNote=n;
+  document.querySelectorAll('#av-stars span').forEach(function(sp){
+    sp.textContent=(parseInt(sp.getAttribute('data-v'))<=n)?'★':'☆';
+  });
 }
-async function delAttente(id){
-  var r=await sb().from('liste_attente').delete().eq('id',id);
-  if(r.error){ WAQQTI.toast(r.error.message,'error'); return; }
-  WAQQTI.toast(T('pro.toast_supprimee','Supprimée')); loadAttente();
+async function soumettreAvis(salonId){
+  const st=document.getElementById('av-status');
+  const note=window.__avisNote||0;
+  if(note<1){ st.style.color='#c0392b'; st.textContent=T('book.avis_note_requise','Choisissez une note (étoiles).'); return; }
+  const resaId=document.getElementById('av-resa').value;
+  const comment=document.getElementById('av-comment').value.trim();
+  const btn=document.getElementById('av-submit'); btn.disabled=true; btn.textContent='⏳';
+  let photoUrl=null;
+  const pf=document.getElementById('av-photo');
+  if(pf && pf.files && pf.files[0]){
+    const up=await WAQQTI.uploadAvisPhoto(salonId, pf.files[0]);
+    if(up.ok) photoUrl=up.url;
+    else { st.style.color='#c0392b'; st.textContent='❌ '+up.error; btn.disabled=false; btn.textContent=T('book.avis_envoyer','Publier mon avis'); return; }
+  }
+  const r=await WAQQTI.supabase.rpc('creer_avis',{
+    p_reservation_id:resaId, p_note:note, p_commentaire:comment||null, p_photo_url:photoUrl, p_auteur_nom:null });
+  if(r.error){ st.style.color='#c0392b'; st.textContent='❌ '+r.error.message; btn.disabled=false; btn.textContent=T('book.avis_envoyer','Publier mon avis'); return; }
+  st.style.color='var(--green)'; st.textContent='✓ '+T('book.avis_merci','Merci pour votre avis !');
+  const fresh=await WAQQTI.supabase.from('salons').select('*').eq('id',salonId).single();
+  if(fresh.data){ reservation.salon=fresh.data; await loadAvis(fresh.data); }
 }
+document.addEventListener('wq:langchange', function(){ if(reservation.salon) loadAvis(reservation.salon); });
 
-/* ════════════ PARAMÈTRES ════════════ */
-function viewParametres(){
-  var s=STATE.salon, main=$('main');
-  main.innerHTML='<div class="page-head"><h1>'+T('pro.parametres','Paramètres')+'</h1></div>'+
-    // ── Notifications push ──
-    '<div class="card" style="max-width:600px">'+
-    '<h3 style="font-size:20px;margin-bottom:4px">'+T('pro.push_titre','🔔 Notifications')+'</h3>'+
-    '<p class="muted" style="margin-bottom:12px">'+T('pro.push_sub','Recevez une alerte sur ce téléphone/ordinateur à chaque nouvelle réservation, même l\'application fermée.')+'</p>'+
-    '<button class="btn" id="push-btn">'+T('pro.push_activer','Activer les notifications')+'</button>'+
-    '<div id="push-status" style="font-size:13px;margin-top:8px"></div></div>'+
-    // ── Logo du salon ──
-    '<div class="card" style="max-width:600px">'+
-    '<h3 style="font-size:20px;margin-bottom:4px">'+T('pro.logo_titre','🖼 Logo du salon')+'</h3>'+
-    '<p class="muted" style="margin-bottom:14px">'+T('pro.logo_sub','Affiché sur votre page de réservation et dans l\'annuaire.')+'</p>'+
-    '<div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">'+
-    (s.logo_url?'<img src="'+esc(s.logo_url)+'" style="width:76px;height:76px;border-radius:16px;object-fit:cover;border:1px solid var(--line)">':'<div style="width:76px;height:76px;border-radius:16px;background:var(--cream2);display:flex;align-items:center;justify-content:center;font-size:30px">🖼</div>')+
-    '<div style="flex:1;min-width:200px">'+
-    '<input type="file" id="logo-file" accept="image/*" style="font-size:13px;margin-bottom:8px;width:100%">'+
-    '<button class="btn btn-sm" id="logo-save">'+T('pro.logo_upload','Téléverser le logo')+'</button>'+
-    '<div id="logo-status" style="font-size:12px;margin-top:6px"></div>'+
-    '</div></div></div>'+
-    // ── Galerie du salon (Confort = 5, Premium = 10) ──
-    galerieCardHTML(s)+
-    '<div class="card" style="max-width:600px">'+
-    '<div class="field"><label>'+T('pro.p_nom_salon','Nom du salon')+'</label><input class="inp" id="s-nom" value="'+esc(s.nom||'')+'"></div>'+
-    '<div class="field-grid">'+
-    '<div class="field"><label>'+T('pro.p_wilaya','Wilaya')+'</label><input class="inp" id="s-wilaya" value="'+esc(s.wilaya||'')+'"></div>'+
-    '<div class="field"><label>'+T('pro.p_telephone','Téléphone')+'</label><input class="inp" id="s-tel" dir="ltr" value="'+esc(s.telephone||'')+'"></div></div>'+
-    '<div class="field"><label>'+T('pro.p_adresse','Adresse')+'</label><input class="inp" id="s-adr" value="'+esc(s.adresse||'')+'"></div>'+
-    '<div class="field"><label>'+T('pro.p_description','Description du salon')+' <small style="color:var(--brun-l);font-weight:400">'+T('pro.p_description_hint','présentée aux clients')+'</small></label><textarea class="inp" id="s-desc" rows="4" style="resize:vertical" placeholder="'+T('pro.p_description_ph','Présentez votre salon : ambiance, spécialités, équipe, ce qui vous distingue…')+'">'+esc(s.description||'')+'</textarea></div>'+
-    '<div class="field-grid">'+
-    '<div class="field"><label>'+T('pro.p_mode','Mode de réservation')+'</label><select class="inp" id="s-mode">'+
-      '<option value="creneau"'+(s.mode_reservation==='creneau'?' selected':'')+'>'+T('pro.p_mode_creneau','Par créneau horaire')+'</option>'+
-      '<option value="journee"'+(s.mode_reservation==='journee'?' selected':'')+'>'+T('pro.p_mode_journee','À la journée (sans horaire)')+'</option>'+
-    '</select></div>'+
-    '<div class="field"><label>'+T('pro.p_sieges','Nombre de sièges')+'</label><input class="inp" type="number" id="s-sieges" min="1" max="50" value="'+(s.nb_sieges||1)+'"></div></div>'+
-    '<div class="field"><label>'+T('pro.p_capacite_jour','Plafond de réservations / jour (mode journée)')+' <small style="color:var(--brun-l);font-weight:400">'+T('pro.p_capacite_jour_hint','vide = illimité')+'</small></label><input class="inp" type="number" id="s-capjour" min="1" dir="ltr" value="'+(s.capacite_jour!=null?s.capacite_jour:'')+'" placeholder="'+T('pro.p_capacite_jour_ph','ex : 10')+'"></div>'+
-    '<div class="field"><label>'+T('pro.p_annul_max','Annulation en ligne autorisée jusqu\'à (heures avant le RDV)')+' <small style="color:var(--brun-l);font-weight:400">'+T('pro.p_annul_hint','0 = jusqu\'au dernier moment')+'</small></label><input class="inp" type="number" id="s-annul" min="0" dir="ltr" value="'+(s.annulation_max_h!=null?s.annulation_max_h:24)+'"></div>'+
-    '<button class="btn" id="s-save">'+T('common.enregistrer','Enregistrer')+'</button></div>'+
-
-    // ── Fermeture exceptionnelle ──
-    '<div class="card" style="max-width:600px">'+
-    '<h3 style="font-size:20px;margin-bottom:4px">'+T('pro.ferme_titre','🚫 Fermeture exceptionnelle')+'</h3>'+
-    '<p class="muted" style="margin-bottom:14px">'+T('pro.ferme_sub','Fermez votre salon sur une plage de dates (congés, imprévu). Les clients ne pourront pas réserver ces jours-là.')+'</p>'+
-    (s.ferme_du?'<div class="pill or" style="margin-bottom:12px">'+T('pro.ferme_active','Fermé')+' '+ltr((s.ferme_du?String(s.ferme_du).slice(0,10):'')+' → '+(s.ferme_au?String(s.ferme_au).slice(0,10):''))+'</div>':'')+
-    '<div class="field-grid">'+
-    '<div class="field"><label>'+T('pro.ferme_du','Du')+'</label><input class="inp" type="date" id="s-ferme-du" value="'+(s.ferme_du?String(s.ferme_du).slice(0,10):'')+'"></div>'+
-    '<div class="field"><label>'+T('pro.ferme_au','Au')+'</label><input class="inp" type="date" id="s-ferme-au" value="'+(s.ferme_au?String(s.ferme_au).slice(0,10):'')+'"></div></div>'+
-    '<button class="btn" id="ferme-save">'+T('pro.ferme_enregistrer','Enregistrer la fermeture')+'</button> '+
-    '<button class="btn btn-ghost" id="ferme-clear">'+T('pro.ferme_annuler','Retirer la fermeture')+'</button>'+
-    '</div>'+
-
-    // ── Coordonnées de paiement (acompte) ──
-    '<div class="card" style="max-width:600px">'+
-    '<h3 style="font-size:20px;margin-bottom:4px">'+T('pro.p_paiement','💳 Coordonnées de paiement')+'</h3>'+
-    '<p class="muted" style="margin-bottom:16px">'+T('pro.p_paiement_sub','Affichées au client quand un acompte est demandé.')+'</p>'+
-    '<div class="field-grid">'+
-    '<div class="field"><label>'+T('pro.p_type','Type')+'</label><select class="inp" id="r-type">'+
-      '<option value="">'+T('pro.p_aucun','— Aucun —')+'</option>'+
-      '<option value="baridimob"'+(s.rib_type==='baridimob'?' selected':'')+'>BaridiMob</option>'+
-      '<option value="ccp"'+(s.rib_type==='ccp'?' selected':'')+'>CCP</option>'+
-      '<option value="rib"'+(s.rib_type==='rib'?' selected':'')+'>RIB</option>'+
-      '<option value="autre"'+(s.rib_type==='autre'?' selected':'')+'>Autre</option>'+
-    '</select></div>'+
-    '<div class="field"><label>'+T('pro.p_titulaire','Titulaire')+'</label><input class="inp" id="r-titulaire" value="'+esc(s.rib_titulaire||'')+'"></div></div>'+
-    '<div class="field-grid">'+
-    '<div class="field"><label>'+T('pro.p_numero','Numéro (CCP / RIB / tél)')+'</label><input class="inp" id="r-numero" dir="ltr" value="'+esc(s.rib_numero||'')+'" placeholder="00799999..."></div>'+
-    '<div class="field"><label>'+T('pro.p_cle','Clé (CCP)')+'</label><input class="inp" id="r-cle" dir="ltr" value="'+esc(s.rib_cle||'')+'" placeholder="00"></div></div>'+
-    '<div class="field"><label>'+T('pro.p_instructions','Instructions (optionnel)')+'</label><input class="inp" id="r-instr" value="'+esc(s.rib_instructions||'')+'"></div>'+
-    '<button class="btn" id="r-save">'+T('pro.p_save_coord','Enregistrer les coordonnées')+'</button></div>'+
-
-    // ── Horaires & disponibilités ──
-    '<div class="card" style="max-width:600px">'+
-    '<h3 style="font-size:20px;margin-bottom:4px">'+T('pro.p_horaires','🕐 Horaires & disponibilités')+'</h3>'+
-    '<p class="muted" style="margin-bottom:16px">'+T('pro.p_horaires_sub','Définissent les créneaux proposés aux clients (mode « par créneau »).')+'</p>'+
-    '<div class="field-grid">'+
-    '<div class="field"><label>'+T('pro.p_ouverture','Ouverture')+'</label><input class="inp" type="time" id="h-ouv" value="'+((s.heure_ouverture||'09:00').slice(0,5))+'"></div>'+
-    '<div class="field"><label>'+T('pro.p_fermeture','Fermeture')+'</label><input class="inp" type="time" id="h-fer" value="'+((s.heure_fermeture||'19:00').slice(0,5))+'"></div></div>'+
-    '<div class="field-grid">'+
-    '<div class="field"><label>'+T('pro.p_pause_debut','Pause — début (optionnel)')+'</label><input class="inp" type="time" id="h-pd" value="'+((s.pause_debut||'').slice(0,5))+'"></div>'+
-    '<div class="field"><label>'+T('pro.p_pause_fin','Pause — fin')+'</label><input class="inp" type="time" id="h-pf" value="'+((s.pause_fin||'').slice(0,5))+'"></div></div>'+
-    '<div class="field"><label>'+T('pro.p_intervalle','Intervalle entre créneaux')+'</label><select class="inp" id="h-int">'+
-      [15,20,30,45,60].map(function(v){return '<option value="'+v+'"'+(((s.intervalle_creneaux||30)==v)?' selected':'')+'>'+v+' '+T('pro.min','min')+'</option>';}).join('')+
-    '</select></div>'+
-    '<div class="field"><label>'+T('pro.p_jours_fermeture','Jours de fermeture')+'</label><div style="display:flex;flex-wrap:wrap;gap:12px;margin-top:6px">'+
-      [0,1,2,3,4,5,6].map(function(i){var ch=(s.jours_fermes||[]).indexOf(i)>=0;return '<label style="font-weight:500;font-size:13px;display:flex;align-items:center;gap:5px;cursor:pointer"><input type="checkbox" class="h-jour" value="'+i+'"'+(ch?' checked':'')+'> '+T('pro.j'+i,['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'][i])+'</label>';}).join('')+
-    '</div></div>'+
-    '<button class="btn" id="h-save">'+T('pro.p_save_horaires','Enregistrer les horaires')+'</button></div>'+
-
-    // ── Géolocalisation (annuaire "Autour de moi") ──
-    '<div class="card" style="max-width:600px">'+
-    '<h3 style="font-size:20px;margin-bottom:4px">'+T('pro.p_localisation','📍 Localisation')+'</h3>'+
-    '<p class="muted" style="margin-bottom:16px">'+T('pro.p_localisation_sub','Pour apparaître dans « Autour de moi » de l\'annuaire.')+'</p>'+
-    '<div class="field-grid">'+
-    '<div class="field"><label>Latitude</label><input class="inp" id="g-lat" dir="ltr" value="'+(s.latitude!=null?s.latitude:'')+'" placeholder="36.7538"></div>'+
-    '<div class="field"><label>Longitude</label><input class="inp" id="g-lng" dir="ltr" value="'+(s.longitude!=null?s.longitude:'')+'" placeholder="3.0588"></div></div>'+
-    '<button class="btn btn-ghost btn-sm" type="button" onclick="capterPositionSalon()">'+T('pro.p_utiliser_position','📍 Utiliser ma position actuelle')+'</button> '+
-    '<button class="btn" id="g-save" style="margin-top:10px">'+T('pro.p_save_position','Enregistrer la position')+'</button></div>'+
-    // ── QR code du salon ──
-    '<div class="card" style="max-width:600px">'+
-    '<h3 style="font-size:20px;margin-bottom:4px">'+T('pro.qr_titre','🔳 QR code du salon')+'</h3>'+
-    '<p class="muted" style="margin-bottom:14px">'+T('pro.qr_sub','À imprimer ou afficher en vitrine : vos clients scannent et arrivent directement sur votre page de réservation.')+'</p>'+
-    '<div id="qr-box" style="display:flex;justify-content:center;align-items:center;padding:12px;background:#fff;border-radius:12px;width:fit-content;min-height:60px"></div>'+
-    '<div style="font-size:12px;color:var(--brun-l);margin:8px 0 12px;word-break:break-all" id="qr-url"></div>'+
-    '<button class="btn btn-sm" id="qr-dl">'+T('pro.qr_download','Télécharger le QR (PNG)')+'</button></div>';
-  $('s-save').addEventListener('click', saveParametres);
-  $('r-save').addEventListener('click', saveRib);
-  $('g-save').addEventListener('click', saveGeo);
-  $('h-save').addEventListener('click', saveHoraires);
-  $('logo-save').addEventListener('click', uploadLogo);
-  if($('gal-save')) $('gal-save').addEventListener('click', uploadGalerie);
-  if($('ferme-save')) $('ferme-save').addEventListener('click', saveFermeture);
-  if($('ferme-clear')) $('ferme-clear').addEventListener('click', clearFermeture);
-  if($('push-btn')) $('push-btn').addEventListener('click', activerNotifs);
-  refreshPushState();
-  renderQR();
-}
-async function refreshPushState(){
-  var btn=$('push-btn'), st=$('push-status'); if(!btn||!st) return;
-  if(!('serviceWorker' in navigator)||!('PushManager' in window)){ btn.disabled=true; st.style.color='#c0392b'; st.textContent=T('pro.push_indispo','Notifications non supportées sur cet appareil/navigateur.'); return; }
+/* ═══════════ À PROPOS ═══════════ */
+function jNom(i){ var d=new Date(2024,0,7+i); return (window.WQ&&WQ.jourCourt)?WQ.jourCourt(d):['dim','lun','mar','mer','jeu','ven','sam'][i]; }
+async function renderAbout(salon){
+  var about=document.getElementById('salon-about'); if(!about) return;
+  var parts='';
+  parts += salon.description
+    ? '<p style="white-space:pre-wrap;line-height:1.6;color:var(--brun-l)">'+escHtml(salon.description)+'</p>'
+    : '<p style="color:var(--brun-l)">'+T('book.apropos_vide','Ce salon n’a pas encore ajouté de description.')+'</p>';
+  // Horaires
+  var jf=salon.jours_fermes||[];
+  var ouverts=[0,1,2,3,4,5,6].filter(function(i){return jf.indexOf(i)<0;}).map(jNom);
+  var fermes=jf.map(jNom);
+  var hOuv=(salon.heure_ouverture||'09:00').slice(0,5).replace(':','h');
+  var hFer=(salon.heure_fermeture||'19:00').slice(0,5).replace(':','h');
+  parts += '<div style="margin-top:16px"><b>🕐 '+T('book.horaires','Horaires d\'ouverture')+'</b>'+
+    (salon.mode_reservation==='journee'?'':'<div style="color:var(--brun-l);margin-top:2px"><bdi dir="ltr">'+hOuv+' – '+hFer+'</bdi></div>')+
+    '<div style="color:var(--brun-l);font-size:13px;margin-top:2px">'+esc2(ouverts.join(', '))+
+    (fermes.length?(' · '+T('book.ferme_le','fermé')+' '+esc2(fermes.join(', '))):'')+'</div></div>';
+  // Collaborateurs
   try{
-    var reg=await navigator.serviceWorker.getRegistration();
-    var sub=reg?await reg.pushManager.getSubscription():null;
-    if(sub && Notification.permission==='granted'){
-      btn.textContent=T('pro.push_reactiver','Réactiver / Rafraîchir');
-      st.style.color='var(--green)'; st.textContent='✓ '+T('pro.push_actives','Notifications activées sur cet appareil.');
-    } else {
-      btn.textContent=T('pro.push_activer','Activer les notifications'); st.textContent='';
+    var er=await WAQQTI.supabase.from('employes').select('nom').eq('salon_id',salon.id).eq('actif',true).order('ordre',{ascending:true});
+    var emps=(er.data||[]);
+    if(emps.length){
+      parts += '<div style="margin-top:16px"><b>👥 '+T('book.collaborateurs','L\'équipe')+'</b>'+
+        '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px">'+
+        emps.map(function(e){return '<span style="background:var(--cream);padding:5px 11px;border-radius:50px;font-size:13px">'+escHtml(e.nom)+'</span>';}).join('')+'</div></div>';
     }
   }catch(e){}
+  about.innerHTML='<div class="card"><h2 class="card-title">'+T('book.apropos','À propos du salon')+'</h2>'+parts+'</div>';
+  if(location.hash==='#salon-about'){ setTimeout(function(){about.scrollIntoView({behavior:'smooth',block:'start'});},350); }
 }
-/* ── Notifications push (même app fermée) ── */
-var VAPID_PUBLIC='BApETiw_PDuPVnDVt_j9nxzW73M_q4T5462tPdHDqs7aY2vAv8h4P7rzRSgQKfUXJx207uBwy8UHNtMCBHY07S0';
-function urlB64ToUint8(b){var pad='='.repeat((4-b.length%4)%4);var s=(b+pad).replace(/-/g,'+').replace(/_/g,'/');var raw=atob(s);var arr=new Uint8Array(raw.length);for(var i=0;i<raw.length;i++)arr[i]=raw.charCodeAt(i);return arr;}
-async function activerNotifs(){
-  var st=$('push-status');
-  if(!('serviceWorker' in navigator) || !('PushManager' in window)){ st.style.color='#c0392b'; st.textContent=T('pro.push_indispo','Notifications non supportées sur cet appareil/navigateur.'); return; }
-  try{
-    var reg=await navigator.serviceWorker.register('/service-worker.js');
-    await navigator.serviceWorker.ready;
-    var perm=await Notification.requestPermission();
-    if(perm!=='granted'){ st.style.color='#c0392b'; st.textContent=T('pro.push_refuse','Autorisation refusée. Activez-la dans les réglages du navigateur.'); return; }
-    var sub=await reg.pushManager.subscribe({userVisibleOnly:true, applicationServerKey:urlB64ToUint8(VAPID_PUBLIC)});
-    var j=sub.toJSON();
-    var r=await sb().from('push_subscriptions').upsert({salon_id:STATE.salon.id, endpoint:j.endpoint, subscription:j},{onConflict:'endpoint'});
-    if(r.error){ st.style.color='#c0392b'; st.textContent='❌ '+r.error.message; return; }
-    st.style.color='var(--green)'; st.textContent='✓ '+T('pro.push_ok','Notifications activées sur cet appareil.');
-  }catch(e){ st.style.color='#c0392b'; st.textContent='❌ '+String(e); }
+function esc2(s){ return escHtml(s); }
+
+/* ═══════════ LISTE D'ATTENTE ═══════════ */
+async function buildAttenteForm(){
+  var zone=document.getElementById('attente-zone'); if(!zone) return;
+  var email='';
+  try{ var s=await WAQQTI.supabase.auth.getSession(); if(s&&s.data&&s.data.session) email=s.data.session.user.email||''; }catch(e){}
+  var inp='width:100%;padding:12px 14px;border:1.5px solid var(--cream2);border-radius:12px;font-size:15px;font-family:inherit';
+  zone.innerHTML=
+    '<div class="form-row"><label>'+T('book.nom_label','Nom complet')+' *</label><input type="text" id="att-nom" style="'+inp+'" placeholder="'+T('book.liste_nom_ph','Ex : Amina K.')+'"></div>'+
+    '<div class="form-row" style="margin-top:10px"><label>'+T('book.liste_email','E-mail')+' *</label><input type="email" id="att-email" dir="ltr" style="'+inp+'" value="'+escHtml(email)+'" placeholder="vous@email.com"></div>'+
+    '<div class="form-row" style="margin-top:10px"><label>'+T('book.liste_tel','Téléphone (optionnel)')+'</label><input type="tel" id="att-tel" dir="ltr" style="'+inp+'" placeholder="0770 12 34 56"></div>'+
+    '<div class="form-grid" style="display:flex;gap:10px;margin-top:10px;flex-wrap:wrap">'+
+      '<div class="form-row" style="flex:1;min-width:140px"><label>'+T('book.liste_jour','Jour souhaité')+'</label><input type="date" id="att-jour" dir="ltr" style="'+inp+'" value="'+escHtml(reservation.date||'')+'"></div>'+
+      '<div class="form-row" style="flex:1;min-width:140px"><label>'+T('book.liste_heure','Créneau souhaité')+'</label><input type="text" id="att-heure" style="'+inp+'" placeholder="'+T('book.liste_heure_ph','ex : matin, 14h…')+'" value="'+escHtml(reservation.heure||'')+'"></div>'+
+    '</div>'+
+    '<button type="button" class="btn-next" style="width:100%;justify-content:center;margin-top:14px" onclick="soumettreAttente()">🔔 '+T('book.liste_cta','Me prévenir si une place se libère')+'</button>'+
+    '<div id="att-status" style="font-size:13px;margin-top:8px"></div>';
 }
-async function saveFermeture(){
-  var du=$('s-ferme-du').value||null, au=$('s-ferme-au').value||null;
-  if(du&&au&&au<du){ WAQQTI.toast(T('pro.ferme_ordre','La date de fin doit être après le début'),'error'); return; }
-  var r=await sb().from('salons').update({ferme_du:du,ferme_au:au}).eq('id',STATE.salon.id).select().single();
-  if(r.error){ WAQQTI.toast(r.error.message,'error'); return; }
-  STATE.salon=r.data; WAQQTI.toast(T('pro.ferme_ok','Fermeture enregistrée ✓')); viewParametres();
-}
-async function clearFermeture(){
-  var r=await sb().from('salons').update({ferme_du:null,ferme_au:null}).eq('id',STATE.salon.id).select().single();
-  if(r.error){ WAQQTI.toast(r.error.message,'error'); return; }
-  STATE.salon=r.data; WAQQTI.toast(T('pro.ferme_efface','Fermeture retirée')); viewParametres();
-}
-function salonPublicUrl(){ return 'https://www.waqqti.com/client/salon.html?s='+encodeURIComponent(STATE.salon.slug||''); }
-function renderQR(){
-  var box=$('qr-box'); if(!box) return;
-  var url=salonPublicUrl(); var u=$('qr-url'); if(u) u.textContent=url;
-  if(typeof QRCode==='undefined'){ box.innerHTML='<span class="muted">QR indisponible (hors ligne)</span>'; return; }
-  box.innerHTML='';
-  new QRCode(box,{text:url,width:210,height:210,correctLevel:QRCode.CorrectLevel.M});
-  var dl=$('qr-dl');
-  if(dl) dl.onclick=function(){
-    var img=box.querySelector('img')||box.querySelector('canvas'); if(!img) return;
-    var data=(img.tagName==='IMG')?img.src:img.toDataURL('image/png');
-    var a=document.createElement('a'); a.href=data; a.download='qr-waqqti-'+(STATE.salon.slug||'salon')+'.png'; a.click();
-  };
-}
-function galerieLimite(s){ return (s.formule==='premium'||s.formule==='trial')?15:(s.formule==='confort'?5:1); }
-function galerieCardHTML(s){
-  var lim=galerieLimite(s), pics=s.photos||[];
-  var head='<div class="card" style="max-width:600px">'+
-    '<h3 style="font-size:20px;margin-bottom:4px">'+T('pro.gal_titre','📸 Galerie du salon')+'</h3>';
-  if(lim===0){
-    return head+'<p class="muted" style="margin-bottom:12px">'+T('pro.gal_sub','Ces photos s\'affichent sur votre page de réservation, sous le nom du salon.')+'</p>'+
-      '<div><span class="pill or">'+T('pro.f_confort','Confort')+'+</span> <span class="muted">'+T('pro.gal_upsell','Passez en formule Confort (5 photos) ou Premium (10 photos) pour présenter votre salon.')+'</span></div></div>';
-  }
-  var grid=pics.map(function(u,i){
-    return '<div style="position:relative;width:92px;height:92px">'+
-      '<img src="'+esc(u)+'" style="width:92px;height:92px;border-radius:10px;object-fit:cover;border:1px solid var(--line)">'+
-      '<button type="button" onclick="delPhotoGalerie('+i+')" title="'+T('common.supprimer','Supprimer')+'" style="position:absolute;top:-8px;right:-8px;width:24px;height:24px;border-radius:50%;border:none;background:#c0392b;color:#fff;cursor:pointer;font-size:15px;line-height:1;box-shadow:0 2px 6px rgba(0,0,0,.2)">×</button></div>';
-  }).join('');
-  var add = pics.length<lim
-    ? '<input type="file" id="gal-file" accept="image/*" multiple style="font-size:13px;margin-bottom:8px;width:100%">'+
-      '<button class="btn btn-sm" id="gal-save">'+T('pro.gal_upload','Ajouter des photos')+'</button>'+
-      '<div id="gal-status" style="font-size:12px;margin-top:6px"></div>'
-    : '<p class="muted">'+T('pro.gal_plein','Limite atteinte. Supprimez une photo pour en ajouter une nouvelle.')+'</p>';
-  return head+
-    '<p class="muted" style="margin-bottom:14px">'+T('pro.gal_sub','Ces photos s\'affichent sur votre page de réservation, sous le nom du salon.')+' <b>'+ltr(pics.length+' / '+lim)+'</b></p>'+
-    (pics.length?'<div style="display:flex;flex-wrap:wrap;gap:12px;margin-bottom:16px">'+grid+'</div>':'')+
-    add+'</div>';
-}
-async function uploadGalerie(){
-  var files=Array.prototype.slice.call(($('gal-file').files)||[]);
-  var st=$('gal-status'), s=STATE.salon;
-  if(!files.length){ st.style.color='#c0392b'; st.textContent='⚠️ '+T('pro.choisir_image','Choisis une image.'); return; }
-  var lim=galerieLimite(s), pics=(s.photos||[]).slice();
-  var place=lim-pics.length;
-  if(place<=0){ st.style.color='#c0392b'; st.textContent=T('pro.gal_plein','Limite atteinte.'); return; }
-  files=files.slice(0,place);
-  var btn=$('gal-save'); btn.disabled=true; btn.textContent='…'; st.style.color='var(--brun-l)'; st.textContent=T('common.chargement','Chargement…');
-  for(var i=0;i<files.length;i++){
-    var up=await WAQQTI.uploadImage(s.id,'galerie',files[i]);
-    if(up.ok) pics.push(up.url);
-    else { st.style.color='#c0392b'; st.textContent='❌ '+up.error; }
-  }
-  var r=await sb().from('salons').update({photos:pics}).eq('id',s.id).select().single();
-  btn.disabled=false;
+async function soumettreAttente(){
+  var st=document.getElementById('att-status');
+  var nom=(document.getElementById('att-nom').value||'').trim();
+  if(!nom){ st.style.color='#c0392b'; st.textContent=T('book.liste_nom_requis','Votre nom est requis.'); return; }
+  var email=(document.getElementById('att-email').value||'').trim();
+  if(!email){ st.style.color='#c0392b'; st.textContent=T('book.liste_email_requis','Votre e-mail est requis pour être prévenu(e).'); return; }
+  var tel=(document.getElementById('att-tel').value||'').trim();
+  var jour=(document.getElementById('att-jour').value||'').trim()||reservation.date||null;
+  var heure=(document.getElementById('att-heure').value||'').trim()||null;
+  var r=await WAQQTI.supabase.rpc('ajouter_liste_attente',{
+    p_salon_id:reservation.salonId, p_nom:nom, p_telephone:tel||null, p_email:email,
+    p_prestation_id:reservation.prestationId||null, p_prestation_nom:reservation.prestation||null,
+    p_jour:jour, p_heure:heure });
   if(r.error){ st.style.color='#c0392b'; st.textContent='❌ '+r.error.message; return; }
-  STATE.salon=r.data; WAQQTI.toast(T('pro.gal_ok','Galerie mise à jour ✓')); viewParametres();
-}
-async function delPhotoGalerie(i){
-  var s=STATE.salon, pics=(s.photos||[]).slice();
-  if(i<0||i>=pics.length) return;
-  if(!confirm(T('pro.gal_confirm_del','Supprimer cette photo ?'))) return;
-  pics.splice(i,1);
-  var r=await sb().from('salons').update({photos:pics}).eq('id',s.id).select().single();
-  if(r.error){ WAQQTI.toast(r.error.message,'error'); return; }
-  STATE.salon=r.data; WAQQTI.toast(T('pro.toast_supprimee','Supprimée')); viewParametres();
-}
-async function uploadLogo(){
-  var f=($('logo-file').files||[])[0];
-  var st=$('logo-status');
-  if(!f){ st.style.color='var(--red)'; st.textContent='⚠️ '+T('pro.choisir_image','Choisis une image.'); return; }
-  var btn=$('logo-save'); btn.disabled=true; btn.textContent='…';
-  var r=await WAQQTI.uploadImage(STATE.salon.id,'logo',f);
-  if(!r.ok){ st.style.color='var(--red)'; st.textContent='❌ '+r.error; btn.disabled=false; btn.textContent=T('pro.logo_upload','Téléverser le logo'); return; }
-  var up=await sb().from('salons').update({logo_url:r.url}).eq('id',STATE.salon.id).select().single();
-  btn.disabled=false;
-  if(up.error){ st.style.color='var(--red)'; st.textContent='❌ '+up.error.message; btn.textContent=T('pro.logo_upload','Téléverser le logo'); return; }
-  STATE.salon=up.data; WAQQTI.toast(T('pro.logo_ok','Logo enregistré ✓')); viewParametres();
-}
-async function saveHoraires(){
-  var jours=[];
-  document.querySelectorAll('.h-jour:checked').forEach(function(c){ jours.push(parseInt(c.value)); });
-  var payload={
-    heure_ouverture:$('h-ouv').value||'09:00',
-    heure_fermeture:$('h-fer').value||'19:00',
-    pause_debut:$('h-pd').value||null,
-    pause_fin:$('h-pf').value||null,
-    intervalle_creneaux:parseInt($('h-int').value)||30,
-    jours_fermes:jours
-  };
-  if(payload.heure_fermeture<=payload.heure_ouverture){ WAQQTI.toast(T('pro.fermeture_apres','La fermeture doit être après l\'ouverture'),'error'); return; }
-  var r=await sb().from('salons').update(payload).eq('id',STATE.salon.id).select().single();
-  if(r.error){ WAQQTI.toast(r.error.message,'error'); return; }
-  STATE.salon=r.data; WAQQTI.toast(T('pro.toast_horaires','Horaires enregistrés ✓'));
-}
-function capterPositionSalon(){
-  if(!navigator.geolocation){ WAQQTI.toast(T('pro.geoloc_indispo','Géolocalisation indisponible'),'error'); return; }
-  navigator.geolocation.getCurrentPosition(function(pos){
-    $('g-lat').value=pos.coords.latitude.toFixed(6);
-    $('g-lng').value=pos.coords.longitude.toFixed(6);
-    WAQQTI.toast(T('pro.toast_position_captee','Position captée — pense à enregistrer'));
-  }, function(){ WAQQTI.toast(T('pro.position_refusee','Position refusée'),'error'); });
-}
-async function saveRib(){
-  var payload={
-    rib_type:$('r-type').value||null,
-    rib_titulaire:$('r-titulaire').value.trim()||null,
-    rib_numero:$('r-numero').value.trim()||null,
-    rib_cle:$('r-cle').value.trim()||null,
-    rib_instructions:$('r-instr').value.trim()||null
-  };
-  var r=await sb().from('salons').update(payload).eq('id',STATE.salon.id).select().single();
-  if(r.error){ WAQQTI.toast(r.error.message,'error'); return; }
-  STATE.salon=r.data; WAQQTI.toast(T('pro.toast_coord','Coordonnées enregistrées'));
-}
-async function saveGeo(){
-  var lat=parseFloat($('g-lat').value), lng=parseFloat($('g-lng').value);
-  var payload={ latitude:isNaN(lat)?null:lat, longitude:isNaN(lng)?null:lng };
-  var r=await sb().from('salons').update(payload).eq('id',STATE.salon.id).select().single();
-  if(r.error){ WAQQTI.toast(r.error.message,'error'); return; }
-  STATE.salon=r.data; WAQQTI.toast(T('pro.toast_position','Position enregistrée'));
-}
-async function saveParametres(){
-  var payload={
-    nom:$('s-nom').value.trim(), wilaya:$('s-wilaya').value.trim()||null,
-    telephone:$('s-tel').value.trim()?WAQQTI.formatPhone($('s-tel').value.trim()):null, adresse:$('s-adr').value.trim()||null,
-    mode_reservation:$('s-mode').value, nb_sieges:parseInt($('s-sieges').value)||1,
-    capacite_jour:parseInt($('s-capjour').value)||null,
-    description:$('s-desc').value.trim()||null,
-    annulation_max_h:(isNaN(parseInt($('s-annul').value))?24:parseInt($('s-annul').value))
-  };
-  var r=await sb().from('salons').update(payload).eq('id',STATE.salon.id).select().single();
-  if(r.error){ WAQQTI.toast(r.error.message,'error'); return; }
-  STATE.salon=r.data; $('side-salon').textContent=r.data.nom;
-  WAQQTI.toast(T('pro.toast_param','Paramètres enregistrés'));
+  st.style.color='var(--green)'; st.textContent='✓ '+T('book.liste_ok','Vous êtes sur la liste ! Le salon vous préviendra.');
+  var btn=document.querySelector('#attente-zone .btn-next'); if(btn){ btn.disabled=true; }
 }
 
-/* ════════════ ABONNEMENT ════════════ */
-async function viewAbonnement(){
-  var s=STATE.salon, main=$('main');
-  var acces=await WAQQTI.verifierAcces(s);
-  var formules=[
-    {k:'essentielle',t:T('pro.f_essentielle','Essentielle'),d:T('pro.d_essentielle','Réservation par sièges, SMS limités')},
-    {k:'confort',t:T('pro.f_confort','Confort'),d:T('pro.d_confort','Profils employés, SMS illimités, choix de l\'employé')},
-    {k:'premium',t:T('pro.f_premium','Premium'),d:T('pro.d_premium','Agendas individuels, acompte, mise en avant, community manager')}
-  ];
-  var etat = s.formule==='trial'
-    ? '<span class="pill or">'+T('pro.essai','Essai')+' — '+(acces.jours_restants!=null?ltr(acces.jours_restants+' '+T('pro.j_restants','j restants')):'')+'</span>'
-    : '<span class="pill green">'+T('pro.f_'+s.formule, esc(s.formule))+'</span>';
-  main.innerHTML='<div class="page-head"><h1>'+T('pro.abonnement','Abonnement')+'</h1></div>'+
-    '<div class="card"><div class="row"><div><b>'+T('pro.formule_actuelle','Formule actuelle')+'</b><div class="muted">'+T('pro.geree_waqqti','Gérée par Waqqti')+'</div></div>'+etat+'</div></div>'+
-    '<div class="card"><h3 style="font-size:20px;margin-bottom:10px">'+T('pro.les_formules','Les formules')+'</h3>'+
-    formules.map(function(f){
-      return '<div class="row"><div><b>'+f.t+'</b><div class="muted">'+f.d+'</div></div>'+
-        (s.formule===f.k?'<span class="pill green">'+T('pro.active','Active')+'</span>':'')+'</div>';
-    }).join('')+
-    '<p class="muted" style="margin-top:14px">'+T('pro.changer_formule','Pour changer de formule, contacte ton conseiller Waqqti.')+'</p>'+
-    '<a class="btn" style="margin-top:10px;display:inline-block" href="https://wa.me/213549829949" target="_blank" rel="noopener">'+T('pro.contacter_waqqti','Contacter Waqqti')+'</a></div>';
+async function loadPrestations(salonId) {
+  const { data: prestations } = await WAQQTI.supabase
+    .from('prestations')
+    .select('*')
+    .eq('salon_id', salonId)
+    .eq('actif', true)
+    .order('categorie', { ascending: true })
+    .order('ordre', { ascending: true });
+
+  const step1 = document.querySelector('#step-1 .card');
+  if (!prestations || prestations.length === 0) {
+    step1.innerHTML += '<p style="text-align:center; color:var(--brun-l); padding:20px">Aucune prestation disponible. Le salon les ajoute prochainement.</p>';
+    return;
+  }
+
+  // Stocker + insérer le contrôle de tri (une seule fois)
+  window.__PRESTS = prestations;
+  if (!document.getElementById('prest-sort')) {
+    const bar = document.createElement('div');
+    bar.style.cssText = 'display:flex;justify-content:flex-end;margin:4px 0 10px';
+    bar.innerHTML = '<select id="prest-sort" style="padding:8px 12px;border:1.5px solid var(--cream2);border-radius:10px;font-family:inherit;font-size:13px">'+
+      '<option value="reco">'+T('book.tri_reco','Trier : recommandé')+'</option>'+
+      '<option value="prix_asc">'+T('book.tri_prix_asc','Prix croissant')+'</option>'+
+      '<option value="prix_desc">'+T('book.tri_prix_desc','Prix décroissant')+'</option></select>';
+    const sub = step1.querySelector('.card-sub');
+    if (sub) sub.insertAdjacentElement('afterend', bar); else step1.insertBefore(bar, step1.firstChild);
+    document.getElementById('prest-sort').addEventListener('change', function(){ drawPrests(this.value); });
+  }
+  drawPrests('reco');
 }
+function prestItemEl(p){
+  const div = document.createElement('div');
+  div.className = 'prest-item';
+  div.dataset.id = p.id; div.dataset.name = p.nom; div.dataset.duration = p.duree_minutes; div.dataset.price = p.prix;
+  const dureeLabel = p.duree_minutes >= 60
+    ? `${Math.floor(p.duree_minutes/60)}h${p.duree_minutes % 60 ? (p.duree_minutes%60).toString().padStart(2,'0') : '00'}`
+    : `${p.duree_minutes}min`;
+  const prixStr = (p.prix_max!=null && Number(p.prix_max)>Number(p.prix))
+    ? `<bdi dir="ltr">${Number(p.prix).toLocaleString('fr')}–${Number(p.prix_max).toLocaleString('fr')} DA</bdi>`
+    : `<bdi dir="ltr">${Number(p.prix).toLocaleString('fr')} DA</bdi>`;
+  const descStr = p.description
+    ? `<div class="prest-desc" style="font-size:12.5px;color:var(--brun-l);margin-top:4px;line-height:1.45">${escHtml(p.description)}</div>`
+    : '';
+  div.innerHTML = `
+    <div class="prest-info">
+      <div class="prest-name">${escHtml(p.nom)}</div>
+      <div class="prest-duration">${dureeLabel}</div>
+      ${descStr}
+    </div>
+    <div class="prest-price">${prixStr}</div>
+  `;
+  div.addEventListener('click', () => selectPrestation(div, p));
+  return div;
+}
+function drawPrests(mode){
+  const step1 = document.querySelector('#step-1 .card');
+  step1.querySelectorAll('.prest-categ, .prest-item').forEach(el => el.remove());
+  let list = (window.__PRESTS || []).slice();
+  if (mode === 'prix_asc' || mode === 'prix_desc') {
+    list.sort((a,b)=> mode==='prix_asc' ? (Number(a.prix)-Number(b.prix)) : (Number(b.prix)-Number(a.prix)));
+    list.forEach(p => step1.appendChild(prestItemEl(p)));
+  } else {
+    const groups = {};
+    list.forEach(p => { const c = p.categorie || 'Autres'; (groups[c] = groups[c] || []).push(p); });
+    Object.entries(groups).forEach(([cat, items]) => {
+      const catEl = document.createElement('div'); catEl.className = 'prest-categ'; catEl.textContent = cat; step1.appendChild(catEl);
+      items.forEach(p => step1.appendChild(prestItemEl(p)));
+    });
+  }
+}
+
+function selectPrestation(item, p) {
+  document.querySelectorAll('.prest-item').forEach(x => x.classList.remove('selected'));
+  item.classList.add('selected');
+  reservation.prestationId = p.id;
+  reservation.prestation = p.nom;
+  reservation.prestationObj = p;
+  reservation.duree = p.duree_minutes;
+  reservation.prix = p.prix;
+  // Acompte éventuel (config gérant sur la prestation)
+  reservation.acompteMontant = window.WAQQTI ? WAQQTI.calcAcompte(p) : 0;
+  reservation.acompteRequis = reservation.acompteMontant > 0;
+  const acompteTxt = reservation.acompteRequis
+    ? ` · acompte ${Number(reservation.acompteMontant).toLocaleString('fr')} DA`
+    : '';
+  document.getElementById('recap-label').textContent = T('book.recap_prestation','Prestation choisie');
+  document.getElementById('recap-value').textContent =
+    `${p.nom} · ${Number(p.prix).toLocaleString('fr')} DA${acompteTxt}`;
+  document.getElementById('recap-bar').classList.add('visible');
+  document.getElementById('btn-next').disabled = false;
+}
+
+// Bloc d'information acompte + coordonnées de paiement du salon
+function acompteInfoHTML() {
+  const s = reservation.salon || {};
+  const montant = Number(reservation.acompteMontant).toLocaleString('fr') + ' DA';
+  const rib = window.WAQQTI ? WAQQTI.ribLisible(s) : null;
+  return `
+    <div class="card" style="border:1.5px solid var(--or); background:rgba(246,132,35,.05)">
+      <h2 class="card-title" style="font-size:20px">💳 ${T('book.acompte_requis','Acompte requis')} : ${montant}</h2>
+      <p class="card-sub">${T('book.acompte_sub','Pour garantir votre rendez-vous, le salon demande un acompte. Effectuez le versement puis ajoutez une photo du reçu ci-dessous.')}</p>
+      <div style="background:#fff;border-radius:12px;padding:14px 16px;font-size:14px;line-height:1.9">
+        ${rib ? `<div><strong>${T('book.coordonnees_lbl','Coordonnées :')}</strong> <span dir="ltr">${rib}</span></div>` : ''}
+        ${s.rib_titulaire ? `<div><strong>${T('book.titulaire','Titulaire :')}</strong> ${s.rib_titulaire}</div>` : ''}
+        ${s.rib_instructions ? `<div style="color:var(--brun-l)">${s.rib_instructions}</div>` : ''}
+        ${!rib ? `<div style="color:var(--brun-l)">${T('book.rib_wa','Le salon vous communiquera ses coordonnées de paiement par WhatsApp.')}</div>` : ''}
+      </div>
+    </div>`;
+}
+
+// Un compte n'est exigé QUE si la prestation demande un acompte
+async function getUid(){
+  var s=await WAQQTI.supabase.auth.getSession();
+  return (s && s.data && s.data.session) ? s.data.session.user.id : null;
+}
+async function injectAcompteLoginBanner(){
+  var host=document.getElementById('acompte-info'); if(!host) return;
+  var old=document.getElementById('acompte-login'); if(old) old.remove();
+  var uid=await getUid(); if(uid) return; // déjà connecté
+  var div=document.createElement('div');
+  div.id='acompte-login';
+  div.className='card';
+  div.style.cssText='border:1.5px solid var(--or);background:#FFF6EE';
+  div.innerHTML='<b>👤 '+T('book.acompte_compte_titre','Un compte est nécessaire pour les acomptes')+'</b>'+
+    '<p style="font-size:13px;color:var(--brun-l);margin:6px 0 10px">'+T('book.acompte_compte_sub','Connectez-vous ou créez un compte pour suivre votre acompte. Vos infos restent ici — revenez ensuite valider.')+'</p>'+
+    '<a href="/auth.html" target="_blank" rel="noopener" class="btn-next" style="display:inline-flex;text-decoration:none">'+T('book.avis_login_cta','Se connecter')+'</a>';
+  host.parentNode.insertBefore(div, host.nextSibling);
+}
+
+async function loadEmployes(salonId) {
+  const { data: employes } = await WAQQTI.supabase
+    .from('employes')
+    .select('*')
+    .eq('salon_id', salonId)
+    .eq('actif', true)
+    .order('ordre', { ascending: true });
+
+  const grid = document.querySelector('.employes-grid');
+  if (!grid) return;
+
+  // Garder seulement "Peu importe"
+  const items = grid.querySelectorAll('.employe-card');
+  for (let i = 1; i < items.length; i++) items[i].remove();
+
+  // Ajouter les vrais employés
+  (employes || []).forEach((emp, idx) => {
+    const colors = ['#F68423', '#4A6FE0', '#2D9E5F', '#9333EA', '#EC4899'];
+    const card = document.createElement('div');
+    card.className = 'employe-card';
+    card.dataset.emp = emp.id;
+    card.dataset.empName = `${emp.prenom || ''} ${emp.nom}`.trim();
+    card.innerHTML = `
+      <div class="emp-avatar" style="background:${emp.couleur || colors[idx % colors.length]}">${(emp.prenom || emp.nom).charAt(0).toUpperCase()}</div>
+      <div class="emp-name">${emp.prenom || emp.nom}</div>
+      <div class="emp-role">${emp.specialite || ''}</div>
+    `;
+    card.addEventListener('click', () => {
+      document.querySelectorAll('.employe-card').forEach(c => c.classList.remove('selected'));
+      card.classList.add('selected');
+      reservation.employeId = emp.id;
+      reservation.employeNom = card.dataset.empName;
+    });
+    grid.appendChild(card);
+  });
+
+  // Réattacher event sur "Peu importe"
+  const anyOne = grid.querySelector('[data-emp="0"]');
+  if (anyOne) {
+    anyOne.addEventListener('click', () => {
+      document.querySelectorAll('.employe-card').forEach(c => c.classList.remove('selected'));
+      anyOne.classList.add('selected');
+      reservation.employeId = null;
+      reservation.employeNom = null;
+    });
+  }
+}
+
+// ─── DATES ───
+function generateDates() {
+  const datesRow = document.getElementById('dates-row');
+  datesRow.innerHTML = '';
+  const today = new Date();
+  const days = ['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'];
+  const months = ['Jan','Fév','Mar','Avr','Mai','Juin','Juil','Août','Sep','Oct','Nov','Déc'];
+
+  const s0 = reservation.salon || {};
+  const fermes = s0.jours_fermes || [];
+  const dstr = d => d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+  const inFermeture = ds => !!s0.ferme_du && ds >= s0.ferme_du && (s0.ferme_au ? ds <= s0.ferme_au : ds === s0.ferme_du);
+
+  for (let i = 0; i < 14; i++) {
+    const date = new Date(today);
+    date.setDate(today.getDate() + i);
+    const card = document.createElement('div');
+    const isClosed = fermes.indexOf(date.getDay()) >= 0 || inFermeture(dstr(date));
+    card.className = 'date-card' + (isClosed ? ' closed' : '');
+    card.innerHTML = `
+      <div class="date-day">${days[date.getDay()]}</div>
+      <div class="date-num">${date.getDate()}</div>
+      <div class="date-month">${months[date.getMonth()]}</div>
+    `;
+    if (!isClosed) card.addEventListener('click', () => selectDate(card, date));
+    datesRow.appendChild(card);
+  }
+}
+
+async function selectDate(card, date) {
+  document.querySelectorAll('.date-card').forEach(c => c.classList.remove('selected'));
+  card.classList.add('selected');
+  const days = ['dimanche','lundi','mardi','mercredi','jeudi','vendredi','samedi'];
+  const months = ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
+  reservation.date = date.toISOString().slice(0,10);
+  reservation.dateLabel = `${days[date.getDay()]} ${date.getDate()} ${months[date.getMonth()]}`;
+  // Mode "à la journée" : pas d'heure à choisir
+  if (reservation.salon && reservation.salon.mode_reservation === 'journee') {
+    reservation.heure = '09:00';
+    document.getElementById('slots-section').style.display = 'none';
+    document.getElementById('recap-label').textContent = reservation.dateLabel;
+    document.getElementById('recap-value').textContent =
+      reservation.prestation + (reservation.employeNom ? ' · ' + reservation.employeNom : '');
+    document.getElementById('btn-next').disabled = false;
+    return;
+  }
+  await generateSlots();
+}
+
+async function generateSlots() {
+  document.getElementById('slots-section').style.display = 'block';
+  const morning = document.getElementById('slots-morning');
+  const afternoon = document.getElementById('slots-afternoon');
+  morning.innerHTML = '<div style="grid-column:span 4; color:var(--brun-l); font-size:12px">Chargement...</div>';
+  afternoon.innerHTML = '';
+
+  // Charger les RDV existants pour cette date
+  const startOfDay = new Date(reservation.date + 'T00:00:00').toISOString();
+  const endOfDay = new Date(reservation.date + 'T23:59:59').toISOString();
+
+  // Dispos via RPC sécurisée (n'expose pas les données client). Repli direct si besoin.
+  let existingRdvs = [];
+  const rpc = await WAQQTI.supabase.rpc('get_creneaux_pris', {
+    p_salon_id: reservation.salonId,
+    p_jour: reservation.date,
+    p_employe_id: reservation.employeId || null
+  });
+  if (!rpc.error && rpc.data) {
+    existingRdvs = rpc.data;
+  } else {
+    let query = WAQQTI.supabase
+      .from('reservations')
+      .select('date_rdv, duree_minutes, employe_id')
+      .eq('salon_id', reservation.salonId)
+      .gte('date_rdv', startOfDay)
+      .lte('date_rdv', endOfDay)
+      .not('statut', 'in', '(annule)');
+    if (reservation.employeId) query = query.eq('employe_id', reservation.employeId);
+    const res = await query;
+    existingRdvs = res.data || [];
+  }
+
+  // Créneaux possibles — générés selon les horaires du salon
+  const s = reservation.salon || {};
+  const t2m = (t) => { const p = String(t).split(':'); return (+p[0]) * 60 + (+p[1]); };
+  const m2t = (m) => { const h = Math.floor(m / 60), mm = m % 60; return (h < 10 ? '0' : '') + h + ':' + (mm < 10 ? '0' : '') + mm; };
+  const open = t2m(s.heure_ouverture || '09:00');
+  const close = t2m(s.heure_fermeture || '19:00');
+  const step = s.intervalle_creneaux || 30;
+  const pD = s.pause_debut ? t2m(s.pause_debut) : null;
+  const pF = s.pause_fin ? t2m(s.pause_fin) : null;
+  const dur = reservation.duree || 30;
+  const isToday = reservation.date === new Date().toISOString().slice(0, 10);
+  const nowMin = isToday ? (new Date().getHours() * 60 + new Date().getMinutes()) : -1;
+
+  const allSlots = [];
+  for (let t = open; t + dur <= close; t += step) {
+    if (pD != null && pF != null && t < pF && (t + dur) > pD) continue; // chevauche la pause
+    if (t <= nowMin) continue; // heure déjà passée aujourd'hui
+    allSlots.push(m2t(t));
+  }
+  const morningSlots = allSlots.filter(x => t2m(x) < 720);
+  const afternoonSlots = allSlots.filter(x => t2m(x) >= 720);
+
+  // Cacher les sections vides (ex : salon ouvert seulement l'après-midi)
+  if (morning.previousElementSibling) morning.previousElementSibling.style.display = morningSlots.length ? '' : 'none';
+  if (afternoon.previousElementSibling) afternoon.previousElementSibling.style.display = afternoonSlots.length ? '' : 'none';
+  if (!allSlots.length) {
+    morning.innerHTML = '<div style="grid-column:1/-1;color:var(--brun-l);font-size:13px">Aucun créneau disponible ce jour.</div>';
+    afternoon.innerHTML = '';
+    if (morning.previousElementSibling) morning.previousElementSibling.style.display = 'none';
+    return;
+  }
+
+  // Identifier les créneaux pris
+  const isSlotTaken = (slot) => {
+    const slotStart = new Date(`${reservation.date}T${slot}:00`);
+    const slotEnd = new Date(slotStart.getTime() + reservation.duree * 60000);
+    return (existingRdvs || []).some(r => {
+      const rStart = new Date(r.date_rdv);
+      const rEnd = new Date(rStart.getTime() + r.duree_minutes * 60000);
+      return slotStart < rEnd && slotEnd > rStart;
+    });
+  };
+
+  morning.innerHTML = '';
+  morningSlots.forEach(slot => {
+    const btn = document.createElement('button');
+    btn.className = 'slot-btn';
+    btn.textContent = slot;
+    btn.disabled = isSlotTaken(slot);
+    if (!btn.disabled) btn.addEventListener('click', () => selectSlot(btn, slot));
+    morning.appendChild(btn);
+  });
+
+  afternoonSlots.forEach(slot => {
+    const btn = document.createElement('button');
+    btn.className = 'slot-btn';
+    btn.textContent = slot;
+    btn.disabled = isSlotTaken(slot);
+    if (!btn.disabled) btn.addEventListener('click', () => selectSlot(btn, slot));
+    afternoon.appendChild(btn);
+  });
+}
+
+function selectSlot(btn, slot) {
+  document.querySelectorAll('.slot-btn').forEach(s => s.classList.remove('selected'));
+  btn.classList.add('selected');
+  reservation.heure = slot;
+  document.getElementById('recap-label').textContent = `${reservation.dateLabel} à ${slot}`;
+  document.getElementById('recap-value').textContent =
+    `${reservation.prestation}${reservation.employeNom ? ' · ' + reservation.employeNom : ''}`;
+  document.getElementById('btn-next').disabled = false;
+}
+
+// ─── NAVIGATION ───
+function goToStep(n) {
+  document.querySelectorAll('.step-content').forEach(s => s.classList.remove('active'));
+  document.getElementById('step-' + n).classList.add('active');
+  document.querySelectorAll('.step-item').forEach(s => {
+    const stepNum = parseInt(s.dataset.step);
+    s.classList.remove('active','done');
+    if (stepNum < n) s.classList.add('done');
+    if (stepNum === n) s.classList.add('active');
+  });
+  currentStep = n;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function nextStep() {
+  if (currentStep === 1) {
+    if (!reservation.prestation) return;
+    goToStep(2);
+    document.getElementById('btn-next').disabled = true;
+    document.getElementById('recap-label').textContent = T('book.step2','Date & heure');
+    document.getElementById('recap-value').textContent = T('book.a_selectionner','À sélectionner');
+  } else if (currentStep === 2) {
+    if (!reservation.date || !reservation.heure) return;
+    goToStep(3);
+    // Injecter le bloc acompte en tête de l'étape 3 (une seule fois)
+    const step3 = document.getElementById('step-3');
+    const oldAc = document.getElementById('acompte-info');
+    if (oldAc) oldAc.remove();
+    const oldLogin = document.getElementById('acompte-login');
+    if (oldLogin) oldLogin.remove();
+    if (reservation.acompteRequis) {
+      const wrap = document.createElement('div');
+      wrap.id = 'acompte-info';
+      wrap.innerHTML = acompteInfoHTML();
+      step3.insertBefore(wrap, step3.firstChild);
+      injectAcompteLoginBanner();
+    }
+    document.getElementById('btn-next').disabled = true;
+    document.getElementById('recap-label').textContent = T('book.step3','Coordonnées');
+    document.getElementById('recap-value').textContent = T('book.a_remplir','À remplir');
+    const nom = document.getElementById('client-nom');
+    const tel = document.getElementById('client-tel');
+    const check = () => {
+      document.getElementById('btn-next').disabled =
+        !(nom.value.trim() && tel.value.replace(/[^\d]/g,'').length >= 6);
+    };
+    nom.addEventListener('input', check);
+    tel.addEventListener('input', check);
+    document.getElementById('btn-next').textContent = T('book.confirmer_resa','Confirmer ma réservation ✓');
+  } else if (currentStep === 3) {
+    confirmReservation();
+  }
+}
+
+// ─── CONFIRMATION FINALE ───
+async function confirmReservation() {
+  const btn = document.getElementById('btn-next');
+  const originalText = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = T('book.enregistrement','⏳ Enregistrement...');
+
+  const nom = document.getElementById('client-nom').value.trim();
+  const tel = document.getElementById('client-tel').value.trim();
+  const telCode = (document.getElementById('client-tel-code') || {}).value || '+213';
+  // Numéro international : indicatif + numéro local (sans le 0 de tête)
+  const fullTel = (telCode === '+213')
+    ? WAQQTI.formatPhone(tel)
+    : (telCode + tel.replace(/[^\d]/g, '').replace(/^0+/, ''));
+  const note = document.getElementById('client-note').value.trim();
+  const dateRdv = `${reservation.date}T${reservation.heure}:00`;
+
+  // Rattacher au compte si le client est connecté (pour « Mes réservations »)
+  var _sess = await WAQQTI.supabase.auth.getSession();
+  var _uid = (_sess && _sess.data && _sess.data.session) ? _sess.data.session.user.id : null;
+
+  // Compte OBLIGATOIRE uniquement si la prestation demande un acompte
+  if (reservation.acompteRequis && !_uid) {
+    btn.disabled = false; btn.textContent = originalText;
+    injectAcompteLoginBanner();
+    alert(T('book.acompte_login_requis','Pour réserver avec un acompte, connectez-vous d\'abord (bouton « Se connecter »). Vos informations restent saisies ici.'));
+    return;
+  }
+
+  // Création via RPC : Kill Switch + anti-surbooking + calcul acompte côté serveur
+  const { data, error } = await WAQQTI.supabase.rpc('creer_reservation', {
+    p_salon_id: reservation.salonId,
+    p_prestation_id: reservation.prestationId,
+    p_prestation_nom: reservation.prestation,
+    p_duree: reservation.duree,
+    p_prix: reservation.prix,
+    p_client_nom: nom,
+    p_client_tel: fullTel,
+    p_date_rdv: dateRdv,
+    p_notes: note || null,
+    p_employe_id: reservation.employeId,
+    p_user_id: _uid,
+    p_email: ((document.getElementById('client-email')||{}).value||'').trim() || null,
+  });
+
+  if (error) {
+    alert('Erreur : ' + error.message);
+    btn.disabled = false;
+    btn.textContent = originalText;
+    return;
+  }
+
+  // data = ligne réservation (l'acompte réel est calculé par la base)
+  reservation.id = data.id;
+  reservation.acompteMontant = Number(data.acompte_montant || 0);
+  reservation.acompteRequis = data.acompte_statut === 'en_attente';
+  reservation.annulToken = data.annul_token || null;
+  saveResa(data.id, data.annul_token);   // mémorise la réservation + token d'annulation
+
+  goToStep(4);
+  document.getElementById('recap-bar').classList.remove('visible');
+  var cSalon=document.getElementById('confirm-salon');
+  if(cSalon) cSalon.textContent = (reservation.salon && reservation.salon.nom) || '';
+  document.getElementById('confirm-prest').textContent = reservation.prestation;
+  document.getElementById('confirm-date').textContent = reservation.dateLabel;
+  document.getElementById('confirm-heure').textContent =
+    (reservation.salon && reservation.salon.mode_reservation === 'journee') ? T('book.journee','Journée') : reservation.heure;
+  document.getElementById('confirm-emp').textContent = reservation.employeNom || T('booking.premier_dispo','Premier disponible');
+  document.getElementById('confirm-prix').textContent = reservation.prix.toLocaleString('fr') + ' DA';
+
+  updateStatusVisual(data.acompte_statut);
+  renderAcompteZone(data.acompte_statut, !!data.justificatif_url);
+  renderConfirmActions();
+  if (data.acompte_statut === 'en_attente') startStatusPolling();
+}
+
+// Ajoute (une seule fois) le bloc d'upload de la preuve de paiement en étape 4
+function renderUploadAcompte() {
+  const host = document.getElementById('upload-acompte');
+  if (!host) return;
+  if (!reservation.acompteRequis) { host.innerHTML = ''; return; }
+  const s = reservation.salon || {};
+  const rib = window.WAQQTI ? WAQQTI.ribLisible(s) : null;
+  host.innerHTML = `
+    <div class="confirm-detail" style="background:rgba(246,132,35,.07);border:1.5px solid var(--or)">
+      <div style="font-weight:700;margin-bottom:10px">💳 ${T('book.acompte_regler','Acompte à régler :')}
+        ${Number(reservation.acompteMontant).toLocaleString('fr')} DA</div>
+      ${rib ? `<div style="margin-bottom:6px"><strong>${T('book.payer_via','Payer via :')}</strong> <span dir="ltr">${rib}</span></div>` : ''}
+      ${s.rib_titulaire ? `<div style="margin-bottom:6px"><strong>${T('book.titulaire','Titulaire :')}</strong> ${s.rib_titulaire}</div>` : ''}
+      <p style="font-size:13px;color:var(--brun-l);margin:8px 0 12px">
+        ${T('book.apres_versement','Après le versement, ajoutez une photo/capture du reçu :')}</p>
+      <input type="file" id="justif-file" accept="image/*" capture="environment"
+        style="width:100%;font-size:13px;margin-bottom:10px">
+      <button class="btn-next" id="justif-send" style="width:100%;justify-content:center">
+        ${T('book.envoyer_recu','📤 Envoyer le reçu')}</button>
+      <div id="justif-status" style="font-size:13px;margin-top:10px;text-align:center"></div>
+    </div>`;
+  const fileInput = document.getElementById('justif-file');
+  const sendBtn = document.getElementById('justif-send');
+  const status = document.getElementById('justif-status');
+  sendBtn.addEventListener('click', async () => {
+    const f = fileInput.files && fileInput.files[0];
+    if (!f) { status.textContent = T('book.choisir_image','⚠️ Choisissez d\'abord une image.'); return; }
+    sendBtn.disabled = true; sendBtn.textContent = T('book.envoi','⏳ Envoi...');
+    const r = await WAQQTI.uploadJustificatif(reservation.salonId, reservation.id, f);
+    if (r.ok) {
+      status.style.color = 'var(--green)';
+      status.textContent = T('book.recu_ok','✅ Reçu envoyé ! Le salon va vérifier votre acompte.');
+      sendBtn.textContent = T('book.recu_envoye','✓ Reçu envoyé');
+    } else {
+      status.style.color = 'var(--red)';
+      status.textContent = '❌ ' + (r.error || 'Échec de l\'envoi.');
+      sendBtn.disabled = false; sendBtn.textContent = T('book.reessayer','📤 Réessayer');
+    }
+  });
+}
+
+// Init
+generateDates();
+window.addEventListener('load', async () => {
+  await new Promise(r => setTimeout(r, 300));
+  if (window.WAQQTI) initSalon();
+});
+document.getElementById('btn-next').disabled = true;
 </script>
 </body>
 </html>
