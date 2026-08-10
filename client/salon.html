@@ -20,23 +20,9 @@
       --green:#2D9E5F; --red:#E0454C;
       --sh:0 4px 30px rgba(246,132,35,.15);
       --sh-lg:0 12px 50px rgba(246,132,35,.22);
-      --ease:cubic-bezier(.22,.9,.32,1);
-      --r-lg:22px; --r-md:16px; --r-sm:12px;
     }
     *,*::before,*::after { box-sizing:border-box; margin:0; padding:0 }
-    html { scroll-behavior:smooth }
-    body {
-      font-family:'DM Sans',sans-serif; background:var(--cream); color:var(--brun);
-      min-height:100vh; padding-bottom:120px;
-    }
-    /* Fond décoratif très discret (n'entrave rien, pointer-events off) */
-    body::before {
-      content:''; position:fixed; inset:0; z-index:0; pointer-events:none;
-      background:
-        radial-gradient(520px 520px at 88% -6%, rgba(246,132,35,.08), transparent 70%),
-        radial-gradient(480px 480px at -8% 108%, rgba(246,132,35,.06), transparent 70%);
-    }
-    :focus-visible { outline:2.5px solid var(--or-dk); outline-offset:3px; border-radius:6px }
+    body { font-family:'DM Sans',sans-serif; background:var(--cream); color:var(--brun); min-height:100vh; padding-bottom:120px }
 
     /* ── HEADER SALON ── */
     .header {
@@ -45,52 +31,32 @@
       color:#fff;
       position:relative;
       overflow:hidden;
-      background-size:180% 180%;
-      animation:hdrShift 16s ease-in-out infinite;
     }
-    @keyframes hdrShift { 0%,100%{background-position:0% 50%} 50%{background-position:100% 50%} }
-    /* Orbes lumineux flottants dans le header */
-    .header::after {
-      content:''; position:absolute; top:-120px; right:-80px;
-      width:360px; height:360px; border-radius:50%;
-      background:radial-gradient(circle, rgba(255,255,255,.22), transparent 68%);
-      pointer-events:none; animation:hdrOrb 12s ease-in-out infinite;
-    }
-    @keyframes hdrOrb { 0%,100%{transform:translate(0,0) scale(1)} 50%{transform:translate(-30px,26px) scale(1.12)} }
     .header::before {
       content:''; position:absolute; bottom:-1px; left:0; right:0; height:30px;
-      background:var(--cream); z-index:1;
+      background:var(--cream);
       clip-path:polygon(0 100%, 100% 100%, 100% 0, 0 70%);
     }
     .top-bar {
-      max-width:900px; margin:0 auto; position:relative; z-index:2;
+      max-width:900px; margin:0 auto;
       display:flex; align-items:center; justify-content:space-between;
       font-size:13px;
     }
-    .top-bar a { color:rgba(255,255,255,.85); text-decoration:none; display:flex; align-items:center; gap:6px; transition:color .2s, transform .2s var(--ease) }
-    .top-bar a:hover { color:#fff; transform:translateY(-1px) }
+    .top-bar a { color:rgba(255,255,255,.85); text-decoration:none; display:flex; align-items:center; gap:6px }
+    .top-bar a:hover { color:#fff }
     .salon-hero {
-      max-width:900px; margin:32px auto 0; position:relative; z-index:2;
+      max-width:900px; margin:32px auto 0;
       display:flex; align-items:center; gap:24px;
-      animation:heroUp .6s var(--ease) both;
     }
-    @keyframes heroUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:none} }
     .salon-avatar {
       width:90px; height:90px; border-radius:24px;
       background:#fff;
       display:flex; align-items:center; justify-content:center;
       font-family:'Cormorant Garamond',serif; font-size:42px;
       font-weight:700; color:var(--or);
-      box-shadow:0 8px 24px rgba(0,0,0,.15), 0 0 0 0 rgba(255,255,255,.5);
-      flex-shrink:0; position:relative;
-      transition:transform .3s var(--ease);
-      animation:avatarGlow 3.2s ease-in-out infinite;
+      box-shadow:0 8px 24px rgba(0,0,0,.15);
+      flex-shrink:0;
     }
-    @keyframes avatarGlow {
-      0%,100% { box-shadow:0 8px 24px rgba(0,0,0,.15), 0 0 0 0 rgba(255,255,255,0) }
-      50%     { box-shadow:0 8px 30px rgba(0,0,0,.18), 0 0 26px 3px rgba(255,255,255,.35) }
-    }
-    .salon-avatar:hover { transform:scale(1.05) rotate(-3deg) }
     .salon-info h1 {
       font-family:'Cormorant Garamond',serif;
       font-size:36px; font-weight:700;
@@ -103,19 +69,13 @@
       background:rgba(255,255,255,.2); padding:5px 14px;
       border-radius:50px; font-size:12px; font-weight:500;
       margin-top:8px; backdrop-filter:blur(8px);
-      border:1px solid rgba(255,255,255,.25);
     }
     .open-pill .dot {
-      position:relative; width:7px; height:7px; border-radius:50%;
+      width:7px; height:7px; border-radius:50%;
       background:#3eea90;
       animation:pulse 2s infinite;
     }
-    .open-pill .dot::before {
-      content:''; position:absolute; inset:-4px; border-radius:50%;
-      border:1.5px solid #3eea90; opacity:0; animation:ping 2s ease-out infinite;
-    }
     @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
-    @keyframes ping { 0%{transform:scale(.6);opacity:.7} 100%{transform:scale(2.6);opacity:0} }
 
     /* ── CONTAINER ── */
     .container { max-width:900px; margin:-40px auto 0; padding:0 5%; position:relative; z-index:2 }
@@ -125,7 +85,6 @@
       background:#fff; border-radius:20px; padding:18px 24px;
       box-shadow:var(--sh); margin-bottom:24px;
       display:flex; align-items:center; justify-content:space-between; gap:12px;
-      position:relative; overflow:hidden;
     }
     .step-item {
       display:flex; align-items:center; gap:10px;
@@ -136,29 +95,21 @@
       background:var(--cream2); color:var(--brun-l);
       display:flex; align-items:center; justify-content:center;
       font-weight:600; font-size:13px; flex-shrink:0;
-      transition:all .35s var(--ease);
+      transition:all .3s;
     }
-    .step-item.active .step-num {
-      background:var(--or); color:#fff;
-      transform:scale(1.12);
-      box-shadow:0 4px 14px rgba(246,132,35,.4);
-    }
+    .step-item.active .step-num { background:var(--or); color:#fff }
     .step-item.done .step-num { background:var(--green); color:#fff }
     .step-item.done .step-num::before { content:'✓'; }
     .step-item.done .step-num span { display:none }
     .step-item.active .step-label { color:var(--or); font-weight:600 }
-    .step-label { transition:color .3s var(--ease) }
-    .step-arrow { color:var(--brun-l); opacity:.3; transition:opacity .3s }
+    .step-arrow { color:var(--brun-l); opacity:.3 }
 
     /* ── CARD ── */
     .card {
       background:#fff; border-radius:20px;
       padding:28px; margin-bottom:20px;
       box-shadow:var(--sh);
-      position:relative;
-      transition:box-shadow .35s var(--ease), transform .35s var(--ease);
     }
-    .card:hover { box-shadow:var(--sh-lg) }
     .card-title {
       font-family:'Cormorant Garamond',serif;
       font-size:24px; font-weight:700;
@@ -171,37 +122,22 @@
       font-size:11px; font-weight:600; letter-spacing:2px;
       color:var(--or); text-transform:uppercase;
       margin:24px 0 12px;
-      display:flex; align-items:center; gap:10px;
-    }
-    .prest-categ::after {
-      content:''; flex:1; height:1px;
-      background:linear-gradient(90deg, rgba(246,132,35,.35), transparent);
     }
     .prest-categ:first-child { margin-top:0 }
     .prest-item {
       display:flex; align-items:center; justify-content:space-between;
       padding:16px; border:1.5px solid var(--cream2);
       border-radius:14px; margin-bottom:10px;
-      cursor:pointer; transition:all .22s var(--ease);
-      position:relative; overflow:hidden;
-    }
-    /* Accent latéral qui se déploie */
-    .prest-item::before {
-      content:''; position:absolute; left:0; top:0; bottom:0; width:4px;
-      background:var(--or); transform:scaleY(0); transform-origin:center;
-      transition:transform .25s var(--ease);
+      cursor:pointer; transition:all .2s;
     }
     .prest-item:hover {
       border-color:var(--or-lt);
       background:rgba(246,132,35,.03);
-      transform:translateX(3px);
     }
-    .prest-item:hover::before { transform:scaleY(.55) }
     .prest-item.selected {
       border-color:var(--or); background:rgba(246,132,35,.07);
       box-shadow:0 4px 16px rgba(246,132,35,.15);
     }
-    .prest-item.selected::before { transform:scaleY(1) }
     .prest-info { flex:1 }
     .prest-name { font-weight:600; font-size:15px; margin-bottom:3px; color:var(--brun) }
     .prest-duration { font-size:12px; color:var(--brun-l) }
@@ -219,21 +155,12 @@
     .employe-card {
       padding:18px; border:1.5px solid var(--cream2);
       border-radius:14px; text-align:center;
-      cursor:pointer; transition:all .22s var(--ease);
-      position:relative; overflow:hidden;
+      cursor:pointer; transition:all .2s;
     }
-    .employe-card::after {
-      content:''; position:absolute; inset:0; z-index:0;
-      background:linear-gradient(120deg, transparent 40%, rgba(246,132,35,.12) 50%, transparent 60%);
-      transform:translateX(-130%); transition:transform .7s var(--ease);
-    }
-    .employe-card:hover { border-color:var(--or-lt); transform:translateY(-3px); box-shadow:0 8px 20px rgba(246,132,35,.14) }
-    .employe-card:hover::after { transform:translateX(130%) }
+    .employe-card:hover { border-color:var(--or-lt); transform:translateY(-2px) }
     .employe-card.selected {
       border-color:var(--or); background:rgba(246,132,35,.07);
-      box-shadow:0 4px 16px rgba(246,132,35,.15);
     }
-    .employe-card > * { position:relative; z-index:1 }
     .emp-avatar {
       width:50px; height:50px; border-radius:50%;
       background:var(--or); color:#fff;
@@ -241,9 +168,7 @@
       font-family:'Cormorant Garamond',serif;
       font-size:22px; font-weight:700;
       margin:0 auto 10px;
-      transition:transform .25s var(--ease);
     }
-    .employe-card:hover .emp-avatar { transform:scale(1.08) }
     .emp-name { font-weight:600; font-size:14px; margin-bottom:2px }
     .emp-role { font-size:11px; color:var(--brun-l) }
 
@@ -266,14 +191,13 @@
     .date-card {
       min-width:74px; padding:12px 8px;
       border:1.5px solid var(--cream2); border-radius:14px;
-      text-align:center; cursor:pointer; transition:all .22s var(--ease);
+      text-align:center; cursor:pointer; transition:all .2s;
       background:#fff; flex-shrink:0;
     }
-    .date-card:hover:not(.closed) { border-color:var(--or-lt); transform:translateY(-2px); box-shadow:0 6px 16px rgba(246,132,35,.16) }
+    .date-card:hover:not(.closed) { border-color:var(--or-lt) }
     .date-card.selected {
       background:var(--or); color:#fff; border-color:var(--or);
       box-shadow:0 4px 14px rgba(246,132,35,.3);
-      transform:translateY(-2px);
     }
     .date-card.closed { opacity:.35; cursor:not-allowed; background:var(--cream2) }
     .date-day { font-size:11px; text-transform:uppercase; letter-spacing:.5px; opacity:.7 }
@@ -297,15 +221,13 @@
       padding:11px 6px; text-align:center;
       background:#fff; border:1.5px solid var(--cream2);
       border-radius:10px; font-size:14px; font-weight:600;
-      color:var(--brun); cursor:pointer; transition:all .18s var(--ease);
+      color:var(--brun); cursor:pointer; transition:all .15s;
       font-family:'DM Sans',sans-serif;
     }
-    .slot-btn:hover:not(:disabled) { border-color:var(--or); color:var(--or); transform:translateY(-2px); box-shadow:0 4px 12px rgba(246,132,35,.18) }
-    .slot-btn:active:not(:disabled) { transform:scale(.94) }
+    .slot-btn:hover:not(:disabled) { border-color:var(--or); color:var(--or) }
     .slot-btn.selected {
       background:var(--or); color:#fff; border-color:var(--or);
       transform:scale(1.03);
-      box-shadow:0 4px 14px rgba(246,132,35,.35);
     }
     .slot-btn:disabled {
       background:var(--cream2); color:#ccc;
@@ -323,23 +245,21 @@
       width:100%; padding:13px 16px;
       border:1.5px solid var(--cream2); border-radius:12px;
       font-size:15px; font-family:inherit;
-      background:#fff; color:var(--brun); transition:all .22s var(--ease);
+      background:#fff; color:var(--brun); transition:all .2s;
     }
     .form-row input:focus,
     .form-row textarea:focus {
       outline:none; border-color:var(--or);
       box-shadow:0 0 0 4px rgba(246,132,35,.1);
-      transform:translateY(-1px);
     }
     .form-row .hint { font-size:11px; color:var(--brun-l); margin-top:5px }
 
     /* ── BARRE RÉCAP FIXE EN BAS ── */
     .recap-bar {
       position:fixed; bottom:0; left:0; right:0; z-index:50;
-      background:rgba(255,255,255,.92); backdrop-filter:blur(14px);
-      border-top:1px solid var(--cream2);
+      background:#fff; border-top:1px solid var(--cream2);
       padding:14px 5%; box-shadow:0 -8px 30px rgba(0,0,0,.06);
-      transform:translateY(100%); transition:transform .35s var(--ease);
+      transform:translateY(100%); transition:transform .3s;
     }
     .recap-bar.visible { transform:translateY(0) }
     .recap-inner {
@@ -353,19 +273,11 @@
       background:var(--or); color:#fff;
       padding:14px 28px; border-radius:50px;
       font-size:15px; font-weight:600;
-      border:none; cursor:pointer; transition:all .22s var(--ease);
+      border:none; cursor:pointer; transition:all .2s;
       box-shadow:0 4px 16px rgba(246,132,35,.35);
       display:flex; align-items:center; gap:8px;
-      position:relative; overflow:hidden; isolation:isolate;
     }
-    .btn-next::before {
-      content:''; position:absolute; inset:0; z-index:-1;
-      background:linear-gradient(115deg, transparent 35%, rgba(255,255,255,.4) 50%, transparent 65%);
-      transform:translateX(-130%); transition:transform .6s var(--ease);
-    }
-    .btn-next:hover:not(:disabled) { background:var(--or-dk); transform:translateY(-2px); box-shadow:0 8px 24px rgba(246,132,35,.45) }
-    .btn-next:hover:not(:disabled)::before { transform:translateX(130%) }
-    .btn-next:active:not(:disabled) { transform:scale(.97) }
+    .btn-next:hover { background:var(--or-dk); transform:translateY(-1px) }
     .btn-next:disabled { opacity:.5; cursor:not-allowed; transform:none }
 
     /* ── CONFIRMATION ── */
@@ -378,13 +290,7 @@
       display:flex; align-items:center; justify-content:center;
       font-size:46px; margin:0 auto 24px;
       animation:bounce .6s ease;
-      position:relative;
     }
-    .confirm-icon::before {
-      content:''; position:absolute; inset:-8px; border-radius:50%;
-      border:2px solid var(--green); opacity:0; animation:confirmRing 1.6s ease-out .3s infinite;
-    }
-    @keyframes confirmRing { 0%{transform:scale(.85);opacity:.7} 100%{transform:scale(1.5);opacity:0} }
     @keyframes bounce {
       0% { transform:scale(0); opacity:0 }
       60% { transform:scale(1.15) }
@@ -413,10 +319,10 @@
     .waqqti-footer a { color:var(--or); text-decoration:none; font-weight:600 }
 
     /* ── ANIMATIONS ── */
-    .step-content { display:none; animation:fadeIn .4s var(--ease) }
+    .step-content { display:none; animation:fadeIn .35s ease }
     .step-content.active { display:block }
     @keyframes fadeIn {
-      from { opacity:0; transform:translateY(12px) }
+      from { opacity:0; transform:translateY(10px) }
       to { opacity:1; transform:translateY(0) }
     }
 
@@ -434,18 +340,6 @@
       .recap-inner { flex-direction:column; gap:10px }
       .recap-info { width:100%; text-align:center }
       .btn-next { width:100%; justify-content:center }
-    }
-
-    /* Accessibilité : coupe les animations si demandé au niveau système */
-    @media (prefers-reduced-motion: reduce) {
-      html { scroll-behavior:auto }
-      .header, .header::after, .salon-avatar, .salon-hero,
-      .open-pill .dot, .open-pill .dot::before,
-      .confirm-icon::before, .prest-item, .employe-card::after,
-      .btn-next::before {
-        animation:none !important;
-      }
-      *, *::before, *::after { transition-duration:.01ms !important }
     }
   </style>
 </head>
@@ -621,11 +515,16 @@
       </div>
     </div>
 
-    <!-- LISTE D'ATTENTE -->
+    <!-- LISTE D'ATTENTE (repliable) -->
     <div class="card" id="attente-card">
-      <h2 class="card-title" data-i18n="book.liste_titre">Complet ou aucun créneau qui vous convient ?</h2>
-      <p class="card-sub" data-i18n="book.liste_sub">Laissez vos coordonnées : le salon vous prévient dès qu'une place se libère.</p>
-      <div id="attente-zone"></div>
+      <h2 class="card-title" onclick="toggleAttente()" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:10px;margin:0">
+        <span data-i18n="book.liste_titre">Complet ou aucun créneau qui vous convient ?</span>
+        <span id="attente-chevron" style="font-size:16px;color:var(--or);transition:.2s;flex-shrink:0">▾</span>
+      </h2>
+      <div id="attente-body" style="display:none">
+        <p class="card-sub" data-i18n="book.liste_sub" style="margin-top:8px">Laissez vos coordonnées : le salon vous prévient dès qu'une place se libère.</p>
+        <div id="attente-zone"></div>
+      </div>
     </div>
   </div>
 
@@ -907,6 +806,7 @@ async function initSalon() {
 
   // Afficher header salon
   document.querySelector('.salon-info h1').textContent = salon.nom;
+  document.title = salon.nom + ' — Réservation Waqqti';
   const meta = document.querySelector('.salon-meta');
   const hOuv = (salon.heure_ouverture || '09:00').slice(0,5).replace(':','h');
   const hFer = (salon.heure_fermeture || '19:00').slice(0,5).replace(':','h');
@@ -1042,7 +942,7 @@ function starHtml(n){ n=Math.round(Number(n)||0); var s=''; for(var i=1;i<=5;i++
 
 async function loadAvis(salon){
   const sec=document.getElementById('avis-section'); if(!sec) return;
-  sec.style.display='block';
+  sec.style.display = (currentStep===4 ? 'block' : 'none');   // avis uniquement à la fin
   const resume=document.getElementById('avis-resume');
   const listEl=document.getElementById('avis-list');
   if(salon.nb_avis>0){
@@ -1172,13 +1072,20 @@ async function renderAbout(salon){
 function esc2(s){ return escHtml(s); }
 
 /* ═══════════ LISTE D'ATTENTE ═══════════ */
+function toggleAttente(){
+  var b=document.getElementById('attente-body'), c=document.getElementById('attente-chevron');
+  if(!b) return;
+  var open=b.style.display!=='none';
+  b.style.display=open?'none':'block';
+  if(c) c.style.transform=open?'rotate(0deg)':'rotate(180deg)';
+}
 async function buildAttenteForm(){
   var zone=document.getElementById('attente-zone'); if(!zone) return;
   var email='';
   try{ var s=await WAQQTI.supabase.auth.getSession(); if(s&&s.data&&s.data.session) email=s.data.session.user.email||''; }catch(e){}
   var inp='width:100%;padding:12px 14px;border:1.5px solid var(--cream2);border-radius:12px;font-size:15px;font-family:inherit';
   zone.innerHTML=
-    '<div class="form-row"><label>'+T('book.nom_label','Nom complet')+' *</label><input type="text" id="att-nom" style="'+inp+'" placeholder="'+T('book.liste_nom_ph','Ex : Amina K.')+'"></div>'+
+    '<div class="form-row"><label>'+T('book.nom_label','Nom complet *')+'</label><input type="text" id="att-nom" style="'+inp+'" placeholder="'+T('book.liste_nom_ph','Ex : Amina K.')+'"></div>'+
     '<div class="form-row" style="margin-top:10px"><label>'+T('book.liste_email','E-mail')+' *</label><input type="email" id="att-email" dir="ltr" style="'+inp+'" value="'+escHtml(email)+'" placeholder="vous@email.com"></div>'+
     '<div class="form-row" style="margin-top:10px"><label>'+T('book.liste_tel','Téléphone (optionnel)')+'</label><input type="tel" id="att-tel" dir="ltr" style="'+inp+'" placeholder="0770 12 34 56"></div>'+
     '<div class="form-grid" style="display:flex;gap:10px;margin-top:10px;flex-wrap:wrap">'+
@@ -1417,7 +1324,8 @@ async function selectDate(card, date) {
   card.classList.add('selected');
   const days = ['dimanche','lundi','mardi','mercredi','jeudi','vendredi','samedi'];
   const months = ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
-  reservation.date = date.toISOString().slice(0,10);
+  // Date LOCALE (pas UTC) : évite tout décalage de jour
+  reservation.date = date.getFullYear()+'-'+String(date.getMonth()+1).padStart(2,'0')+'-'+String(date.getDate()).padStart(2,'0');
   reservation.dateLabel = `${days[date.getDay()]} ${date.getDate()} ${months[date.getMonth()]}`;
   // Mode "à la journée" : pas d'heure à choisir
   if (reservation.salon && reservation.salon.mode_reservation === 'journee') {
@@ -1549,6 +1457,9 @@ function goToStep(n) {
     if (stepNum === n) s.classList.add('active');
   });
   currentStep = n;
+  // Galerie + à-propos : sur l'accueil (étape 1). Avis : seulement à la confirmation (étape 4).
+  ['salon-gallery','salon-about'].forEach(function(id){ var el=document.getElementById(id); if(el) el.style.display=(n===1?'block':'none'); });
+  var av=document.getElementById('avis-section'); if(av) av.style.display=(n===4?'block':'none');
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
@@ -1607,7 +1518,8 @@ async function confirmReservation() {
     ? WAQQTI.formatPhone(tel)
     : (telCode + tel.replace(/[^\d]/g, '').replace(/^0+/, ''));
   const note = document.getElementById('client-note').value.trim();
-  const dateRdv = `${reservation.date}T${reservation.heure}:00`;
+  // Heure d'Algérie (UTC+1, pas de changement d'heure) → stockage non ambigu
+  const dateRdv = `${reservation.date}T${reservation.heure}:00+01:00`;
 
   // Rattacher au compte si le client est connecté (pour « Mes réservations »)
   var _sess = await WAQQTI.supabase.auth.getSession();
