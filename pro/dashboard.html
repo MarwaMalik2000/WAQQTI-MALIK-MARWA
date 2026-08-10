@@ -41,7 +41,6 @@
     ::-webkit-scrollbar{height:8px;width:8px}
     ::-webkit-scrollbar-thumb{background:rgba(246,132,35,.35);border-radius:8px}
     ::-webkit-scrollbar-thumb:hover{background:rgba(246,132,35,.55)}
-
     /* ── LOGIN ── */
     #login{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;
       background:
@@ -84,7 +83,6 @@
     .btn-ghost:hover:not(:disabled){background:var(--cream2);transform:none;box-shadow:none}
     .btn-sm{padding:8px 15px;font-size:13px}
     .err{color:var(--red);font-size:13px;margin-top:10px;min-height:16px;text-align:center}
-
     /* ── APP LAYOUT ── */
     #app{display:grid;grid-template-columns:248px 1fr;min-height:100vh}
     .sidebar{background:linear-gradient(180deg,var(--brun-d),var(--brun));background-color:var(--brun-d);color:#fff;padding:26px 16px;display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow-y:auto;box-shadow:inset -1px 0 0 rgba(255,255,255,.06)}
@@ -142,7 +140,6 @@
     .toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
     .empty{text-align:center;color:var(--brun-l);padding:40px 20px;font-size:15px}
     .card h3{color:var(--brun)}
-
     /* ── KILL SWITCH OVERLAY ── */
     #killswitch{position:fixed;inset:0;z-index:9998;background:rgba(44,26,14,.94);-webkit-backdrop-filter:blur(9px);backdrop-filter:blur(9px);
       display:flex;align-items:center;justify-content:center;padding:24px;animation:ksFade .4s var(--ease-out) both}
@@ -156,7 +153,6 @@
     @keyframes ksPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
     .ks-card h2{font-size:32px;letter-spacing:-.02em;color:var(--brun);margin-bottom:10px}
     .ks-card p{color:var(--brun-l);font-size:15px;line-height:1.65;margin-bottom:24px}
-
     @media(max-width:820px){
       #app{grid-template-columns:1fr}
       .sidebar{flex-direction:row;align-items:center;overflow-x:auto;position:sticky;top:0;height:auto;z-index:10;padding:10px 12px;gap:6px}
@@ -171,7 +167,6 @@
       .page-head h1{font-size:30px}
       .field-grid{grid-template-columns:1fr}
     }
-
     /* Accessibilité : coupe les animations si demandé au niveau système */
     @media (prefers-reduced-motion: reduce){
       html{scroll-behavior:auto}
@@ -267,6 +262,11 @@ function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){
 // Prix isolé en LTR (évite l'inversion des chiffres en arabe)
 function fmtPrix(n){ var v = window.WAQQTI ? WAQQTI.formatPrix(n) : (n+' DA'); return '<bdi dir="ltr">'+v+'</bdi>'; }
 function fmtPrixP(p){ return (p.prix_max!=null && Number(p.prix_max)>Number(p.prix)) ? (fmtPrix(p.prix)+' – '+fmtPrix(p.prix_max)) : fmtPrix(p.prix); }
+// Dates/heures TOUJOURS en heure d'Algérie (peu importe le fuseau du gérant)
+var TZ='Africa/Algiers';
+function algJour(iso){ return new Date(iso).toLocaleDateString('en-CA',{timeZone:TZ}); }       // YYYY-MM-DD
+function algHeure(iso){ return new Date(iso).toLocaleTimeString('fr-FR',{timeZone:TZ,hour:'2-digit',minute:'2-digit'}); }
+function algDate(iso){ return new Date(iso).toLocaleDateString('fr-FR',{timeZone:TZ}); }
 // Enveloppe LTR générique (heures, dates, téléphones)
 function ltr(s){ return '<bdi dir="ltr">'+s+'</bdi>'; }
 function T(k, fr){ if(window.WQ && WQ.t){ var v=WQ.t(k); if(v && v!==k) return v; } return fr; }
@@ -290,7 +290,11 @@ function bindStatic(){
     el.addEventListener('click', function(){ switchView(el.dataset.view); });
   });
   // Re-rendre la vue courante quand la langue change (contenu généré en JS)
-  document.addEventListener('wq:langchange', function(){ if(STATE.salon) switchView(STATE.view); });
+  document.addEventListener('wq:langchange', function(){
+    if(STATE.salon){ switchView(STATE.view); if(STATE.acces) renderTrialPill(STATE.acces); }
+    majToggleLangue();
+  });
+  majToggleLangue();
 }
 
 /* ---- Auth (email + mot de passe uniquement — comptes créés par Waqqti) ---- */
@@ -332,6 +336,7 @@ async function onLogin(user){
 
   // KILL SWITCH — double verrou : ici + RLS côté base
   var acces = await WAQQTI.verifierAcces(r.data);
+  STATE.acces = acces;
   renderTrialPill(acces);
   if(!acces.actif){ $('killswitch').classList.remove('hidden'); return; }
 
@@ -339,6 +344,10 @@ async function onLogin(user){
   majBadgeAcomptes();
 }
 
+function majToggleLangue(){
+  var tb=document.querySelector('[data-lang-toggle]');
+  if(tb) tb.textContent=(document.documentElement.getAttribute('dir')==='rtl')?'Français':'العربية';
+}
 function renderTrialPill(acces){
   var el=$('trial-pill');
   if(STATE.salon.formule==='trial' && acces.jours_restants!=null){
@@ -400,15 +409,15 @@ function showMois(y,m){
 async function loadMois(y,m){
   var body=$('agenda-body'); if(!body) return;
   body.innerHTML='<div class="empty">'+T('common.chargement','Chargement…')+'</div>';
-  var start=new Date(y,m,1).toISOString().slice(0,10)+'T00:00:00';
-  var end=new Date(y,m+1,0).toISOString().slice(0,10)+'T23:59:59';
+  var start=new Date(y,m,1).toISOString().slice(0,10)+'T00:00:00+01:00';
+  var end=new Date(y,m+1,0).toISOString().slice(0,10)+'T23:59:59+01:00';
   var r=await sb().from('reservations').select('date_rdv,prix,statut')
     .eq('salon_id',STATE.salon.id).gte('date_rdv',start).lte('date_rdv',end);
   if(r.error){ body.innerHTML='<div class="card empty">Erreur : '+esc(r.error.message)+'</div>'; return; }
   var byDay={};
   (r.data||[]).forEach(function(x){
     if(x.statut==='annule') return;
-    var d=new Date(x.date_rdv).getDate();
+    var d=parseInt(algJour(x.date_rdv).slice(8,10),10);
     if(!byDay[d]) byDay[d]={n:0,ca:0};
     byDay[d].n++; byDay[d].ca+=Number(x.prix||0);
   });
@@ -441,7 +450,7 @@ async function loadMois(y,m){
 }
 async function loadAgenda(jour){
   var body=$('agenda-body'); if(!body) return;
-  var start=jour+'T00:00:00', end=jour+'T23:59:59';
+  var start=jour+'T00:00:00+01:00', end=jour+'T23:59:59+01:00';
   var r = await sb().from('reservations').select('*')
     .eq('salon_id', STATE.salon.id)
     .gte('date_rdv', start).lte('date_rdv', end)
@@ -456,7 +465,7 @@ async function loadAgenda(jour){
     '<div class="stat"><div class="v">'+list.filter(function(x){return x.statut==='annule';}).length+'</div><div class="l">'+T('pro.annules','Annulés')+'</div></div></div>';
   if(!list.length){ body.innerHTML=head+'<div class="card empty">'+T('pro.aucun_rdv','Aucun rendez-vous ce jour.')+'</div>'; return; }
   var rows=list.map(function(x){
-    var h=new Date(x.date_rdv).toTimeString().slice(0,5);
+    var h=algHeure(x.date_rdv);
     var st=x.statut==='annule'?'<span class="pill red">'+T('pro.st_annule','Annulé')+'</span>'
          :x.statut==='termine'?'<span class="pill gray">'+T('pro.st_termine','Terminé')+'</span>'
          :'<span class="pill green">'+T('pro.st_confirme','Confirmé')+'</span>';
@@ -515,7 +524,6 @@ async function loadAcomptes(filtre){
   var list=r.data||[];
   if(!list.length){ body.innerHTML='<div class="card empty">'+T('pro.aucun_acompte','Aucun acompte à vérifier.')+'</div>'; return; }
   var rows=list.map(function(x){
-    var d=new Date(x.date_rdv);
     var st=x.acompte_statut==='recu'?'<span class="pill green">'+T('pro.ac_valide','Validé')+'</span>'
          :x.acompte_statut==='refuse'?'<span class="pill red">'+T('pro.ac_refuse','refusé')+'</span>'
          :'<span class="pill or">'+T('pro.filtre_verifier','À vérifier')+'</span>';
@@ -526,8 +534,8 @@ async function loadAcomptes(filtre){
     var justif=x.justificatif_url
       ? '<button class="btn btn-ghost btn-sm" onclick="voirJustif(\''+esc(x.justificatif_url)+'\')">'+T('pro.voir_recu','🖼 Voir le reçu')+'</button>'
       : '<span class="muted">'+T('pro.aucun_recu','Aucun reçu reçu')+'</span>';
-    return '<tr><td><b>'+ltr(d.toLocaleDateString('fr-FR'))+'</b><div class="muted">'+
-        ltr(d.toTimeString().slice(0,5))+'</div></td>'+
+    return '<tr><td><b>'+ltr(algDate(x.date_rdv))+'</b><div class="muted">'+
+        ltr(algHeure(x.date_rdv))+'</div></td>'+
       '<td>'+esc(x.client_nom)+'<div class="muted" dir="ltr">'+esc(x.client_telephone||'')+'</div></td>'+
       '<td>'+esc(x.prestation_nom||'—')+'</td>'+
       '<td><b>'+fmtPrix(x.acompte_montant)+'</b></td>'+
@@ -630,7 +638,7 @@ function formPrestation(p){
   var main=$('main');
   main.innerHTML='<div class="page-head"><h1>'+(isEdit?T('pro.modifier_prestation','Modifier prestation'):T('pro.nouvelle_prestation','Nouvelle prestation'))+'</h1>'+
     '<button class="btn btn-ghost" onclick="viewPrestations()">'+T('pro.retour','← Retour')+'</button></div>'+
-    '<div class="card" style="max-width:560px">'+
+    '<div class="card" style="max-width:760px">'+
     '<div class="field"><label>'+T('pro.th_nom','Nom')+' *</label><input class="inp" id="p-nom" value="'+esc(p.nom||'')+'"></div>'+
     '<div class="field-grid">'+
     '<div class="field"><label>'+T('pro.f_categorie','Catégorie')+'</label><input class="inp" id="p-cat" value="'+esc(p.categorie||'Général')+'"></div>'+
@@ -739,7 +747,7 @@ function formEmploye(e){
   e=e||{}; var main=$('main');
   main.innerHTML='<div class="page-head"><h1>'+(e.id?T('pro.modifier_membre','Modifier membre'):T('pro.nouveau_membre','Nouveau membre'))+'</h1>'+
     '<button class="btn btn-ghost" onclick="viewEquipe()">'+T('pro.retour','← Retour')+'</button></div>'+
-    '<div class="card" style="max-width:460px">'+
+    '<div class="card" style="max-width:640px">'+
     '<div class="field"><label>'+T('pro.th_nom','Nom')+' *</label><input class="inp" id="e-nom" value="'+esc(e.nom||'')+'"></div>'+
     '<div class="field"><label>'+T('pro.f_ordre','Ordre')+'</label><input class="inp" type="number" id="e-ordre" value="'+(e.ordre||0)+'"></div>'+
     '<div class="field"><label><input type="checkbox" id="e-actif" '+(e.actif===false?'':'checked')+'> '+T('pro.f_actif','Actif')+'</label></div>'+
@@ -766,7 +774,7 @@ async function viewAvis(){
   var s=STATE.salon, main=$('main');
   var moy=(s.note_moyenne!=null)?Number(s.note_moyenne).toFixed(1):'—';
   main.innerHTML='<div class="page-head"><h1>'+T('pro.avis','Avis')+'</h1></div>'+
-    '<div class="card" style="max-width:640px;margin-bottom:14px">'+
+    '<div class="card" style="max-width:820px;margin-bottom:14px">'+
     '<div style="font-size:16px"><span style="color:#F6A623;font-size:20px;letter-spacing:2px">'+starPro(s.note_moyenne)+'</span> <b>'+ltr(moy)+'</b> · '+ltr((s.nb_avis||0)+'')+' '+T('pro.avis_count','avis')+'</div>'+
     '<p class="muted" style="margin-top:6px">'+T('pro.avis_info','Les clients laissent un avis après leur rendez-vous. Plus vous avez de bons avis, mieux votre salon est classé dans l\'annuaire.')+'</p>'+
     '</div>'+
@@ -816,7 +824,7 @@ async function delAvis(id){
 /* ════════════ LISTE D'ATTENTE ════════════ */
 async function viewAttente(){
   $('main').innerHTML='<div class="page-head"><h1>'+T('pro.attente','Liste d\'attente')+'</h1></div>'+
-    '<div class="card" style="max-width:640px;margin-bottom:14px"><p class="muted">'+T('pro.att_info','Clients à prévenir dès qu\'une place se libère. Contactez-les d\'un clic (WhatsApp / e-mail).')+'</p></div>'+
+    '<div class="card" style="max-width:820px;margin-bottom:14px"><p class="muted">'+T('pro.att_info','Clients à prévenir dès qu\'une place se libère. Contactez-les d\'un clic (WhatsApp / e-mail).')+'</p></div>'+
     '<div id="att-body"><div class="card empty">'+T('common.chargement','Chargement…')+'</div></div>';
   loadAttente();
 }
@@ -848,13 +856,13 @@ function viewParametres(){
   var s=STATE.salon, main=$('main');
   main.innerHTML='<div class="page-head"><h1>'+T('pro.parametres','Paramètres')+'</h1></div>'+
     // ── Notifications push ──
-    '<div class="card" style="max-width:600px">'+
+    '<div class="card" style="max-width:820px">'+
     '<h3 style="font-size:20px;margin-bottom:4px">'+T('pro.push_titre','🔔 Notifications')+'</h3>'+
     '<p class="muted" style="margin-bottom:12px">'+T('pro.push_sub','Recevez une alerte sur ce téléphone/ordinateur à chaque nouvelle réservation, même l\'application fermée.')+'</p>'+
     '<button class="btn" id="push-btn">'+T('pro.push_activer','Activer les notifications')+'</button>'+
     '<div id="push-status" style="font-size:13px;margin-top:8px"></div></div>'+
     // ── Logo du salon ──
-    '<div class="card" style="max-width:600px">'+
+    '<div class="card" style="max-width:820px">'+
     '<h3 style="font-size:20px;margin-bottom:4px">'+T('pro.logo_titre','🖼 Logo du salon')+'</h3>'+
     '<p class="muted" style="margin-bottom:14px">'+T('pro.logo_sub','Affiché sur votre page de réservation et dans l\'annuaire.')+'</p>'+
     '<div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">'+
@@ -866,7 +874,7 @@ function viewParametres(){
     '</div></div></div>'+
     // ── Galerie du salon (Confort = 5, Premium = 10) ──
     galerieCardHTML(s)+
-    '<div class="card" style="max-width:600px">'+
+    '<div class="card" style="max-width:820px">'+
     '<div class="field"><label>'+T('pro.p_nom_salon','Nom du salon')+'</label><input class="inp" id="s-nom" value="'+esc(s.nom||'')+'"></div>'+
     '<div class="field-grid">'+
     '<div class="field"><label>'+T('pro.p_wilaya','Wilaya')+'</label><input class="inp" id="s-wilaya" value="'+esc(s.wilaya||'')+'"></div>'+
@@ -884,7 +892,7 @@ function viewParametres(){
     '<button class="btn" id="s-save">'+T('common.enregistrer','Enregistrer')+'</button></div>'+
 
     // ── Fermeture exceptionnelle ──
-    '<div class="card" style="max-width:600px">'+
+    '<div class="card" style="max-width:820px">'+
     '<h3 style="font-size:20px;margin-bottom:4px">'+T('pro.ferme_titre','🚫 Fermeture exceptionnelle')+'</h3>'+
     '<p class="muted" style="margin-bottom:14px">'+T('pro.ferme_sub','Fermez votre salon sur une plage de dates (congés, imprévu). Les clients ne pourront pas réserver ces jours-là.')+'</p>'+
     (s.ferme_du?'<div class="pill or" style="margin-bottom:12px">'+T('pro.ferme_active','Fermé')+' '+ltr((s.ferme_du?String(s.ferme_du).slice(0,10):'')+' → '+(s.ferme_au?String(s.ferme_au).slice(0,10):''))+'</div>':'')+
@@ -896,7 +904,7 @@ function viewParametres(){
     '</div>'+
 
     // ── Coordonnées de paiement (acompte) ──
-    '<div class="card" style="max-width:600px">'+
+    '<div class="card" style="max-width:820px">'+
     '<h3 style="font-size:20px;margin-bottom:4px">'+T('pro.p_paiement','💳 Coordonnées de paiement')+'</h3>'+
     '<p class="muted" style="margin-bottom:16px">'+T('pro.p_paiement_sub','Affichées au client quand un acompte est demandé.')+'</p>'+
     '<div class="field-grid">'+
@@ -915,7 +923,7 @@ function viewParametres(){
     '<button class="btn" id="r-save">'+T('pro.p_save_coord','Enregistrer les coordonnées')+'</button></div>'+
 
     // ── Horaires & disponibilités ──
-    '<div class="card" style="max-width:600px">'+
+    '<div class="card" style="max-width:820px">'+
     '<h3 style="font-size:20px;margin-bottom:4px">'+T('pro.p_horaires','🕐 Horaires & disponibilités')+'</h3>'+
     '<p class="muted" style="margin-bottom:16px">'+T('pro.p_horaires_sub','Définissent les créneaux proposés aux clients (mode « par créneau »).')+'</p>'+
     '<div class="field-grid">'+
@@ -933,7 +941,7 @@ function viewParametres(){
     '<button class="btn" id="h-save">'+T('pro.p_save_horaires','Enregistrer les horaires')+'</button></div>'+
 
     // ── Géolocalisation (annuaire "Autour de moi") ──
-    '<div class="card" style="max-width:600px">'+
+    '<div class="card" style="max-width:820px">'+
     '<h3 style="font-size:20px;margin-bottom:4px">'+T('pro.p_localisation','📍 Localisation')+'</h3>'+
     '<p class="muted" style="margin-bottom:16px">'+T('pro.p_localisation_sub','Pour apparaître dans « Autour de moi » de l\'annuaire.')+'</p>'+
     '<div class="field-grid">'+
@@ -942,7 +950,7 @@ function viewParametres(){
     '<button class="btn btn-ghost btn-sm" type="button" onclick="capterPositionSalon()">'+T('pro.p_utiliser_position','📍 Utiliser ma position actuelle')+'</button> '+
     '<button class="btn" id="g-save" style="margin-top:10px">'+T('pro.p_save_position','Enregistrer la position')+'</button></div>'+
     // ── QR code du salon ──
-    '<div class="card" style="max-width:600px">'+
+    '<div class="card" style="max-width:820px">'+
     '<h3 style="font-size:20px;margin-bottom:4px">'+T('pro.qr_titre','🔳 QR code du salon')+'</h3>'+
     '<p class="muted" style="margin-bottom:14px">'+T('pro.qr_sub','À imprimer ou afficher en vitrine : vos clients scannent et arrivent directement sur votre page de réservation.')+'</p>'+
     '<div id="qr-box" style="display:flex;justify-content:center;align-items:center;padding:12px;background:#fff;border-radius:12px;width:fit-content;min-height:60px"></div>'+
@@ -1021,7 +1029,7 @@ function renderQR(){
 function galerieLimite(s){ return (s.formule==='premium'||s.formule==='trial')?15:(s.formule==='confort'?5:1); }
 function galerieCardHTML(s){
   var lim=galerieLimite(s), pics=s.photos||[];
-  var head='<div class="card" style="max-width:600px">'+
+  var head='<div class="card" style="max-width:820px">'+
     '<h3 style="font-size:20px;margin-bottom:4px">'+T('pro.gal_titre','📸 Galerie du salon')+'</h3>';
   if(lim===0){
     return head+'<p class="muted" style="margin-bottom:12px">'+T('pro.gal_sub','Ces photos s\'affichent sur votre page de réservation, sous le nom du salon.')+'</p>'+
