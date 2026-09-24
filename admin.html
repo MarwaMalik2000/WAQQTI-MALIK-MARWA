@@ -85,7 +85,7 @@
     }
   </style>
   <!-- WQ-SEO-INJECT : SEO social, icônes, consentement, anti-spam (ajout auto) -->
-  <link rel="canonical" href="https://waqqti.com/admin.html"/>
+  <link rel="canonical" href="https://www.waqqti.com/admin.html"/>
   <meta name="theme-color" content="#F68423"/>
   <link rel="apple-touch-icon" href="/apple-touch-icon.png"/>
   <link rel="manifest" href="/manifest.json"/>
@@ -309,10 +309,10 @@ document.getElementById('create-form').addEventListener('submit', async e => {
   link.className = 'link-output show';
   link.innerHTML = `
     <strong>Lien public à envoyer au salon :</strong><br>
-    <span style="color:var(--or)">https://waqqti.com/${data.slug}</span><br><br>
+    <span style="color:var(--or)">https://www.waqqti.com/${data.slug}</span><br><br>
     <strong>Message WhatsApp prêt à envoyer :</strong><br>
     <em>Bonjour ${data.nom}, votre espace Waqqti est prêt ! 🎉<br>
-    Votre lien de réservation : https://waqqti.com/${data.slug}<br>
+    Votre lien de réservation : https://www.waqqti.com/${data.slug}<br>
     Envoyez-moi vos prestations pour qu'on les ajoute.</em>
     ${gerantMsg}
   `;
@@ -385,7 +385,7 @@ function filterSalons(q) {
 }
 
 function copyLink(slug) {
-  navigator.clipboard.writeText(`https://waqqti.com/${slug}`);
+  navigator.clipboard.writeText(`https://www.waqqti.com/${slug}`);
   WAQQTI.toast('Lien copié !');
 }
 

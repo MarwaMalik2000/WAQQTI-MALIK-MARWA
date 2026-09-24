@@ -1,4 +1,4 @@
-# Waqqti — https://waqqti.com
+# Waqqti — https://www.waqqti.com
 User-agent: *
 Allow: /
 
@@ -8,4 +8,4 @@ Disallow: /admin.html
 Disallow: /reset.html
 Disallow: /client/confirmer.html
 
-Sitemap: https://waqqti.com/sitemap.xml
+Sitemap: https://www.waqqti.com/sitemap.xml
