@@ -465,6 +465,27 @@
       .form-row input,.form-row textarea{ border-color:var(--brun-l) }
     }
   </style>
+  <!-- WQ-SEO-INJECT : SEO social, icônes, consentement, anti-spam (ajout auto) -->
+  <link rel="canonical" href="https://waqqti.com/client/salon.html"/>
+  <meta name="theme-color" content="#F68423"/>
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png"/>
+  <link rel="manifest" href="/manifest.json"/>
+  <meta property="og:type" content="website"/>
+  <meta property="og:site_name" content="Waqqti"/>
+  <meta property="og:locale" content="fr_FR"/>
+  <meta property="og:title" content="Salon Yasmine Beauty — Réservation Waqqti"/>
+  <meta property="og:description" content="La première plateforme algérienne de réservation en ligne pour salons de beauté et coiffure."/>
+  <meta property="og:url" content="https://waqqti.com/client/salon.html"/>
+  <meta property="og:image" content="https://waqqti.com/assets/og-image.png"/>
+  <meta property="og:image:width" content="1200"/>
+  <meta property="og:image:height" content="630"/>
+  <meta name="twitter:card" content="summary_large_image"/>
+  <meta name="twitter:title" content="Salon Yasmine Beauty — Réservation Waqqti"/>
+  <meta name="twitter:description" content="La première plateforme algérienne de réservation en ligne pour salons de beauté et coiffure."/>
+  <meta name="twitter:image" content="https://waqqti.com/assets/og-image.png"/>
+  <script defer src="/assets/antispam.js"></script>
+  <script defer src="/assets/cookies.js"></script>
+  <!-- /WQ-SEO-INJECT -->
 </head>
 <body>
 <!-- ═══════════ HEADER SALON ═══════════ -->
@@ -1037,7 +1058,7 @@ function openLightbox(i){
       '<button onclick="closeLightbox()" aria-label="Fermer" style="position:fixed;top:16px;right:16px;background:#fff;color:#000;border:none;width:44px;height:44px;border-radius:50%;font-size:18px;font-weight:700;cursor:pointer;z-index:2">✕</button>'+
       '<button id="lb-prev" onclick="lbStep(-1)" aria-label="Précédent" style="position:fixed;left:14px;top:50%;transform:translateY(-50%);background:rgba(255,255,255,.18);color:#fff;border:none;width:52px;height:52px;border-radius:50%;font-size:26px;line-height:1;cursor:pointer;z-index:2">‹</button>'+
       '<button id="lb-next" onclick="lbStep(1)" aria-label="Suivant" style="position:fixed;right:14px;top:50%;transform:translateY(-50%);background:rgba(255,255,255,.18);color:#fff;border:none;width:52px;height:52px;border-radius:50%;font-size:26px;line-height:1;cursor:pointer;z-index:2">›</button>'+
-      '<img id="lb-img" style="max-width:88vw;max-height:86vh;border-radius:14px;box-shadow:0 10px 40px rgba(0,0,0,.5)">';
+      '<img id="lb-img" alt="Photo agrandie" style="max-width:88vw;max-height:86vh;border-radius:14px;box-shadow:0 10px 40px rgba(0,0,0,.5)">';
     document.body.appendChild(ov);
     ov.addEventListener('click', function(e){ if(e.target===ov) closeLightbox(); });
   }
@@ -1079,7 +1100,7 @@ async function loadAvis(salon){
   listEl.innerHTML=avis.map(function(a){
     const d=new Date(a.created_at);
     const photo=a.photo_url
-      ? '<img src="'+a.photo_url+'" loading="lazy" onclick="openReviewPhoto(\''+a.photo_url+'\')" style="margin-top:8px;width:92px;height:92px;border-radius:10px;object-fit:cover;cursor:pointer;border:1px solid #F0E7DA">'
+      ? '<img alt="Photo de l\'avis client" src="'+a.photo_url+'" loading="lazy" onclick="openReviewPhoto(\''+a.photo_url+'\')" style="margin-top:8px;width:92px;height:92px;border-radius:10px;object-fit:cover;cursor:pointer;border:1px solid #F0E7DA">'
       : '';
     const meta=(a.prestation_nom?escHtml(a.prestation_nom)+' · ':'')+'<bdi dir="ltr">'+d.toLocaleDateString('fr')+'</bdi>';
     return '<div style="border-top:1px solid #F0E7DA;padding:14px 0">'+
