@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Nouveau mot de passe — Waqqti</title>
+  <link rel="icon" href="/assets/logo.svg"/>
+  <meta name="theme-color" content="#F68423"/>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="assets/config.js" defer></script>
+  <style>
+    :root{--or:#F68423;--or-dk:#D26F1A;--or-champ:#D9A86C;--cream:#FDEFE2;--cream2:#F5E2CC;--brun:#3D1F00;--brun-l:#7A5030;--green:#2D9E5F;--red:#E0454C;
+      --ease:cubic-bezier(.22,.9,.32,1);--ease-spring:cubic-bezier(.34,1.42,.42,1);--ease-out:cubic-bezier(.16,1,.3,1)}
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:'DM Sans',sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center;
+      padding:20px;color:var(--brun);position:relative;overflow:hidden;
+      -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;font-optical-sizing:auto;text-rendering:optimizeLegibility;
+      background:
+        radial-gradient(900px 500px at 78% -12%, rgba(255,255,255,.18), transparent 60%),
+        linear-gradient(150deg,var(--or) 0%,var(--or-dk) 55%,#9c500f 100%);
+      background-size:100% 100%,200% 200%;animation:bgShift 20s ease-in-out infinite}
+    @keyframes bgShift{0%,100%{background-position:78% -12%,0% 50%}50%{background-position:78% -12%,100% 50%}}
+    body::before,body::after{content:'';position:fixed;border-radius:50%;pointer-events:none;z-index:0;background:radial-gradient(circle,rgba(255,255,255,.14),transparent 68%)}
+    body::before{width:440px;height:440px;top:-130px;left:-110px;animation:orb 15s ease-in-out infinite}
+    body::after{width:360px;height:360px;bottom:-120px;right:-100px;animation:orb 12s ease-in-out infinite reverse}
+    @keyframes orb{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(32px,-26px) scale(1.14)}}
+    .card{background:#fff;border-radius:22px;padding:36px 30px;width:100%;max-width:400px;box-shadow:0 20px 60px rgba(0,0,0,.25),inset 0 1px 0 rgba(255,255,255,.6);text-align:center;position:relative;overflow:hidden;z-index:1;animation:cardUp .55s var(--ease-out) both}
+    @keyframes cardUp{from{opacity:0;transform:translateY(22px) scale(.96)}to{opacity:1;transform:none}}
+    .card::before{content:'';position:absolute;top:0;left:0;right:0;height:5px;background:linear-gradient(90deg,var(--or),var(--or-champ),var(--or));background-size:200% 100%;animation:barShine 3s linear infinite}
+    @keyframes barShine{0%{background-position:0% 0}100%{background-position:200% 0}}
+    .logo{font-family:'Cormorant Garamond',serif;font-size:42px;font-weight:700;letter-spacing:-.02em;color:var(--or)}
+    h2{font-family:'Cormorant Garamond',serif;font-size:24px;letter-spacing:-.015em;margin:4px 0 6px}
+    p{color:var(--brun-l);font-size:14px;line-height:1.6;margin-bottom:20px}
+    .field{margin-bottom:13px;text-align:left}
+    .field label{display:block;font-size:13px;font-weight:600;margin-bottom:5px}
+    .field input{width:100%;padding:12px 14px;border:1.5px solid var(--cream2);border-radius:11px;font-size:14px;font-family:inherit;transition:.25s var(--ease-out)}
+    .field input:focus{outline:none;border-color:var(--or);box-shadow:0 0 0 4px rgba(246,132,35,.1);transform:translateY(-1px)}
+    .btn{padding:12px 20px;background:linear-gradient(135deg,var(--or),var(--or-dk));color:#fff;border:none;border-radius:50px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;width:100%;transition:.25s var(--ease-out);position:relative;overflow:hidden;isolation:isolate;box-shadow:0 6px 18px rgba(246,132,35,.32)}
+    .btn::before{content:'';position:absolute;inset:0;z-index:-1;background:linear-gradient(115deg,transparent 35%,rgba(255,255,255,.4) 50%,transparent 65%);transform:translateX(-130%);transition:transform .6s var(--ease-out)}
+    .btn:hover:not(:disabled){background:var(--or-dk);transform:translateY(-1px);box-shadow:0 10px 24px rgba(246,132,35,.4)}
+    .btn:hover:not(:disabled)::before{transform:translateX(130%)}
+    .btn:active:not(:disabled){transform:scale(.96)}
+    .btn:disabled{opacity:.5}
+    .msg{font-size:13px;margin-top:12px;min-height:16px}
+    .home{display:block;margin-top:16px;font-size:13px;color:var(--brun-l);text-decoration:none;transition:color .2s}
+    .home:hover{color:var(--or)}
+    .hidden{display:none!important}
+    @media (prefers-reduced-motion:reduce){
+      body,body::before,body::after,.card,.card::before,.btn::before{animation:none!important}
+      *,*::before,*::after{transition-duration:.01ms!important}
+    }
+    @media (prefers-contrast:more){ .field input{border-color:var(--brun-l)} }
+  </style>
+  <!-- WQ-SEO-INJECT : SEO social, icônes, consentement, anti-spam (ajout auto) -->
+  <link rel="canonical" href="https://waqqti.com/reset.html"/>
+  <meta name="theme-color" content="#F68423"/>
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png"/>
+  <link rel="manifest" href="/manifest.json"/>
+  <meta property="og:type" content="website"/>
+  <meta property="og:site_name" content="Waqqti"/>
+  <meta property="og:locale" content="fr_FR"/>
+  <meta property="og:title" content="Nouveau mot de passe — Waqqti"/>
+  <meta property="og:description" content="La première plateforme algérienne de réservation en ligne pour salons de beauté et coiffure."/>
+  <meta property="og:url" content="https://waqqti.com/reset.html"/>
+  <meta property="og:image" content="https://waqqti.com/assets/og-image.png"/>
+  <meta property="og:image:width" content="1200"/>
+  <meta property="og:image:height" content="630"/>
+  <meta name="twitter:card" content="summary_large_image"/>
+  <meta name="twitter:title" content="Nouveau mot de passe — Waqqti"/>
+  <meta name="twitter:description" content="La première plateforme algérienne de réservation en ligne pour salons de beauté et coiffure."/>
+  <meta name="twitter:image" content="https://waqqti.com/assets/og-image.png"/>
+  <script defer src="/assets/antispam.js"></script>
+  <script defer src="/assets/cookies.js"></script>
+  <!-- /WQ-SEO-INJECT -->
+</head>
+<body>
+  <a href="#" title="Retour" aria-label="Retour" onclick="if(history.length>1){history.back()}else{location.href='/'}return false;" style="position:fixed;top:16px;left:16px;z-index:1000;width:44px;height:44px;border-radius:50%;background:#fff;color:#3D1F00;display:flex;align-items:center;justify-content:center;font-size:22px;text-decoration:none;box-shadow:0 4px 14px rgba(0,0,0,.18)">←</a>
+  <div class="card">
+    <div class="logo"><img src="/assets/logo.svg" alt="Waqqti" style="height:82px;width:auto;display:block;margin:0 auto"/></div>
+
+    <!-- Formulaire nouveau mot de passe -->
+    <div id="form-zone" class="hidden">
+      <h2>Nouveau mot de passe</h2>
+      <p>Choisissez un nouveau mot de passe pour votre compte.</p>
+      <form id="pw-form">
+        <div class="field"><label>Nouveau mot de passe</label><input type="password" id="pw1" required placeholder="••••••••"/></div>
+        <div class="field"><label>Confirmer</label><input type="password" id="pw2" required placeholder="••••••••"/></div>
+        <button type="submit" class="btn" id="pw-save">Enregistrer</button>
+        <div class="msg" id="pw-msg" style="color:var(--red)"></div>
+      </form>
+    </div>
+
+    <!-- Lien invalide / expiré -->
+    <div id="invalid-zone" class="hidden">
+      <h2>Lien invalide</h2>
+      <p>Ce lien de réinitialisation est invalide ou a expiré. Refaites une demande depuis l'espace client.</p>
+      <a class="btn" href="/auth.html" style="display:block">Retour à la connexion</a>
+    </div>
+
+    <!-- Succès -->
+    <div id="done-zone" class="hidden">
+      <h2>Mot de passe mis à jour ✅</h2>
+      <p>Votre mot de passe a bien été modifié. Vous pouvez maintenant vous connecter.</p>
+      <a class="btn" href="/auth.html" style="display:block">Se connecter</a>
+    </div>
+
+    <div id="loading">Chargement…</div>
+    <a class="home" href="/">← Retour à l'accueil</a>
+  </div>
+
+<script>
+function sb(){ return window.WAQQTI && window.WAQQTI.supabase; }
+var RECOVERY_OK = false;
+
+function show(zone){
+  ['form-zone','invalid-zone','done-zone'].forEach(function(z){
+    document.getElementById(z).classList.toggle('hidden', z!==zone);
+  });
+  document.getElementById('loading').classList.add('hidden');
+}
+
+function boot(){
+  if(!sb()){ return setTimeout(boot, 60); }
+
+  // Le lien de l'email crée une session de type "recovery" (détectée dans l'URL)
+  sb().auth.onAuthStateChange(function(event){
+    if(event === 'PASSWORD_RECOVERY'){ RECOVERY_OK = true; show('form-zone'); }
+  });
+
+  // Filet de sécurité : si une session existe déjà au chargement, on autorise
+  setTimeout(function(){
+    sb().auth.getSession().then(function(res){
+      var s = res && res.data && res.data.session;
+      if(s){ RECOVERY_OK = true; show('form-zone'); }
+      else if(!RECOVERY_OK){ show('invalid-zone'); }
+    });
+  }, 800);
+
+  document.getElementById('pw-form').addEventListener('submit', async function(e){
+    e.preventDefault();
+    var msg=document.getElementById('pw-msg'); msg.style.color='var(--red)'; msg.textContent='';
+    var p1=document.getElementById('pw1').value, p2=document.getElementById('pw2').value;
+    if(p1.length<6){ msg.textContent='Mot de passe : 6 caractères minimum'; return; }
+    if(p1!==p2){ msg.textContent='Les mots de passe ne correspondent pas'; return; }
+    var btn=document.getElementById('pw-save'); btn.disabled=true; btn.textContent='Enregistrement…';
+    var r=await sb().auth.updateUser({ password:p1 });
+    btn.disabled=false; btn.textContent='Enregistrer';
+    if(r.error){ msg.textContent='❌ '+r.error.message; return; }
+    show('done-zone');
+  });
+}
+document.addEventListener('DOMContentLoaded', boot);
+</script>
+</body>
+</html>

@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Espace client — Waqqti</title>
+  <link rel="icon" href="/assets/logo.svg"/>
+  <meta name="theme-color" content="#F68423"/>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=DM+Sans:wght@300;400;500;600&family=Amiri:wght@700&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet"/>
+  <script src="assets/i18n.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="assets/config.js" defer></script>
+  <style>
+    :root{--or:#F68423;--or-dk:#D26F1A;--or-champ:#D9A86C;--cream:#FDEFE2;--cream2:#F5E2CC;--brun:#3D1F00;--brun-l:#7A5030;--green:#2D9E5F;--red:#E0454C;
+      --ease:cubic-bezier(.22,.9,.32,1);--ease-spring:cubic-bezier(.34,1.42,.42,1);--ease-out:cubic-bezier(.16,1,.3,1)}
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:'DM Sans',sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center;
+      padding:20px;color:var(--brun);position:relative;overflow:hidden;
+      -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;font-optical-sizing:auto;text-rendering:optimizeLegibility;
+      background:
+        radial-gradient(900px 500px at 78% -12%, rgba(255,255,255,.18), transparent 60%),
+        linear-gradient(150deg,var(--or) 0%,var(--or-dk) 55%,#9c500f 100%);
+      background-size:100% 100%, 200% 200%;
+      animation:bgShift 20s ease-in-out infinite}
+    @keyframes bgShift{0%,100%{background-position:78% -12%,0% 50%}50%{background-position:78% -12%,100% 50%}}
+    /* Halos flottants (semi-transparents pendant le déplacement, §14) */
+    body::before,body::after{content:'';position:fixed;border-radius:50%;pointer-events:none;z-index:0;
+      background:radial-gradient(circle,rgba(255,255,255,.14),transparent 68%)}
+    body::before{width:440px;height:440px;top:-130px;left:-110px;animation:orb 15s ease-in-out infinite}
+    body::after{width:360px;height:360px;bottom:-120px;right:-100px;animation:orb 12s ease-in-out infinite reverse}
+    @keyframes orb{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(32px,-26px) scale(1.14)}}
+
+    /* Carte : materialize à l'entrée (scale + fondu, §12) */
+    .card{background:#fff;border-radius:22px;padding:36px 30px;width:100%;max-width:400px;
+      box-shadow:0 20px 60px rgba(0,0,0,.25),inset 0 1px 0 rgba(255,255,255,.6);position:relative;overflow:hidden;z-index:1;
+      animation:cardUp .55s var(--ease-out) both}
+    @keyframes cardUp{from{opacity:0;transform:translateY(22px) scale(.96)}to{opacity:1;transform:none}}
+    .card::before{content:'';position:absolute;top:0;left:0;right:0;height:5px;
+      background:linear-gradient(90deg,var(--or),var(--or-champ),var(--or));background-size:200% 100%;
+      animation:barShine 3s linear infinite}
+    @keyframes barShine{0%{background-position:0% 0}100%{background-position:200% 0}}
+    /* Typo optique (§15) */
+    .logo{font-family:'Cormorant Garamond',serif;font-size:42px;font-weight:700;letter-spacing:-.02em;color:var(--or);text-align:center;line-height:1.05}
+    .sub{text-align:center;color:var(--brun-l);font-size:14px;margin-bottom:24px}
+    .field{margin-bottom:13px}
+    .field label{display:block;font-size:13px;font-weight:600;margin-bottom:5px}
+    .field input{width:100%;padding:12px 14px;border:1.5px solid var(--cream2);border-radius:11px;font-size:14px;font-family:inherit;transition:.25s var(--ease-out)}
+    .field input:focus{outline:none;border-color:var(--or);box-shadow:0 0 0 4px rgba(246,132,35,.1);transform:translateY(-1px)}
+    .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .btn{padding:12px 20px;background:linear-gradient(135deg,var(--or),var(--or-dk));color:#fff;border:none;border-radius:50px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;width:100%;transition:.25s var(--ease-out);position:relative;overflow:hidden;isolation:isolate;box-shadow:0 6px 18px rgba(246,132,35,.32)}
+    .btn::before{content:'';position:absolute;inset:0;z-index:-1;background:linear-gradient(115deg,transparent 35%,rgba(255,255,255,.4) 50%,transparent 65%);transform:translateX(-130%);transition:transform .6s var(--ease-out)}
+    .btn:hover:not(:disabled){background:var(--or-dk);transform:translateY(-1px);box-shadow:0 10px 24px rgba(246,132,35,.4)}
+    .btn:hover:not(:disabled)::before{transform:translateX(130%)}
+    .btn:active:not(:disabled){transform:scale(.96)}
+    .btn:disabled{opacity:.5}
+    .btn-google{background:#fff;color:var(--brun);border:1.5px solid var(--cream2);display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:14px;box-shadow:none}
+    .btn-google::before{display:none}
+    .btn-google:hover{background:var(--cream);transform:translateY(-1px);box-shadow:0 4px 14px rgba(61,31,0,.1)}
+    .btn-google:active{transform:scale(.97)}
+    .sep{text-align:center;color:var(--brun-l);font-size:12px;margin-bottom:14px}
+    .err{font-size:13px;margin-top:12px;min-height:16px;text-align:center}
+    .toggle{text-align:center;font-size:13px;margin-top:16px}
+    .toggle a{color:var(--or);font-weight:600;text-decoration:none;position:relative}
+    .toggle a::after{content:'';position:absolute;left:0;right:0;bottom:-2px;height:1.5px;background:var(--or);transform:scaleX(0);transform-origin:center;transition:transform .28s var(--ease-out)}
+    .toggle a:hover::after{transform:scaleX(1)}
+    .hidden{display:none!important}
+    .home{display:block;text-align:center;margin-top:16px;font-size:13px;color:var(--brun-l);text-decoration:none;transition:color .2s}
+    .home:hover{color:var(--or)}
+    #account .big{width:64px;height:64px;border-radius:50%;background:var(--or);color:#fff;display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:30px;font-weight:700;letter-spacing:-.02em;margin:0 auto 14px;box-shadow:0 6px 18px rgba(246,132,35,.3)}
+    #account h2{font-family:'Cormorant Garamond',serif;text-align:center;font-size:26px;letter-spacing:-.015em;margin-bottom:4px}
+    #account .em{text-align:center;color:var(--brun-l);font-size:14px;margin-bottom:22px}
+
+    @media (prefers-reduced-motion:reduce){
+      body,body::before,body::after,.card,.card::before,.btn::before{animation:none!important}
+      *,*::before,*::after{transition-duration:.01ms!important}
+    }
+    @media (prefers-contrast:more){
+      .field input{border-color:var(--brun-l)}
+    }
+  </style>
+  <!-- WQ-SEO-INJECT : SEO social, icônes, consentement, anti-spam (ajout auto) -->
+  <link rel="canonical" href="https://waqqti.com/auth.html"/>
+  <meta name="theme-color" content="#F68423"/>
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png"/>
+  <link rel="manifest" href="/manifest.json"/>
+  <meta property="og:type" content="website"/>
+  <meta property="og:site_name" content="Waqqti"/>
+  <meta property="og:locale" content="fr_FR"/>
+  <meta property="og:title" content="Espace client — Waqqti"/>
+  <meta property="og:description" content="La première plateforme algérienne de réservation en ligne pour salons de beauté et coiffure."/>
+  <meta property="og:url" content="https://waqqti.com/auth.html"/>
+  <meta property="og:image" content="https://waqqti.com/assets/og-image.png"/>
+  <meta property="og:image:width" content="1200"/>
+  <meta property="og:image:height" content="630"/>
+  <meta name="twitter:card" content="summary_large_image"/>
+  <meta name="twitter:title" content="Espace client — Waqqti"/>
+  <meta name="twitter:description" content="La première plateforme algérienne de réservation en ligne pour salons de beauté et coiffure."/>
+  <meta name="twitter:image" content="https://waqqti.com/assets/og-image.png"/>
+  <script defer src="/assets/antispam.js"></script>
+  <script defer src="/assets/cookies.js"></script>
+  <!-- /WQ-SEO-INJECT -->
+</head>
+<body>
+  <a href="#" title="Retour" aria-label="Retour" onclick="if(history.length>1){history.back()}else{location.href='/'}return false;" style="position:fixed;top:16px;left:16px;z-index:1000;width:44px;height:44px;border-radius:50%;background:#fff;color:#3D1F00;display:flex;align-items:center;justify-content:center;font-size:22px;text-decoration:none;box-shadow:0 4px 14px rgba(0,0,0,.18)">←</a>
+  <form class="card" id="auth-card">
+    <div style="text-align:right;margin-bottom:-8px">
+      <button type="button" data-lang-toggle style="font-family:'Tajawal',sans-serif;font-weight:700;background:var(--cream);color:var(--brun);border:none;border-radius:50px;padding:5px 13px;cursor:pointer;font-size:12px">العربية</button>
+    </div>
+    <div class="logo"><img src="/assets/logo.svg" alt="Waqqti" style="height:82px;width:auto;display:block;margin:0 auto"/></div>
+    <div class="sub" id="sub" data-i18n="auth.client">Espace client Waqqti</div>
+
+    <button type="button" class="btn btn-google" id="btn-google">
+      <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+      <span data-i18n="auth.google">Continuer avec Google</span>
+    </button>
+    <div class="sep" data-i18n="common.ou">— ou —</div>
+
+    <div class="signup-only hidden">
+      <div class="grid2">
+        <div class="field"><label>Prénom</label><input type="text" id="prenom" placeholder="Amina"/></div>
+        <div class="field"><label>Nom</label><input type="text" id="nom" placeholder="Kaci"/></div>
+      </div>
+    </div>
+    <div class="field"><label>Email</label><input type="email" id="email" required placeholder="vous@exemple.dz"/></div>
+    <div class="field"><label>Mot de passe</label><input type="password" id="password" required placeholder="••••••••"/></div>
+    <div class="signup-only hidden">
+      <div class="field"><label>Confirmer le mot de passe</label><input type="password" id="confirm" placeholder="••••••••"/></div>
+    </div>
+
+    <button type="submit" class="btn" id="submit">Se connecter</button>
+    <div class="err" id="err"></div>
+    <div id="forgot-wrap" style="text-align:center;margin-top:8px">
+      <a href="#" id="forgot" style="color:var(--brun-l);font-size:13px;text-decoration:none">Mot de passe oublié ?</a>
+    </div>
+    <div class="toggle"><span id="toggle-txt">Pas encore de compte ?</span>
+      <a href="#" id="toggle">Créer un compte</a></div>
+    <a class="home" href="/" data-i18n="auth.retour_accueil">← Retour à l'accueil</a>
+  </form>
+
+  <!-- Écran connecté -->
+  <div class="card hidden" id="account">
+    <div class="big" id="ac-init">?</div>
+    <h2 id="ac-name">Bienvenue</h2>
+    <div class="em" id="ac-email"></div>
+    <button class="btn" id="btn-histo" style="width:100%;margin:16px 0 6px">📅 Mes réservations</button>
+    <div id="mes-resa" class="hidden" style="text-align:left;margin:6px 0 16px"></div>
+    <a class="btn" href="/annuaire.html" style="display:block;text-align:center;margin:12px 0">Trouver un salon →</a>
+    <button class="btn btn-google" id="btn-logout">Se déconnecter</button>
+    <a class="home" href="/" data-i18n="auth.retour_accueil">← Retour à l'accueil</a>
+  </div>
+
+  <!-- Écran « email de confirmation envoyé » -->
+  <div class="card hidden" id="confirm-sent" style="text-align:center">
+    <div class="big" style="background:var(--cream);color:var(--or);font-size:34px">📧</div>
+    <h2 style="font-family:'Cormorant Garamond',serif;font-size:26px;margin-bottom:8px">Vérifiez votre boîte mail</h2>
+    <p style="color:var(--brun-l);font-size:14px;line-height:1.6;margin-bottom:6px">
+      Un email de confirmation a été envoyé à<br><b id="cs-email" style="color:var(--brun)"></b>.</p>
+    <p style="color:var(--brun-l);font-size:14px;line-height:1.6;margin-bottom:20px">
+      Cliquez sur le lien dans l'email pour activer votre compte, puis revenez vous connecter.</p>
+    <button class="btn" id="cs-resend" style="display:block;width:100%;margin-bottom:10px">Renvoyer l'email</button>
+    <button class="btn btn-google" id="cs-back" style="width:100%">Retour à la connexion</button>
+    <div id="cs-status" style="font-size:13px;margin-top:12px;min-height:16px"></div>
+    <a class="home" href="/" data-i18n="auth.retour_accueil">← Retour à l'accueil</a>
+  </div>
+
+<script>
+function sb(){ return window.WAQQTI && window.WAQQTI.supabase; }
+function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
+var SIGNUP=false;
+
+// Historique des réservations du client connecté
+async function showMesReservations(uid){
+  var host=document.getElementById('mes-resa'); if(!host) return;
+  var r=await sb().from('reservations')
+    .select('prestation_nom,date_rdv,acompte_statut,statut,salons(nom,slug)')
+    .eq('client_user_id',uid).order('date_rdv',{ascending:false}).limit(100);
+  if(r.error || !r.data || !r.data.length){ host.innerHTML=''; return; }
+  function stLabel(x){
+    if(x.statut==='annule') return '<span style="color:var(--red)">Annulé</span>';
+    if(x.statut==='termine') return '<span style="color:var(--brun-l)">Terminé</span>';
+    if(x.acompte_statut==='en_attente') return '<span style="color:var(--or-dk)">Acompte en attente</span>';
+    if(x.acompte_statut==='refuse') return '<span style="color:var(--red)">Acompte refusé</span>';
+    return '<span style="color:var(--green)">Confirmé ✓</span>';
+  }
+  function ligne(x){
+    var d=new Date(x.date_rdv);
+    var salonNom=(x.salons&&x.salons.nom)||'';
+    var slug=x.salons&&x.salons.slug;
+    return '<div style="border:1.5px solid var(--cream2);border-radius:12px;padding:10px 12px;margin-bottom:8px;font-size:13px">'+
+      '<div style="font-weight:600">'+esc(x.prestation_nom||'')+(salonNom?' · '+esc(salonNom):'')+'</div>'+
+      '<div style="color:var(--brun-l)" dir="ltr">'+d.toLocaleDateString('fr-FR')+' · '+d.toTimeString().slice(0,5)+'</div>'+
+      '<div style="margin-top:3px">'+stLabel(x)+'</div>'+
+      (slug?'<a href="/client/salon.html?s='+encodeURIComponent(slug)+'" style="color:var(--or);font-size:12px;text-decoration:none;font-weight:600">Revoir le salon →</a>':'')+
+      '</div>';
+  }
+  var now=new Date();
+  var avenir=r.data.filter(function(x){ return x.statut!=='annule' && new Date(x.date_rdv)>=now; })
+                   .sort(function(a,b){ return new Date(a.date_rdv)-new Date(b.date_rdv); });
+  var passes=r.data.filter(function(x){ return x.statut==='annule' || new Date(x.date_rdv)<now; });
+  var html='';
+  html+='<div style="font-weight:700;font-size:15px;margin:4px 0 8px">📅 À venir'+(avenir.length?' ('+avenir.length+')':'')+'</div>';
+  html+= avenir.length ? avenir.map(ligne).join('') : '<div style="color:var(--brun-l);font-size:13px;margin-bottom:10px">Aucun rendez-vous à venir.</div>';
+  if(passes.length){
+    html+='<div style="font-weight:700;font-size:15px;margin:14px 0 8px">🕓 Historique</div>'+passes.map(ligne).join('');
+  }
+  host.innerHTML=html;
+}
+
+function toggleMode(){
+  SIGNUP=!SIGNUP;
+  document.querySelectorAll('.signup-only').forEach(function(el){ el.classList.toggle('hidden',!SIGNUP); });
+  document.getElementById('forgot-wrap').classList.toggle('hidden', SIGNUP);
+  document.getElementById('submit').textContent = SIGNUP?'Créer mon compte':'Se connecter';
+  document.getElementById('sub').textContent = SIGNUP?'Créer un compte client':'Espace client Waqqti';
+  document.getElementById('toggle-txt').textContent = SIGNUP?'Déjà un compte ?':'Pas encore de compte ?';
+  document.getElementById('toggle').textContent = SIGNUP?'Se connecter':'Créer un compte';
+  document.getElementById('err').textContent='';
+}
+
+async function showAccount(user){
+  var prof=null;
+  var r=await sb().from('profiles').select('*').eq('id',user.id).maybeSingle();
+  if(!r.error) prof=r.data;
+  document.getElementById('auth-card').classList.add('hidden');
+  document.getElementById('account').classList.remove('hidden');
+  var prenom=(prof&&prof.prenom)|| (user.user_metadata&&user.user_metadata.prenom) || '';
+  var nom=(prof&&prof.nom)|| (user.user_metadata&&user.user_metadata.nom) || '';
+  var label=(prenom+' '+nom).trim() || user.email;
+  document.getElementById('ac-init').textContent=(label.charAt(0)||'?').toUpperCase();
+  document.getElementById('ac-name').textContent='Bonjour '+(prenom||label)+' 👋';
+  document.getElementById('ac-email').textContent=user.email;
+  // Historique masqué par défaut, chargé au clic
+  var bh=document.getElementById('btn-histo'); var loaded=false;
+  if(bh) bh.onclick=function(){
+    var box=document.getElementById('mes-resa');
+    if(box.classList.contains('hidden')){
+      box.classList.remove('hidden');
+      if(!loaded){ showMesReservations(user.id); loaded=true; }
+      bh.textContent='📅 Masquer mes réservations';
+    } else { box.classList.add('hidden'); bh.textContent='📅 Mes réservations'; }
+  };
+}
+
+async function onSubmit(e){
+  e.preventDefault();
+  var err=document.getElementById('err'); err.style.color='var(--red)'; err.textContent='';
+  var email=document.getElementById('email').value.trim();
+  var password=document.getElementById('password').value;
+  var btn=document.getElementById('submit');
+  if(SIGNUP){
+    var confirm=document.getElementById('confirm').value;
+    var nom=document.getElementById('nom').value.trim();
+    var prenom=document.getElementById('prenom').value.trim();
+    if(password.length<6){ err.textContent='Mot de passe : 6 caractères minimum'; return; }
+    if(password!==confirm){ err.textContent='Les mots de passe ne correspondent pas'; return; }
+    btn.disabled=true; btn.textContent='Création…';
+    var s=await WAQQTI.inscriptionEmail(email,password,{nom:nom,prenom:prenom});
+    btn.disabled=false; btn.textContent='Créer mon compte';
+    if(s.error){ err.textContent=s.error.message; return; }
+    if(s.data && s.data.session){ showAccount(s.data.user); }
+    else { showConfirmSent(email); }        // email à confirmer → page dédiée
+  } else {
+    btn.disabled=true; btn.textContent='Connexion…';
+    var l=await sb().auth.signInWithPassword({email:email,password:password});
+    btn.disabled=false; btn.textContent='Se connecter';
+    if(l.error){
+      // Email pas encore confirmé → renvoyer vers la page de confirmation
+      if(/not confirmed|confirm/i.test(l.error.message||'')){ showConfirmSent(email); return; }
+      err.textContent=l.error.message; return;
+    }
+    showAccount(l.data.user);
+  }
+}
+
+// Mot de passe oublié → envoie un email de réinitialisation vers reset.html
+async function forgotPassword(e){
+  if(e) e.preventDefault();
+  var err=document.getElementById('err');
+  var email=document.getElementById('email').value.trim();
+  if(!email){ err.style.color='var(--red)'; err.textContent='Entrez d\'abord votre email ci-dessus.'; return; }
+  var link=document.getElementById('forgot'); link.textContent='Envoi…';
+  var r=await sb().auth.resetPasswordForEmail(email, {
+    redirectTo: new URL('reset.html', window.location.href).href
+  });
+  link.textContent='Mot de passe oublié ?';
+  if(r.error){ err.style.color='var(--red)'; err.textContent='❌ '+r.error.message; return; }
+  err.style.color='var(--green)';
+  err.textContent='✅ Email de réinitialisation envoyé à '+email+'. Vérifiez votre boîte (et les spams).';
+}
+
+// Affiche l'écran « email de confirmation envoyé »
+var PENDING_EMAIL='';
+function showConfirmSent(email){
+  PENDING_EMAIL=email;
+  document.getElementById('auth-card').classList.add('hidden');
+  document.getElementById('account').classList.add('hidden');
+  var cs=document.getElementById('confirm-sent');
+  cs.classList.remove('hidden');
+  document.getElementById('cs-email').textContent=email;
+  document.getElementById('cs-status').textContent='';
+}
+async function resendConfirmation(){
+  var st=document.getElementById('cs-status');
+  var btn=document.getElementById('cs-resend');
+  btn.disabled=true; btn.textContent='Envoi…';
+  var r=await sb().auth.resend({ type:'signup', email:PENDING_EMAIL });
+  btn.disabled=false; btn.textContent='Renvoyer l\'email';
+  if(r.error){ st.style.color='var(--red)'; st.textContent='❌ '+r.error.message; }
+  else { st.style.color='var(--green)'; st.textContent='✅ Email renvoyé. Pensez à vérifier vos spams.'; }
+}
+
+function boot(){
+  if(!sb()){ return setTimeout(boot,60); }
+  document.getElementById('auth-card').addEventListener('submit', onSubmit);
+  document.getElementById('toggle').addEventListener('click', function(e){ e.preventDefault(); toggleMode(); });
+  document.getElementById('forgot').addEventListener('click', forgotPassword);
+  document.getElementById('btn-google').addEventListener('click', function(){ WAQQTI.loginGoogle(window.location.href); });
+  document.getElementById('btn-logout').addEventListener('click', async function(){ await sb().auth.signOut(); location.reload(); });
+  document.getElementById('cs-resend').addEventListener('click', resendConfirmation);
+  document.getElementById('cs-back').addEventListener('click', function(){
+    document.getElementById('confirm-sent').classList.add('hidden');
+    document.getElementById('auth-card').classList.remove('hidden');
+    if(SIGNUP) toggleMode();
+  });
+  sb().auth.getSession().then(function(res){
+    var session=res && res.data && res.data.session;
+    if(session && session.user) showAccount(session.user);
+  });
+}
+document.addEventListener('DOMContentLoaded', boot);
+</script>
+</body>
+</html>

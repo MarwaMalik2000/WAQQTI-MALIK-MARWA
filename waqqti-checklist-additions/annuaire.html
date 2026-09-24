@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Annuaire des salons — Waqqti</title>
+  <link rel="icon" href="/assets/logo.svg"/>
+  <meta name="theme-color" content="#F68423"/>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=DM+Sans:wght@300;400;500;600&family=Amiri:wght@700&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet"/>
+  <script src="assets/i18n.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="assets/config.js" defer></script>
+  <style>
+    :root{
+      --or:#F68423;--or-dk:#D26F1A;--or-lt:#F5B865;--cream:#FDEFE2;--cream2:#F5E2CC;
+      --brun:#3D1F00;--brun-l:#7A5030;--green:#2D9E5F;
+      --ease:cubic-bezier(.22,.9,.32,1);--ease-spring:cubic-bezier(.34,1.42,.42,1);--ease-out:cubic-bezier(.16,1,.3,1);
+    }
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--brun);min-height:100vh;
+      -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;font-optical-sizing:auto;text-rendering:optimizeLegibility}
+    body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+      background:radial-gradient(560px 560px at 92% 4%,rgba(246,132,35,.06),transparent 70%),radial-gradient(500px 500px at -6% 100%,rgba(246,132,35,.05),transparent 70%)}
+    a{color:inherit;text-decoration:none}
+    :focus-visible{outline:2.5px solid var(--or-dk);outline-offset:3px;border-radius:8px}
+
+    .header{background:linear-gradient(135deg,var(--or),var(--or-dk));color:#fff;padding:26px 5% 60px;position:relative;overflow:hidden;background-size:180% 180%;animation:hdrShift 16s ease-in-out infinite}
+    @keyframes hdrShift{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+    .header::before{content:'';position:absolute;top:-100px;right:-70px;width:340px;height:340px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.2),transparent 68%);pointer-events:none;animation:hdrOrb 13s ease-in-out infinite}
+    @keyframes hdrOrb{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(-28px,24px) scale(1.12)}}
+    .header::after{content:'';position:absolute;bottom:-1px;left:0;right:0;height:26px;background:var(--cream);clip-path:polygon(0 100%,100% 100%,100% 0,0 70%);z-index:1}
+    .top{max-width:1000px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;font-size:14px;position:relative;z-index:2}
+    .top a{transition:opacity .2s,transform .2s var(--ease)}
+    .top a:hover{opacity:.85;transform:translateY(-1px)}
+    .top a:active{transform:scale(.96)}
+    .brand{font-family:'Cormorant Garamond',serif;font-size:30px;font-weight:700;letter-spacing:-.02em}
+    /* Typo optique : tracking négatif sur les grands titres (Apple §15) */
+    .header h1{font-family:'Cormorant Garamond',serif;font-size:34px;line-height:1.06;letter-spacing:-.02em;max-width:1000px;margin:22px auto 4px;position:relative;z-index:2;animation:titleUp .6s var(--ease-out) both}
+    .header p{max-width:1000px;margin:0 auto;opacity:.92;font-size:15px;letter-spacing:.003em;position:relative;z-index:2;animation:titleUp .6s var(--ease-out) .08s both}
+    @keyframes titleUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+    .wrap{max-width:1000px;margin:-34px auto 40px;padding:0 5%;position:relative;z-index:2}
+
+    /* Barre de recherche = matériau translucide flottant (Apple §12) */
+    .searchbar{background:rgba(255,255,255,.72);-webkit-backdrop-filter:blur(20px) saturate(180%);backdrop-filter:blur(20px) saturate(180%);
+      border-radius:18px;padding:16px;box-shadow:inset 0 1px 0 rgba(255,255,255,.6),0 8px 30px rgba(246,132,35,.15);
+      display:flex;gap:10px;flex-wrap:wrap;animation:titleUp .6s var(--ease-out) .12s both}
+    .searchbar input{flex:1;min-width:180px;padding:13px 16px;border:1.5px solid var(--cream2);border-radius:12px;font-size:15px;font-family:inherit;background:rgba(255,255,255,.85);transition:.25s var(--ease-out)}
+    .searchbar input:focus{outline:none;border-color:var(--or);background:#fff;box-shadow:0 0 0 4px rgba(246,132,35,.1);transform:translateY(-1px)}
+    .searchbar select{transition:.25s var(--ease-out);cursor:pointer}
+    .searchbar select:focus{outline:none;border-color:var(--or)!important;box-shadow:0 0 0 4px rgba(246,132,35,.1)}
+    .btn{padding:13px 20px;background:var(--or);color:#fff;border:none;border-radius:12px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap;transition:.25s var(--ease-out);position:relative;overflow:hidden;isolation:isolate}
+    .btn::before{content:'';position:absolute;inset:0;z-index:-1;background:linear-gradient(115deg,transparent 35%,rgba(255,255,255,.4) 50%,transparent 65%);transform:translateX(-130%);transition:transform .6s var(--ease-out)}
+    .btn:hover{background:var(--or-dk);transform:translateY(-1px)}
+    .btn:hover::before{transform:translateX(130%)}
+    .btn:active{transform:scale(.96)}
+    .btn-ghost{background:var(--cream);color:var(--brun)}
+    .btn-ghost:hover{background:var(--cream2)}
+    .btn-ghost::before{display:none}
+    .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;margin-top:20px}
+    /* Apparition en cascade (§7 hint direction) */
+    .grid .salon{animation:cardIn .55s var(--ease-out) both}
+    .grid .salon:nth-child(1){animation-delay:.02s}.grid .salon:nth-child(2){animation-delay:.07s}
+    .grid .salon:nth-child(3){animation-delay:.12s}.grid .salon:nth-child(4){animation-delay:.17s}
+    .grid .salon:nth-child(5){animation-delay:.22s}.grid .salon:nth-child(6){animation-delay:.27s}
+    .grid .salon:nth-child(7){animation-delay:.32s}.grid .salon:nth-child(8){animation-delay:.37s}
+    .grid .salon:nth-child(9){animation-delay:.42s}.grid .salon:nth-child(n+10){animation-delay:.46s}
+    @keyframes cardIn{from{opacity:0;transform:translateY(18px) scale(.98)}to{opacity:1;transform:none}}
+    .salon{background:#fff;border-radius:16px;padding:20px;box-shadow:0 4px 20px rgba(246,132,35,.08);border:1px solid #F0E7DA;display:flex;flex-direction:column;
+      transition:transform .4s var(--ease-spring),box-shadow .35s var(--ease-out),border-color .35s var(--ease-out);position:relative;overflow:hidden;will-change:transform}
+    .salon::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--or),var(--or-lt));transform:scaleX(0);transform-origin:left;transition:transform .35s var(--ease-out)}
+    .salon:hover{transform:translateY(-5px);box-shadow:0 16px 44px rgba(246,132,35,.2);border-color:#F5D9BE}
+    .salon:hover::before{transform:scaleX(1)}
+    .salon:active{transform:translateY(-2px) scale(.995)}
+    .salon .av{width:52px;height:52px;border-radius:14px;background:var(--or);color:#fff;display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:700;letter-spacing:-.02em;margin-bottom:12px;box-shadow:0 4px 12px rgba(246,132,35,.28);transition:transform .4s var(--ease-spring)}
+    .salon:hover .av{transform:scale(1.07) rotate(-3deg)}
+    .salon h3{font-family:'Cormorant Garamond',serif;font-size:22px;line-height:1.1;letter-spacing:-.015em;margin-bottom:4px}
+    .salon .meta{font-size:13px;color:var(--brun-l);margin-bottom:4px}
+    .salon .dist{font-size:12px;color:var(--green);font-weight:600;margin-bottom:12px}
+    .salon .ctags{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px}
+    .salon .ctag{font-size:11px;background:#F0E7DA;color:var(--brun-l);padding:3px 9px;border-radius:50px;font-weight:500;transition:.2s var(--ease-out)}
+    .salon:hover .ctag{background:#F7E7D5}
+    .salon .sdesc{font-size:12.5px;color:var(--brun-l);line-height:1.45;margin-bottom:10px}
+    .salon .note{font-size:14px;margin-bottom:8px}
+    .salon .note .muted,.muted{color:#B79B82;font-weight:400}
+    .pill{display:inline-block;padding:3px 10px;border-radius:50px;font-size:11px;font-weight:600;background:#FFE5D0;color:var(--or-dk);margin-bottom:12px;text-transform:capitalize}
+    .pill.gamme{background:#E8F0E4;color:#2D9E5F;margin-left:6px;letter-spacing:1px}
+    .salon .dispo{margin:0 0 12px}
+    .salon .dispo-t{font-size:12px;font-weight:600;color:var(--brun);margin-bottom:6px}
+    .salon .dispo-day{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:5px}
+    .salon .dispo-day .dd{font-size:12px;color:var(--brun-l);min-width:48px;text-transform:capitalize}
+    .salon .chip{font-size:12px;background:var(--cream);color:var(--or-dk);padding:4px 9px;border-radius:8px;font-weight:600;text-decoration:none;transition:.22s var(--ease-out)}
+    .salon .chip:hover{background:var(--or);color:#fff;transform:translateY(-1px);box-shadow:0 3px 10px rgba(246,132,35,.3)}
+    .salon .chip:active{transform:scale(.94)}
+    .salon .more{margin-top:auto;display:block;text-align:center;font-size:13px;color:var(--or-dk);font-weight:600;text-decoration:none;padding:8px;border:1.5px solid var(--cream2);border-radius:10px;margin-bottom:8px;transition:.22s var(--ease-out)}
+    .salon .more:hover{background:var(--cream);border-color:var(--or-lt)}
+    .salon .more:active{transform:scale(.98)}
+    .salon .go{text-align:center;padding:11px;background:var(--or);color:#fff;border-radius:10px;font-weight:600;font-size:14px;transition:.25s var(--ease-out);position:relative;overflow:hidden;isolation:isolate}
+    .salon .go::before{content:'';position:absolute;inset:0;z-index:-1;background:linear-gradient(115deg,transparent 35%,rgba(255,255,255,.38) 50%,transparent 65%);transform:translateX(-130%);transition:transform .6s var(--ease-out)}
+    .salon .go:hover{background:var(--or-dk)}
+    .salon .go:hover::before{transform:translateX(130%)}
+    .salon .go:active{transform:scale(.97)}
+    .empty{text-align:center;color:var(--brun-l);padding:50px 20px;grid-column:1/-1}
+    @media(max-width:600px){.searchbar{flex-direction:column}.btn{width:100%}}
+    @media (prefers-reduced-motion:reduce){
+      html{scroll-behavior:auto}
+      .header,.header::before,.header h1,.header p,.searchbar,
+      .grid .salon,.btn::before,.salon .go::before{animation:none!important}
+      *,*::before,*::after{transition-duration:.01ms!important}
+    }
+    @media (prefers-reduced-transparency:reduce){
+      .searchbar{background:#fff;-webkit-backdrop-filter:none;backdrop-filter:none}
+      .searchbar input{background:#fff}
+    }
+    @media (prefers-contrast:more){
+      .salon{border-color:var(--brun-l)}
+      .searchbar input{border-color:var(--brun-l)}
+    }
+  </style>
+  <!-- WQ-SEO-INJECT : SEO social, icônes, consentement, anti-spam (ajout auto) -->
+  <link rel="canonical" href="https://waqqti.com/annuaire.html"/>
+  <meta name="theme-color" content="#F68423"/>
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png"/>
+  <link rel="manifest" href="/manifest.json"/>
+  <meta property="og:type" content="website"/>
+  <meta property="og:site_name" content="Waqqti"/>
+  <meta property="og:locale" content="fr_FR"/>
+  <meta property="og:title" content="Annuaire des salons — Waqqti"/>
+  <meta property="og:description" content="La première plateforme algérienne de réservation en ligne pour salons de beauté et coiffure."/>
+  <meta property="og:url" content="https://waqqti.com/annuaire.html"/>
+  <meta property="og:image" content="https://waqqti.com/assets/og-image.png"/>
+  <meta property="og:image:width" content="1200"/>
+  <meta property="og:image:height" content="630"/>
+  <meta name="twitter:card" content="summary_large_image"/>
+  <meta name="twitter:title" content="Annuaire des salons — Waqqti"/>
+  <meta name="twitter:description" content="La première plateforme algérienne de réservation en ligne pour salons de beauté et coiffure."/>
+  <meta name="twitter:image" content="https://waqqti.com/assets/og-image.png"/>
+  <script defer src="/assets/antispam.js"></script>
+  <script defer src="/assets/cookies.js"></script>
+  <!-- /WQ-SEO-INJECT -->
+</head>
+<body>
+  <div class="header">
+    <div class="top">
+      <div style="display:flex;align-items:center;gap:12px">
+        <a href="#" title="Retour" aria-label="Retour" onclick="if(history.length>1){history.back()}else{location.href='/'}return false;" style="color:#fff;font-size:22px;text-decoration:none;background:rgba(255,255,255,.2);width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0">←</a>
+        <a href="/" class="brand"><img src="/assets/logo.svg" alt="Waqqti" style="height:60px;width:auto;filter:brightness(0) invert(1);display:block"/></a>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px">
+        <a href="/auth.html" data-i18n="nav.espace_client">Espace client</a>
+        <a href="/pro/dashboard.html" data-i18n="nav.espace_pro">Espace Pro</a>
+        <button type="button" data-lang-toggle style="font-family:'Tajawal',sans-serif;font-weight:700;background:rgba(255,255,255,.2);color:#fff;border:none;border-radius:50px;padding:6px 14px;cursor:pointer;font-size:13px">العربية</button>
+      </div>
+    </div>
+    <h1 data-i18n="ann.titre">Trouvez votre salon</h1>
+    <p data-i18n="ann.sous">Réservez en ligne chez les meilleurs salons de beauté et coiffure d'Algérie.</p>
+  </div>
+ 
+  <div class="wrap">
+    <div class="searchbar">
+      <input type="text" id="q" placeholder="🔍 Nom du salon, ville, adresse…" data-i18n-attr="placeholder:ann.recherche_ph"/>
+      <select id="genre" style="padding:13px 14px;border:1.5px solid var(--cream2);border-radius:12px;font-size:15px;font-family:inherit;background:#fff"><option value="" data-i18n="ann.genre_tous">Hommes & Femmes</option><option value="homme" data-i18n="ann.genre_h">Hommes</option><option value="femme" data-i18n="ann.genre_f">Femmes</option></select>
+      <select id="cat" style="padding:13px 14px;border:1.5px solid var(--cream2);border-radius:12px;font-size:15px;font-family:inherit;background:#fff"><option value="">Toutes spécialités</option></select>
+      <select id="gamme" style="padding:13px 14px;border:1.5px solid var(--cream2);border-radius:12px;font-size:15px;font-family:inherit;background:#fff"><option value="" data-i18n="ann.prix_tous">Prix</option><option value="1">€ — Éco</option><option value="2">€€ — Moyen</option><option value="3">€€€ — Premium</option></select>
+      <select id="wilaya" style="padding:13px 14px;border:1.5px solid var(--cream2);border-radius:12px;font-size:15px;font-family:inherit;background:#fff"><option value="">Toutes les wilayas</option></select>
+      <button class="btn" id="btn-search" data-i18n="ann.rechercher">Rechercher</button>
+      <button class="btn btn-ghost" id="btn-geo" data-i18n="ann.autour">📍 Autour de moi</button>
+    </div>
+    <div id="results" class="grid"><div class="empty">Chargement des salons…</div></div>
+  </div>
+ 
+<script>
+function sb(){ return window.WAQQTI && window.WAQQTI.supabase; }
+function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){
+  return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+function stars(n){ n=Math.round(Number(n)||0); var s=''; for(var i=1;i<=5;i++) s+=(i<=n?'★':'☆'); return '<span style="color:#F6A623;letter-spacing:1px">'+s+'</span>'; }
+// Gamme de prix (seuils en DA, ajustables) : € < 1500 · €€ 1500–3500 · €€€ > 3500
+function gammeNum(prix){ if(prix==null) return 0; var p=Number(prix); return p<1500?1:(p<=3500?2:3); }
+function gammeSym(prix){ var n=gammeNum(prix); return n?('€'.repeat(n)):''; }
+function newLabel(){ return (window.WQ&&WQ.t&&WQ.t('ann.nouveau')!=='ann.nouveau')?WQ.t('ann.nouveau'):'✨ Nouveau'; }
+ 
+// Catégories (mêmes clés que l'admin) — libellés traduits via i18n si dispo
+var CAT_KEYS=['barber','bienetre_h','coiffure_maquillage','onglerie','spa','soin_visage','regard','mariage'];
+var CAT_FR={barber:'Barber & coiffure hommes',bienetre_h:'Bien-être hommes',coiffure_maquillage:'Coiffure & maquillage',onglerie:'Onglerie',spa:'Bien-être & spa',soin_visage:'Esthétique & soin du visage',regard:'Beauté du regard',mariage:'Mariage & événements'};
+function catLabel(k){ if(window.WQ&&WQ.t){ var v=WQ.t('cat.'+k); if(v&&v!=='cat.'+k) return v; } return CAT_FR[k]||k; }
+function peuplerCats(){
+  var sel=document.getElementById('cat'); if(!sel) return;
+  var cur=sel.value;
+  var tout=(window.WQ&&WQ.t&&WQ.t('ann.cat_toutes')!=='ann.cat_toutes')?WQ.t('ann.cat_toutes'):'Toutes spécialités';
+  sel.innerHTML='<option value="">'+tout+'</option>'+CAT_KEYS.map(function(k){return '<option value="'+k+'">'+esc(catLabel(k))+'</option>';}).join('');
+  sel.value=cur;
+}
+ 
+function render(list){
+  var box=document.getElementById('results');
+  if(!list || !list.length){ box.innerHTML='<div class="empty">Aucun salon trouvé.</div>'; return; }
+  box.innerHTML=list.map(function(s){
+    var dist = (s.distance!=null) ? '<div class="dist">📍 à '+s.distance.toFixed(1)+' km</div>' : '';
+    var note = (s.nb_avis>0)
+      ? '<div class="note">'+stars(s.note_moyenne)+' <b><bdi dir="ltr">'+Number(s.note_moyenne).toFixed(1)+'</bdi></b> <span class="muted">(<bdi dir="ltr">'+s.nb_avis+'</bdi>)</span></div>'
+      : '<div class="note muted" style="color:#B79B82">'+esc(newLabel())+'</div>';
+    return '<div class="salon">'+
+      '<div class="av"'+(s.logo_url?' style="padding:0;overflow:hidden"':'')+'>'+
+        (s.logo_url?'<img src="'+esc(s.logo_url)+'" alt="" style="width:100%;height:100%;object-fit:cover">':esc((s.nom||'?').charAt(0).toUpperCase()))+
+      '</div>'+
+      '<span class="pill">'+esc(s.formule)+'</span>'+
+      (s.prix_moyen!=null?'<span class="pill gamme" title="'+esc(Number(s.prix_moyen).toLocaleString('fr'))+' DA">'+gammeSym(s.prix_moyen)+'</span>':'')+
+      '<h3>'+esc(s.nom)+'</h3>'+
+      note+
+      '<div class="meta">📍 '+esc(s.adresse||s.wilaya||'Algérie')+'</div>'+
+      ((s.categories&&s.categories.length)?'<div class="ctags">'+s.categories.slice(0,2).map(function(k){return '<span class="ctag">'+esc(catLabel(k))+'</span>';}).join('')+'</div>':'')+
+      (s.description?'<div class="sdesc">'+esc(s.description.length>95?s.description.slice(0,95)+'…':s.description)+'</div>':'')+
+      dist+
+      '<div class="dispo" id="dispo-'+esc(s.id)+'"></div>'+
+      '<a class="more" href="/client/salon.html?s='+encodeURIComponent(s.slug)+'#salon-about">'+t('ann.plus_infos','Plus d’informations')+' →</a>'+
+      '<a class="go" href="/client/salon.html?s='+encodeURIComponent(s.slug)+'">Réserver →</a>'+
+      '</div>';
+  }).join('');
+  chargerDispos(list);
+}
+ 
+/* ── Prochaines disponibilités (3 prochains jours ouvrés) ── */
+function t(k,fb){ if(window.WQ&&WQ.t){ var v=WQ.t(k); if(v&&v!==k) return v; } return fb; }
+function toMin(x){ x=(x||'').slice(0,5); var p=x.split(':'); return (+p[0])*60+(+p[1]); }
+function pad2(n){ return (n<10?'0':'')+n; }
+function jourCourt(d){ if(window.WQ&&WQ.jourCourt) return WQ.jourCourt(d); return ['dim','lun','mar','mer','jeu','ven','sam'][d.getDay()]; }
+function slotsJour(s, dateObj){
+  var o=toMin(s.heure_ouverture||'09:00'), c=toMin(s.heure_fermeture||'19:00'), step=s.intervalle_creneaux||30;
+  var pds=s.pause_debut?toMin(s.pause_debut):null, pfs=s.pause_fin?toMin(s.pause_fin):null;
+  var now=new Date(), isToday=dateObj.toDateString()===now.toDateString(), nowMin=now.getHours()*60+now.getMinutes();
+  var out=[];
+  for(var m=o;m+step<=c;m+=step){
+    if(pds!=null&&pfs!=null&&m>=pds&&m<pfs) continue;
+    if(isToday&&m<=nowMin+15) continue;
+    out.push(pad2(Math.floor(m/60))+':'+pad2(m%60));
+  }
+  return out;
+}
+async function dispoSalon(s){
+  var jf=s.jours_fermes||[], res=[], offset=0, open=0;
+  while(offset<=13 && open<3){
+    var d=new Date(); d.setDate(d.getDate()+offset); offset++;
+    if(jf.indexOf(d.getDay())>=0) continue;
+    if(s.mode_reservation==='journee'){ res.push({d:new Date(d),slots:null}); open++; continue; }
+    var cand=slotsJour(s,d); if(!cand.length) continue;
+    var jourStr=d.getFullYear()+'-'+pad2(d.getMonth()+1)+'-'+pad2(d.getDate());
+    var taken={};
+    try{
+      var rr=await sb().rpc('get_creneaux_pris',{p_salon_id:s.id,p_jour:jourStr});
+      (rr.data||[]).forEach(function(x){ var tt=new Date(x.date_rdv); var k=pad2(tt.getHours())+':'+pad2(tt.getMinutes()); taken[k]=(taken[k]||0)+1; });
+    }catch(e){}
+    var free=cand.filter(function(x){ return (taken[x]||0)<(s.nb_sieges||1); });
+    if(free.length){ res.push({d:new Date(d),slots:free.slice(0,3)}); open++; }
+  }
+  return res;
+}
+function chargerDispos(list){
+  for(var i=0;i<list.length && i<25;i++){ (function(s){
+    dispoSalon(s).then(function(res){
+      var host=document.getElementById('dispo-'+s.id); if(!host) return;
+      if(!res.length){ host.innerHTML='<div class="dispo-t" style="color:var(--brun-l)">'+t('ann.dispo_aucune','Pas de créneau proche')+'</div>'; return; }
+      host.innerHTML='<div class="dispo-t">'+t('ann.dispo_titre','Prochaines dispos')+'</div>'+res.map(function(r){
+        var jour='<span class="dd">'+esc(jourCourt(r.d))+' '+r.d.getDate()+'</span>';
+        if(r.slots===null) return '<div class="dispo-day">'+jour+' <a class="chip" href="/client/salon.html?s='+encodeURIComponent(s.slug)+'">'+t('ann.dispo_jour','Disponible')+'</a></div>';
+        var chips=r.slots.map(function(tm){ return '<a class="chip" href="/client/salon.html?s='+encodeURIComponent(s.slug)+'"><bdi dir="ltr">'+tm+'</bdi></a>'; }).join('');
+        return '<div class="dispo-day">'+jour+' '+chips+'</div>';
+      }).join('');
+    }).catch(function(){});
+  })(list[i]); }
+}
+ 
+var ALL_SALONS=[];
+async function chargerTous(search){
+  var box=document.getElementById('results');
+  box.innerHTML='<div class="empty">Recherche…</div>';
+  var r=await sb().rpc('annuaire_salons',{ p_search: search||null });
+  if(r.error){ box.innerHTML='<div class="empty">Erreur : '+esc(r.error.message)+'</div>'; return; }
+  ALL_SALONS=r.data||[];
+  peuplerWilayas();
+  appliquerFiltres();
+}
+function peuplerWilayas(){
+  var sel=document.getElementById('wilaya'); if(!sel) return;
+  var actuel=sel.value;
+  var ws=[]; ALL_SALONS.forEach(function(s){ if(s.wilaya && ws.indexOf(s.wilaya)<0) ws.push(s.wilaya); });
+  ws.sort();
+  sel.innerHTML='<option value="">Toutes les wilayas</option>'+ws.map(function(w){return '<option value="'+esc(w)+'">'+esc(w)+'</option>';}).join('');
+  sel.value=actuel;
+}
+function appliquerFiltres(){
+  var w=document.getElementById('wilaya').value;
+  var g=(document.getElementById('genre')||{}).value||'';
+  var c=(document.getElementById('cat')||{}).value||'';
+  var pg=(document.getElementById('gamme')||{}).value||'';
+  var list=ALL_SALONS.filter(function(s){
+    if(w && s.wilaya!==w) return false;
+    if(g && !(s.genre===g || s.genre==='mixte')) return false;
+    if(c && (s.categories||[]).indexOf(c)<0) return false;
+    if(pg && String(gammeNum(s.prix_moyen))!==pg) return false;
+    return true;
+  });
+  render(list);
+}
+ 
+async function autourDeMoi(){
+  var box=document.getElementById('results');
+  if(!navigator.geolocation){ box.innerHTML='<div class="empty">Géolocalisation indisponible sur cet appareil.</div>'; return; }
+  box.innerHTML='<div class="empty">📍 Localisation en cours…</div>';
+  navigator.geolocation.getCurrentPosition(async function(pos){
+    var r=await sb().rpc('salons_proches',{
+      p_lat:pos.coords.latitude, p_lng:pos.coords.longitude, p_limit:30 });
+    if(r.error){ box.innerHTML='<div class="empty">Erreur : '+esc(r.error.message)+'</div>'; return; }
+    if(!r.data || !r.data.length){
+      box.innerHTML='<div class="empty">Aucun salon géolocalisé pour l\'instant près de vous.</div>'; return; }
+    render(r.data);
+  }, function(){
+    box.innerHTML='<div class="empty">Localisation refusée. Utilisez la recherche par nom/ville.</div>';
+  });
+}
+ 
+function boot(){
+  if(!sb()){ return setTimeout(boot,60); }
+  document.getElementById('btn-search').addEventListener('click', function(){ chargerTous(document.getElementById('q').value.trim()); });
+  document.getElementById('q').addEventListener('keydown', function(e){ if(e.key==='Enter') chargerTous(this.value.trim()); });
+  document.getElementById('btn-geo').addEventListener('click', autourDeMoi);
+  document.getElementById('wilaya').addEventListener('change', appliquerFiltres);
+  document.getElementById('genre').addEventListener('change', appliquerFiltres);
+  document.getElementById('cat').addEventListener('change', appliquerFiltres);
+  document.getElementById('gamme').addEventListener('change', appliquerFiltres);
+  peuplerCats();
+  document.addEventListener('wq:langchange', function(){ peuplerCats(); appliquerFiltres(); });
+  chargerTous('');
+}
+document.addEventListener('DOMContentLoaded', boot);
+</script>
+</body>
+</html>
