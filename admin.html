@@ -360,6 +360,7 @@ function renderSalons(salons) {
             ${trialInfo} · ${s.wilaya || '—'}
           </div>
           <div class="salon-meta" style="margin-top:4px; font-family:monospace">/${s.slug}</div>
+          <div class="salon-meta" id="usage-${s.id}" style="margin-top:4px">Messages : …</div>
         </div>
         <div class="salon-actions">
           <button class="icon-btn" onclick="copyLink('${s.slug}')">📋 Lien</button>
@@ -372,6 +373,27 @@ function renderSalons(salons) {
       </div>
     `;
   }).join('');
+
+  // Décompte des messages du cycle en cours (quota + dépassement) par salon
+  chargerUsages(salons);
+}
+
+async function chargerUsages(salons) {
+  for (const s of salons) {
+    const el = document.getElementById('usage-' + s.id);
+    if (!el) continue;
+    const { data, error } = await WAQQTI.supabase.rpc('usage_messages', { p_salon_id: s.id });
+    if (error || !data || !data.length) { el.textContent = 'Messages : —'; continue; }
+    const u = data[0];
+    if (u.depassement > 0) {
+      el.innerHTML = `Messages : <b>${u.envoyes}</b> / ${u.inclus} · ` +
+        `dépassement <b>${u.depassement}</b> = <b>${u.montant_depassement} DZD</b> à facturer`;
+      el.style.color = '#C0272E';
+    } else {
+      el.textContent = `Messages : ${u.envoyes} / ${u.inclus} (cycle depuis ${u.cycle_debut})`;
+      el.style.color = '';
+    }
+  }
 }
 
 function filterSalons(q) {
