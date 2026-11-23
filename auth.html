@@ -315,7 +315,9 @@ function boot(){
   document.getElementById('toggle').addEventListener('click', function(e){ e.preventDefault(); toggleMode(); });
   document.getElementById('forgot').addEventListener('click', forgotPassword);
   document.getElementById('btn-google').addEventListener('click', function(){ WAQQTI.loginGoogle(window.location.href); });
-  document.getElementById('btn-logout').addEventListener('click', async function(){ await sb().auth.signOut(); location.reload(); });
+  document.getElementById('btn-logout').addEventListener('click', async function(){
+    try{ Object.keys(localStorage).forEach(function(k){ if(k.indexOf('waqqti_resa_')===0) localStorage.removeItem(k); }); }catch(e){}
+    await sb().auth.signOut(); location.reload(); });
   document.getElementById('cs-resend').addEventListener('click', resendConfirmation);
   document.getElementById('cs-back').addEventListener('click', function(){
     document.getElementById('confirm-sent').classList.add('hidden');
