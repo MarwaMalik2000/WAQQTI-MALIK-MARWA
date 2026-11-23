@@ -25,6 +25,19 @@
     auth: { persistSession: true, autoRefreshToken: true }
   });
 
+  // Déconnexion : on oublie les réservations mémorisées sur cet appareil
+  // (sinon la page salon réaffiche l'ancienne confirmation au client suivant).
+  function oublierReservations() {
+    try {
+      Object.keys(localStorage).forEach(function (k) {
+        if (k.indexOf('waqqti_resa_') === 0) localStorage.removeItem(k);
+      });
+    } catch (e) {}
+  }
+  client.auth.onAuthStateChange(function (event) {
+    if (event === 'SIGNED_OUT') oublierReservations();
+  });
+
   /* ---------------------------------------------------------
      2. HELPERS
      --------------------------------------------------------- */
