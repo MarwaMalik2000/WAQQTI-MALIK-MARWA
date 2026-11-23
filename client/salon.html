@@ -1610,6 +1610,7 @@ function goToStep(n) {
     if (stepNum === n) s.classList.add('active');
   });
   currentStep = n;
+  if (n === 3) prefillCoordonnees();
   // Galerie + à-propos : sur l'accueil (étape 1). Avis : seulement à la confirmation (étape 4).
   ['salon-gallery','salon-about'].forEach(function(id){ var el=document.getElementById(id); if(el) el.style.display=(n===1?'block':'none'); });
   var av=document.getElementById('avis-section'); if(av) av.style.display=(n===4?'block':'none');
@@ -1656,6 +1657,41 @@ function nextStep() {
   }
 }
  
+// ─── Pré-remplissage des coordonnées pour un client connecté ───
+var profilClient = null;
+async function prefillCoordonnees(){
+  try{
+    var s = await WAQQTI.supabase.auth.getSession();
+    var u = (s && s.data && s.data.session) ? s.data.session.user : null;
+    if(!u) return;
+    if(!profilClient){
+      var r = await WAQQTI.supabase.from('profiles')
+        .select('nom,prenom,email,telephone').eq('id', u.id).maybeSingle();
+      var p = (r && r.data) || {};
+      var meta = u.user_metadata || {};
+      profilClient = {
+        nom: [p.prenom || meta.prenom, p.nom || meta.nom].filter(Boolean).join(' ')
+             || meta.full_name || meta.name || '',
+        email: p.email || u.email || '',
+        telephone: p.telephone || meta.telephone || ''
+      };
+    }
+    var fNom=document.getElementById('client-nom'), fTel=document.getElementById('client-tel'),
+        fCode=document.getElementById('client-tel-code'), fMail=document.getElementById('client-email');
+    if(fNom && !fNom.value) fNom.value = profilClient.nom;
+    if(fMail && !fMail.value) fMail.value = profilClient.email;
+    if(fTel && !fTel.value && profilClient.telephone){
+      var t = String(profilClient.telephone).replace(/[^\d+]/g,'');
+      var codes = ['+213','+33','+34','+32','+1'], code = null;
+      for (var i=0;i<codes.length;i++){ if(t.indexOf(codes[i])===0){ code=codes[i]; break; } }
+      if(code){ if(fCode) fCode.value = code; fTel.value = t.slice(code.length); }
+      else fTel.value = t;
+    }
+    // Réactive le bouton « Confirmer » si les champs obligatoires sont remplis
+    [fNom, fTel].forEach(function(el){ if(el) el.dispatchEvent(new Event('input')); });
+  }catch(e){}
+}
+
 // ─── CONFIRMATION FINALE ───
 async function confirmReservation() {
   const btn = document.getElementById('btn-next');
@@ -1716,6 +1752,12 @@ async function confirmReservation() {
   reservation.annulToken = data.annul_token || null;
   reservation.canalConfirm = _uid ? 'email' : 'whatsapp';
   saveResa(data.id, data.annul_token);   // mémorise la réservation + token d'annulation
+  // Premier RDV d'un client connecté sans téléphone enregistré : on le garde pour la prochaine fois
+  if (_uid && profilClient && !profilClient.telephone && fullTel) {
+    profilClient.telephone = fullTel;
+    WAQQTI.supabase.from('profiles').update({ telephone: fullTel }).eq('id', _uid)
+      .then(function(){}, function(){});
+  }
  
   goToStep(4);
   document.getElementById('recap-bar').classList.remove('visible');
