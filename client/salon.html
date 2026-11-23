@@ -675,7 +675,7 @@
   <div class="step-content" id="step-3">
     <div class="card">
       <h2 class="card-title" data-i18n="book.coordonnees_titre">Vos coordonnées</h2>
-      <p class="card-sub" data-i18n="book.coord_sub">Nous enverrons une confirmation par SMS</p>
+      <p class="card-sub" data-i18n="book.coord_sub">Confirmation par WhatsApp, ou par e-mail si vous êtes connecté</p>
  
       <div class="form-row">
         <label data-i18n="book.nom_label">Nom complet *</label>
@@ -695,7 +695,7 @@
           <input type="tel" id="client-tel" placeholder="770 12 34 56" required
                  style="border-radius:0 12px 12px 0;flex:1" maxlength="15">
         </div>
-        <div class="hint" data-i18n="book.tel_hint">Nous vous enverrons un SMS de confirmation et un rappel 24h avant</div>
+        <div class="hint" data-i18n="book.tel_hint">Indiquez un numéro WhatsApp : confirmation et rappel la veille du rendez-vous</div>
       </div>
  
       <div class="form-row">
@@ -843,6 +843,7 @@ function prepareFromResa(resa){
   reservation.duree = resa.duree_minutes;
   reservation.acompteMontant = Number(resa.acompte_montant || 0);
   reservation.acompteRequis = (resa.acompte_statut === 'en_attente' || resa.acompte_statut === 'refuse');
+  reservation.canalConfirm = resa.client_user_id ? 'email' : 'whatsapp';
   var d = new Date(resa.date_rdv);
   reservation.heure = d.toTimeString().slice(0,5);
   reservation.dateLabel = window.WQ ? WQ.dateLisible(d)
@@ -872,18 +873,22 @@ function updateStatusVisual(statut){
   var title=document.getElementById('confirm-title');
   var sub=document.getElementById('confirm-subtitle');
   if(!icon||!title||!sub) return;
+  function put(el,key,fallback){ el.setAttribute('data-i18n',key); el.textContent=T(key,fallback); }
   if(statut==='en_attente'){
     icon.textContent='⏳'; icon.style.background='var(--or)';
-    title.textContent=T('book.attente_titre','Réservation en attente');
-    sub.textContent=T('book.attente_sub','Votre réservation sera confirmée une fois votre acompte validé par le salon.');
+    put(title,'book.attente_titre','Réservation en attente');
+    put(sub,'book.attente_sub','Votre réservation sera confirmée une fois votre acompte validé par le salon.');
   } else if(statut==='refuse'){
     icon.textContent='✕'; icon.style.background='var(--red)';
-    title.textContent=T('book.refuse_titre','Acompte refusé');
-    sub.textContent=T('book.refuse_sub','Votre justificatif a été refusé. Merci d\'en renvoyer un valide.');
+    put(title,'book.refuse_titre','Acompte refusé');
+    put(sub,'book.refuse_sub','Votre justificatif a été refusé. Merci d\'en renvoyer un valide.');
   } else { // recu ou non_requis
     icon.textContent='✓'; icon.style.background='var(--green)';
-    title.textContent=T('book.confirme_titre','Réservation confirmée !');
-    sub.textContent=T('book.confirme_sub','Une confirmation vous a été envoyée sur WhatsApp.');
+    put(title,'book.confirme_titre','Réservation confirmée !');
+    if(reservation.canalConfirm==='email')
+      put(sub,'book.confirme_sub_email','Une confirmation vous a été envoyée par e-mail.');
+    else
+      put(sub,'book.confirme_sub','Une confirmation vous a été envoyée sur WhatsApp.');
   }
 }
  
@@ -999,7 +1004,12 @@ async function initSalon() {
     const rr = await WAQQTI.supabase.rpc('statut_reservation', { p_id: savedId });
     if (!rr.error && rr.data && rr.data.length) resa = rr.data[0];
     else { const dd = await WAQQTI.supabase.from('reservations').select('*').eq('id', savedId).maybeSingle(); resa = dd.data; }
-    if (resa && resa.statut !== 'annule') {
+    // On ne réaffiche l'écran de suivi que si l'acompte est encore à régler ou à valider
+    // et que le RDV est à venir. Sinon : parcours de réservation neuf.
+    var suiviUtile = resa && resa.statut !== 'annule'
+      && (resa.acompte_statut === 'en_attente' || resa.acompte_statut === 'refuse')
+      && new Date(resa.date_rdv) > new Date();
+    if (suiviUtile) {
       prepareFromResa(resa);
       showStatusScreen(resa);
       startStatusPolling();
@@ -1704,6 +1714,7 @@ async function confirmReservation() {
   reservation.acompteMontant = Number(data.acompte_montant || 0);
   reservation.acompteRequis = data.acompte_statut === 'en_attente';
   reservation.annulToken = data.annul_token || null;
+  reservation.canalConfirm = _uid ? 'email' : 'whatsapp';
   saveResa(data.id, data.annul_token);   // mémorise la réservation + token d'annulation
  
   goToStep(4);
