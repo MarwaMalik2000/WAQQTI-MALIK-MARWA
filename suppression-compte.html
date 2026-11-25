@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Supprimer mon compte — Waqqti</title>
+  <meta name="theme-color" content="#F68423"/>
+  <link rel="icon" href="/assets/logo.svg"/>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="/assets/config.js" defer></script>
+  <style>
+    :root{--or:#F68423;--or-dk:#D26F1A;--cream:#FDEFE2;--brun:#3D1F00;--brun-l:#7A5030;
+      --ease-out:cubic-bezier(.16,1,.3,1)}
+    *{margin:0;padding:0;box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{font-family:'DM Sans',sans-serif;background:#FBF7F2;color:var(--brun);line-height:1.72;
+      -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;font-optical-sizing:auto;text-rendering:optimizeLegibility}
+    .top{background:linear-gradient(135deg,var(--or),var(--or-dk));color:#fff;padding:22px 6%;position:sticky;top:0;z-index:10;box-shadow:inset 0 1px 0 rgba(255,255,255,.4)}
+    .top-in{max-width:820px;margin:0 auto;display:flex;align-items:center;gap:14px}
+    .top a.back{color:#fff;font-size:22px;text-decoration:none;background:rgba(255,255,255,.2);width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;transition:.2s var(--ease-out)}
+    .top a.back:hover{background:rgba(255,255,255,.32)}
+    .top a.back:active{transform:scale(.92)}
+    .top img{height:46px;filter:brightness(0) invert(1);transition:transform .2s var(--ease-out)}
+    .top a:active img{transform:scale(.96)}
+    main{max-width:820px;margin:0 auto;padding:40px 6% 80px}
+    /* Typo optique de lecture (Apple §15) : titres serrés, corps confortable */
+    h1{font-family:'Cormorant Garamond',serif;font-size:38px;font-weight:700;letter-spacing:-.02em;line-height:1.08;margin-bottom:6px}
+    .maj{color:var(--brun-l);font-size:14px;margin-bottom:30px}
+    h2{font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:700;letter-spacing:-.015em;line-height:1.15;margin:28px 0 8px}
+    p,li{font-size:15px;color:#4a3420;margin-bottom:8px;letter-spacing:.003em}
+    li{margin-left:2px}
+    a{color:var(--or-dk);text-decoration:underline;text-underline-offset:2px;transition:color .2s}
+    a:hover{color:var(--or)}
+    .note{background:var(--cream);border-left:3px solid var(--or);padding:12px 16px;border-radius:0 10px 10px 0;font-size:14px;color:var(--brun-l);margin-top:24px;line-height:1.65}
+    .box{background:#fff;border:1px solid #EFE6DA;border-radius:18px;padding:22px;margin-top:14px}
+    label{display:block;font-size:13px;color:var(--brun-l);margin:12px 0 4px}
+    input{width:100%;font:inherit;font-size:15px;padding:12px 14px;border:1px solid #E6D9C8;border-radius:12px;background:#FBF7F2;color:var(--brun)}
+    input:focus{outline:2px solid var(--or);outline-offset:1px}
+    .btn{display:inline-block;margin-top:16px;border:0;border-radius:999px;padding:13px 22px;font:inherit;font-weight:600;font-size:15px;cursor:pointer;transition:transform .15s var(--ease-out),opacity .2s}
+    .btn:active{transform:scale(.97)}
+    .btn-or{background:var(--or);color:#fff}
+    .btn-danger{background:#C1603A;color:#fff}
+    .btn-ghost{background:transparent;color:var(--brun-l);text-decoration:underline;padding:13px 6px}
+    .btn[disabled]{opacity:.55;cursor:default}
+    .msg{font-size:14px;margin-top:12px}
+    .msg.err{color:#C1603A}.msg.ok{color:#3E9C6B}
+    ol li{margin-left:20px}
+    [hidden]{display:none!important}
+    footer{text-align:center;padding:24px;color:var(--brun-l);font-size:13px}
+    @media (prefers-reduced-motion:reduce){ html{scroll-behavior:auto} *,*::before,*::after{transition-duration:.01ms!important} }
+  </style>
+  <!-- WQ-SEO-INJECT : SEO social, icônes, consentement, anti-spam (ajout auto) -->
+  <link rel="canonical" href="https://www.waqqti.com/suppression-compte.html"/>
+  <meta name="theme-color" content="#F68423"/>
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png"/>
+  <link rel="manifest" href="/manifest.json"/>
+  <meta property="og:type" content="website"/>
+  <meta property="og:site_name" content="Waqqti"/>
+  <meta property="og:locale" content="fr_FR"/>
+  <meta property="og:title" content="Supprimer mon compte — Waqqti"/>
+  <meta property="og:description" content="La première plateforme algérienne de réservation en ligne pour salons de beauté et coiffure."/>
+  <meta property="og:url" content="https://www.waqqti.com/suppression-compte.html"/>
+  <meta property="og:image" content="https://www.waqqti.com/assets/og-image.png"/>
+  <meta property="og:image:width" content="1200"/>
+  <meta property="og:image:height" content="630"/>
+  <meta name="twitter:card" content="summary_large_image"/>
+  <meta name="twitter:title" content="Supprimer mon compte — Waqqti"/>
+  <meta name="twitter:description" content="La première plateforme algérienne de réservation en ligne pour salons de beauté et coiffure."/>
+  <meta name="twitter:image" content="https://www.waqqti.com/assets/og-image.png"/>
+  <script defer src="/assets/antispam.js"></script>
+  <script defer src="/assets/cookies.js"></script>
+  <!-- /WQ-SEO-INJECT -->
+</head>
+<body>
+  <div class="top"><div class="top-in">
+    <a href="#" class="back" title="Retour" onclick="if(history.length>1){history.back()}else{location.href='/'}return false;">←</a>
+    <a href="/"><img src="/assets/logo.svg" alt="Waqqti"/></a>
+  </div></div>
+  <main>
+    <h1>Supprimer mon compte Waqqti</h1>
+    <p class="maj">Application Waqqti (iPhone et Android) et site waqqti.com</p>
+
+    <p>Vous pouvez supprimer votre compte Waqqti à tout moment, gratuitement. La suppression est définitive.</p>
+
+    <h2>Depuis l'application</h2>
+    <ol>
+      <li>Ouvrez l'application Waqqti et connectez-vous.</li>
+      <li>Allez dans l'onglet <strong>Profil</strong>.</li>
+      <li>Touchez <strong>Supprimer mon compte</strong> tout en bas, puis confirmez.</li>
+    </ol>
+
+    <h2>Depuis ce site</h2>
+    <div class="box" id="zone-login">
+      <p>Connectez-vous avec l'email et le mot de passe de votre compte pour le supprimer.</p>
+      <label for="email">Email</label>
+      <input id="email" type="email" autocomplete="email"/>
+      <label for="mdp">Mot de passe</label>
+      <input id="mdp" type="password" autocomplete="current-password"/>
+      <button class="btn btn-or" id="btn-login">Se connecter</button>
+      <p class="msg" id="msg-login"></p>
+    </div>
+    <div class="box" id="zone-delete" hidden>
+      <p>Connecté en tant que <strong id="qui"></strong>.</p>
+      <p>En confirmant, votre compte, votre profil (nom, email, téléphone) et le lien entre votre compte et vos réservations sont supprimés immédiatement.</p>
+      <button class="btn btn-danger" id="btn-delete">Supprimer définitivement mon compte</button>
+      <button class="btn btn-ghost" id="btn-logout">Se déconnecter</button>
+      <p class="msg" id="msg-delete"></p>
+    </div>
+
+    <h2>Par email</h2>
+    <p>Vous vous connectez avec Google ou Apple, ou vous n'avez plus accès à l'application ? Écrivez-nous à <a href="mailto:contact@waqqti.com?subject=Suppression%20de%20mon%20compte%20Waqqti">contact@waqqti.com</a> depuis l'adresse email de votre compte, avec pour objet « Suppression de mon compte ». Nous la traitons sous 7 jours maximum.</p>
+
+    <h2>Ce qui est supprimé, ce qui est conservé</h2>
+    <ul>
+      <li><strong>Supprimé :</strong> votre compte, votre profil (nom, prénom, email, téléphone), vos préférences et le lien entre votre compte et vos réservations.</li>
+      <li><strong>Conservé par le salon :</strong> les rendez-vous déjà pris (nom et téléphone indiqués lors de la réservation), le temps nécessaire à leur gestion et aux obligations comptables du salon, au maximum 3 ans.</li>
+      <li>Les avis que vous avez publiés peuvent être supprimés ; demandez-le-nous par email si vous souhaitez aussi les effacer.</li>
+    </ul>
+    <p class="note">Les gérants de salon : supprimer votre compte détache le salon de votre accès gérant. Pour fermer définitivement votre salon sur Waqqti, écrivez-nous à <a href="mailto:contact@waqqti.com">contact@waqqti.com</a>.</p>
+  </main>
+  <footer>© 2026 Waqqti · <a href="/">Accueil</a> · <a href="/confidentialite.html">Confidentialité</a> · <a href="/cgu.html">CGU</a></footer>
+  <script>
+  document.addEventListener('DOMContentLoaded', function () {
+    function go() {
+      var sb = window.WAQQTI && window.WAQQTI.supabase;
+      if (!sb) { document.getElementById('msg-login').textContent = 'Service indisponible, réessayez ou écrivez-nous par email.'; return; }
+      var $ = function (id) { return document.getElementById(id); };
+      function afficher(session) {
+        var connecte = !!(session && session.user);
+        $('zone-login').hidden = connecte;
+        $('zone-delete').hidden = !connecte;
+        if (connecte) $('qui').textContent = session.user.email || 'votre compte';
+      }
+      sb.auth.getSession().then(function (r) { afficher(r.data.session); });
+      $('btn-login').onclick = function () {
+        var m = $('msg-login'); m.className = 'msg'; m.textContent = '';
+        var b = this; b.disabled = true;
+        sb.auth.signInWithPassword({ email: $('email').value.trim(), password: $('mdp').value }).then(function (r) {
+          b.disabled = false;
+          if (r.error) { m.className = 'msg err'; m.textContent = 'Email ou mot de passe incorrect.'; return; }
+          afficher(r.data.session);
+        });
+      };
+      $('btn-logout').onclick = function () { sb.auth.signOut().then(function () { afficher(null); }); };
+      $('btn-delete').onclick = function () {
+        if (!confirm('Supprimer définitivement votre compte Waqqti ? Cette action est irréversible.')) return;
+        var m = $('msg-delete'); m.className = 'msg'; m.textContent = '';
+        var b = this; b.disabled = true;
+        sb.rpc('supprimer_mon_compte').then(function (r) {
+          if (r.error) { b.disabled = false; m.className = 'msg err'; m.textContent = 'La suppression a échoué. Écrivez-nous à contact@waqqti.com.'; return; }
+          sb.auth.signOut({ scope: 'local' }).finally(function () {
+            $('zone-delete').innerHTML = '<p class="msg ok">Votre compte a bien été supprimé.</p>';
+          });
+        });
+      };
+    }
+    if (window.WAQQTI) go(); else document.addEventListener('wq:ready', go);
+  });
+  </script>
+</body>
+</html>
