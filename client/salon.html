@@ -10,8 +10,8 @@
   <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@700&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet"/>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <!-- Moteur de traduction FR / AR (dans le <head>) -->
-  <script src="../assets/i18n.js"></script>
-  <script src="../assets/config.js" defer></script>
+  <script src="/assets/i18n.js"></script>
+  <script src="/assets/config.js" defer></script>
   <style>
     :root {
       --or:#F68423; --or-dk:#D26F1A; --or-lt:#F5B865;
@@ -466,6 +466,7 @@
     }
   </style>
   <!-- WQ-SEO-INJECT : SEO social, icônes, consentement, anti-spam (ajout auto) -->
+  <meta name="robots" content="noindex"/>
   <link rel="canonical" href="https://www.waqqti.com/client/salon.html"/>
   <meta name="theme-color" content="#F68423"/>
   <link rel="apple-touch-icon" href="/apple-touch-icon.png"/>
@@ -806,7 +807,7 @@ async function annulerRDV(){
   if(r.error){ alert('❌ '+r.error.message); return; }
   alert(T('book.annuler_ok','Rendez-vous annulé. À bientôt !'));
   clearSavedResa();
-  location.href='/client/salon.html?s='+encodeURIComponent(getSalonSlug());
+  location.href='/salon/'+encodeURIComponent(getSalonSlug());
 }
 function telechargerICS(){
   var start=new Date(reservation.date+'T'+(reservation.heure||'09:00')+':00');
@@ -924,8 +925,11 @@ function startStatusPolling(){
   }, 12000);
 }
  
-// Lecture du slug dans l'URL : ?s=yasmine-beauty ou /yasmine-beauty
+// Lecture du slug dans l'URL : /salon/yasmine-beauty (adresse publique)
+// ou ancien format ?s=yasmine-beauty (toujours accepté)
 function getSalonSlug() {
+  const m = window.location.pathname.match(/^\/salon\/([^\/?#]+)/);
+  if (m) return decodeURIComponent(m[1]);
   const params = new URLSearchParams(window.location.search);
   const fromParam = params.get('s') || params.get('salon');
   if (fromParam) return fromParam;
@@ -1134,7 +1138,7 @@ async function buildAvisForm(salon){
   if(!uid){
     zone.innerHTML='<div style="background:var(--cream);border-radius:12px;padding:14px;font-size:14px">'+
       T('book.avis_login','Connectez-vous et réservez pour laisser un avis.')+' '+
-      '<a href="/auth.html" style="color:var(--or);font-weight:600">'+T('book.avis_login_cta','Se connecter')+'</a></div>';
+      '<a href="/auth" style="color:var(--or);font-weight:600">'+T('book.avis_login_cta','Se connecter')+'</a></div>';
     return;
   }
   const rr=await WAQQTI.supabase.rpc('mes_resa_a_noter',{p_salon_id:salon.id});
@@ -1391,7 +1395,7 @@ async function injectAcompteLoginBanner(){
   div.style.cssText='border:1.5px solid var(--or);background:#FFF6EE';
   div.innerHTML='<b>👤 '+T('book.acompte_compte_titre','Un compte est nécessaire pour les acomptes')+'</b>'+
     '<p style="font-size:13px;color:var(--brun-l);margin:6px 0 10px">'+T('book.acompte_compte_sub','Connectez-vous ou créez un compte pour suivre votre acompte. Vos infos restent ici — revenez ensuite valider.')+'</p>'+
-    '<a href="/auth.html" target="_blank" rel="noopener" class="btn-next" style="display:inline-flex;text-decoration:none">'+T('book.avis_login_cta','Se connecter')+'</a>';
+    '<a href="/auth" target="_blank" rel="noopener" class="btn-next" style="display:inline-flex;text-decoration:none">'+T('book.avis_login_cta','Se connecter')+'</a>';
   host.parentNode.insertBefore(div, host.nextSibling);
 }
  
