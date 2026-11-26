@@ -5,17 +5,16 @@
    (données temps réel : rendez-vous, dispos…). Ils passent direct au réseau.
    À enregistrer en chemin ABSOLU : navigator.serviceWorker.register('/service-worker.js')
    ============================================================ */
-var CACHE = 'waqqti-v4';
+var CACHE = 'waqqti-v5';
 
 // Coquille de l'app mise en cache à l'installation (ajuste si besoin).
 var PRECACHE = [
   '/',
-  '/index.html',
   '/manifest.json',
   '/assets/config.js',
   '/assets/i18n.js',
-  '/client/salon.html',
-  '/pro/dashboard.html'
+  '/client/salon',
+  '/pro/dashboard'
 ];
 
 self.addEventListener('install', function (event) {
@@ -60,7 +59,7 @@ self.addEventListener('fetch', function (event) {
       return res;
     }).catch(function () {
       return caches.match(req).then(function (cached) {
-        return cached || caches.match('/index.html');
+        return cached || caches.match('/');
       });
     })
   );
@@ -78,7 +77,7 @@ self.addEventListener('push', function (event) {
     icon: '/assets/logo.svg',
     badge: '/assets/logo.svg',
     tag: data.tag || 'waqqti-rdv',
-    data: { url: data.url || '/pro/dashboard.html' },
+    data: { url: data.url || '/pro/dashboard' },
     vibrate: [120, 60, 120]
   };
   event.waitUntil(self.registration.showNotification(title, options));
@@ -86,7 +85,7 @@ self.addEventListener('push', function (event) {
 
 self.addEventListener('notificationclick', function (event) {
   event.notification.close();
-  var url = (event.notification.data && event.notification.data.url) || '/pro/dashboard.html';
+  var url = (event.notification.data && event.notification.data.url) || '/pro/dashboard';
   event.waitUntil(
     self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(function (list) {
       for (var i = 0; i < list.length; i++) {

@@ -79,7 +79,7 @@
     }
   </style>
   <!-- WQ-SEO-INJECT : SEO social, icônes, consentement, anti-spam (ajout auto) -->
-  <link rel="canonical" href="https://www.waqqti.com/auth.html"/>
+  <link rel="canonical" href="https://www.waqqti.com/auth"/>
   <meta name="theme-color" content="#F68423"/>
   <link rel="apple-touch-icon" href="/apple-touch-icon.png"/>
   <link rel="manifest" href="/manifest.json"/>
@@ -88,7 +88,7 @@
   <meta property="og:locale" content="fr_FR"/>
   <meta property="og:title" content="Espace client — Waqqti"/>
   <meta property="og:description" content="La première plateforme algérienne de réservation en ligne pour salons de beauté et coiffure."/>
-  <meta property="og:url" content="https://www.waqqti.com/auth.html"/>
+  <meta property="og:url" content="https://www.waqqti.com/auth"/>
   <meta property="og:image" content="https://www.waqqti.com/assets/og-image.png"/>
   <meta property="og:image:width" content="1200"/>
   <meta property="og:image:height" content="630"/>
@@ -144,7 +144,7 @@
     <div class="em" id="ac-email"></div>
     <button class="btn" id="btn-histo" style="width:100%;margin:16px 0 6px">📅 Mes réservations</button>
     <div id="mes-resa" class="hidden" style="text-align:left;margin:6px 0 16px"></div>
-    <a class="btn" href="/annuaire.html" style="display:block;text-align:center;margin:12px 0">Trouver un salon →</a>
+    <a class="btn" href="/annuaire" style="display:block;text-align:center;margin:12px 0">Trouver un salon →</a>
     <button class="btn btn-google" id="btn-logout">Se déconnecter</button>
     <a class="home" href="/" data-i18n="auth.retour_accueil">← Retour à l'accueil</a>
   </div>
@@ -190,7 +190,7 @@ async function showMesReservations(uid){
       '<div style="font-weight:600">'+esc(x.prestation_nom||'')+(salonNom?' · '+esc(salonNom):'')+'</div>'+
       '<div style="color:var(--brun-l)" dir="ltr">'+d.toLocaleDateString('fr-FR')+' · '+d.toTimeString().slice(0,5)+'</div>'+
       '<div style="margin-top:3px">'+stLabel(x)+'</div>'+
-      (slug?'<a href="/client/salon.html?s='+encodeURIComponent(slug)+'" style="color:var(--or);font-size:12px;text-decoration:none;font-weight:600">Revoir le salon →</a>':'')+
+      (slug?'<a href="/salon/'+encodeURIComponent(slug)+'" style="color:var(--or);font-size:12px;text-decoration:none;font-weight:600">Revoir le salon →</a>':'')+
       '</div>';
   }
   var now=new Date();
@@ -280,7 +280,7 @@ async function forgotPassword(e){
   if(!email){ err.style.color='var(--red)'; err.textContent='Entrez d\'abord votre email ci-dessus.'; return; }
   var link=document.getElementById('forgot'); link.textContent='Envoi…';
   var r=await sb().auth.resetPasswordForEmail(email, {
-    redirectTo: new URL('reset.html', window.location.href).href
+    redirectTo: window.location.origin + '/reset'
   });
   link.textContent='Mot de passe oublié ?';
   if(r.error){ err.style.color='var(--red)'; err.textContent='❌ '+r.error.message; return; }

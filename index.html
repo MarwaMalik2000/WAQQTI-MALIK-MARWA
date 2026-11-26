@@ -450,7 +450,7 @@
       .step:not(:last-child)::after { display:none }
       .foot-in { grid-template-columns:1fr 1fr }
       .plan.star { transform:none }
-      .nav-links a:not(.btn-nav):not(.lien-pro):not(.lien-client):not([href="/annuaire.html"]) { display:none }
+      .nav-links a:not(.btn-nav):not(.lien-pro):not(.lien-client):not([href="/annuaire"]) { display:none }
     }
     @media(max-width:480px){
       .sec, .how, .cta-sec, .pricing { padding-left:5%; padding-right:5% }
@@ -466,7 +466,7 @@
   <link rel="manifest" href="/manifest.json"/>
   <meta property="og:type" content="website"/>
   <meta property="og:site_name" content="Waqqti"/>
-  <meta property="og:locale" content="fr_FR"/>
+  <meta property="og:locale" content="fr_DZ"/>
   <meta property="og:title" content="Waqqti — Réservation beauté en ligne · Algérie"/>
   <meta property="og:description" content="La première plateforme algérienne de réservation en ligne pour salons de beauté et coiffure. Gérez vos rendez-vous 24h/24h."/>
   <meta property="og:url" content="https://www.waqqti.com/"/>
@@ -479,6 +479,8 @@
   <meta name="twitter:image" content="https://www.waqqti.com/assets/og-image.png"/>
   <script defer src="/assets/antispam.js"></script>
   <script defer src="/assets/cookies.js"></script>
+  <!-- Fiche de marque pour Google (nom, logo, variantes du nom) -->
+  <script type="application/ld+json">{"@context": "https://schema.org", "@graph": [{"@type": "Organization", "@id": "https://www.waqqti.com/#organisation", "name": "Waqqti", "alternateName": ["Waqqti DZ", "Waqqti Algérie", "وقتي", "waqqti.com"], "url": "https://www.waqqti.com/", "logo": "https://www.waqqti.com/assets/icons/icon-512.png", "description": "Plateforme algérienne de réservation en ligne pour salons de coiffure, barbiers et instituts de beauté.", "email": "contact@waqqti.com", "areaServed": {"@type": "Country", "name": "Algérie"}, "sameAs": ["https://instagram.com/waqqti"]}, {"@type": "WebSite", "@id": "https://www.waqqti.com/#site", "name": "Waqqti", "alternateName": ["Waqqti DZ", "وقتي"], "url": "https://www.waqqti.com/", "inLanguage": ["fr-DZ", "ar-DZ"], "publisher": {"@id": "https://www.waqqti.com/#organisation"}}]}</script>
   <!-- /WQ-SEO-INJECT -->
 </head>
 <body>
@@ -490,11 +492,11 @@
     <img src="/assets/logo.svg" alt="Waqqti"/>
   </a>
   <div class="nav-links">
-    <a href="/annuaire.html" data-i18n="nav.annuaire">Annuaire des salons</a>
+    <a href="/annuaire" data-i18n="nav.annuaire">Annuaire des salons</a>
     <a href="#fonctions" data-i18n="nav.fonctions">Fonctionnalités</a>
     <a href="#comment" data-i18n="nav.comment">Comment ça marche</a>
-    <a href="/auth.html" class="lien-client" data-i18n="nav.espace_client">Espace client</a>
-    <a href="/pro/dashboard.html" class="lien-pro" style="font-weight:700; color:var(--or);" data-i18n="nav.espace_pro">Espace Pro</a>
+    <a href="/auth" class="lien-client" data-i18n="nav.espace_client">Espace client</a>
+    <a href="/pro/dashboard" class="lien-pro" style="font-weight:700; color:var(--or);" data-i18n="nav.espace_pro">Espace Pro</a>
     <a href="#contact" class="btn-nav" data-i18n="nav.essai">Essai gratuit 30j →</a>
     <button type="button" data-lang-toggle class="lang-btn" aria-label="Changer de langue / تغيير اللغة">العربية</button>
   </div>
@@ -708,9 +710,9 @@
     </div>
     <div class="foot-col">
       <h4>Produit</h4>
-      <a href="/annuaire.html">Annuaire des salons</a>
-      <a href="/auth.html">Espace client</a>
-      <a href="/pro/dashboard.html">Espace Pro</a>
+      <a href="/annuaire">Annuaire des salons</a>
+      <a href="/auth">Espace client</a>
+      <a href="/pro/dashboard">Espace Pro</a>
       <a href="#fonctions">Fonctionnalités</a>
       <a href="#comment">Comment ça marche</a>
     </div>
@@ -722,9 +724,9 @@
     </div>
     <div class="foot-col">
       <h4>Légal</h4>
-      <a href="/mentions.html">Mentions légales</a>
-      <a href="/confidentialite.html">Confidentialité</a>
-      <a href="/cgu.html">CGU</a>
+      <a href="/mentions">Mentions légales</a>
+      <a href="/confidentialite">Confidentialité</a>
+      <a href="/cgu">CGU</a>
     </div>
   </div>
   <div class="foot-bot">

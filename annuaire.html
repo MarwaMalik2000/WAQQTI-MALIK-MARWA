@@ -118,7 +118,7 @@
     }
   </style>
   <!-- WQ-SEO-INJECT : SEO social, icônes, consentement, anti-spam (ajout auto) -->
-  <link rel="canonical" href="https://www.waqqti.com/annuaire.html"/>
+  <link rel="canonical" href="https://www.waqqti.com/annuaire"/>
   <meta name="theme-color" content="#F68423"/>
   <link rel="apple-touch-icon" href="/apple-touch-icon.png"/>
   <link rel="manifest" href="/manifest.json"/>
@@ -127,7 +127,7 @@
   <meta property="og:locale" content="fr_FR"/>
   <meta property="og:title" content="Annuaire des salons — Waqqti"/>
   <meta property="og:description" content="La première plateforme algérienne de réservation en ligne pour salons de beauté et coiffure."/>
-  <meta property="og:url" content="https://www.waqqti.com/annuaire.html"/>
+  <meta property="og:url" content="https://www.waqqti.com/annuaire"/>
   <meta property="og:image" content="https://www.waqqti.com/assets/og-image.png"/>
   <meta property="og:image:width" content="1200"/>
   <meta property="og:image:height" content="630"/>
@@ -147,8 +147,8 @@
         <a href="/" class="brand"><img src="/assets/logo.svg" alt="Waqqti" style="height:60px;width:auto;filter:brightness(0) invert(1);display:block"/></a>
       </div>
       <div style="display:flex;align-items:center;gap:12px">
-        <a href="/auth.html" data-i18n="nav.espace_client">Espace client</a>
-        <a href="/pro/dashboard.html" data-i18n="nav.espace_pro">Espace Pro</a>
+        <a href="/auth" data-i18n="nav.espace_client">Espace client</a>
+        <a href="/pro/dashboard" data-i18n="nav.espace_pro">Espace Pro</a>
         <button type="button" data-lang-toggle style="font-family:'Tajawal',sans-serif;font-weight:700;background:rgba(255,255,255,.2);color:#fff;border:none;border-radius:50px;padding:6px 14px;cursor:pointer;font-size:13px">العربية</button>
       </div>
     </div>
@@ -212,8 +212,8 @@ function render(list){
       (s.description?'<div class="sdesc">'+esc(s.description.length>95?s.description.slice(0,95)+'…':s.description)+'</div>':'')+
       dist+
       '<div class="dispo" id="dispo-'+esc(s.id)+'"></div>'+
-      '<a class="more" href="/client/salon.html?s='+encodeURIComponent(s.slug)+'#salon-about">'+t('ann.plus_infos','Plus d’informations')+' →</a>'+
-      '<a class="go" href="/client/salon.html?s='+encodeURIComponent(s.slug)+'">Réserver →</a>'+
+      '<a class="more" href="/salon/'+encodeURIComponent(s.slug)+'#salon-about">'+t('ann.plus_infos','Plus d’informations')+' →</a>'+
+      '<a class="go" href="/salon/'+encodeURIComponent(s.slug)+'">Réserver →</a>'+
       '</div>';
   }).join('');
   chargerDispos(list);
@@ -261,8 +261,8 @@ function chargerDispos(list){
       if(!res.length){ host.innerHTML='<div class="dispo-t" style="color:var(--brun-l)">'+t('ann.dispo_aucune','Pas de créneau proche')+'</div>'; return; }
       host.innerHTML='<div class="dispo-t">'+t('ann.dispo_titre','Prochaines dispos')+'</div>'+res.map(function(r){
         var jour='<span class="dd">'+esc(jourCourt(r.d))+' '+r.d.getDate()+'</span>';
-        if(r.slots===null) return '<div class="dispo-day">'+jour+' <a class="chip" href="/client/salon.html?s='+encodeURIComponent(s.slug)+'">'+t('ann.dispo_jour','Disponible')+'</a></div>';
-        var chips=r.slots.map(function(tm){ return '<a class="chip" href="/client/salon.html?s='+encodeURIComponent(s.slug)+'"><bdi dir="ltr">'+tm+'</bdi></a>'; }).join('');
+        if(r.slots===null) return '<div class="dispo-day">'+jour+' <a class="chip" href="/salon/'+encodeURIComponent(s.slug)+'">'+t('ann.dispo_jour','Disponible')+'</a></div>';
+        var chips=r.slots.map(function(tm){ return '<a class="chip" href="/salon/'+encodeURIComponent(s.slug)+'"><bdi dir="ltr">'+tm+'</bdi></a>'; }).join('');
         return '<div class="dispo-day">'+jour+' '+chips+'</div>';
       }).join('');
     }).catch(function(){});

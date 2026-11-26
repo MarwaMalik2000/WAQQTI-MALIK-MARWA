@@ -1,7 +1,102 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "cleanUrls": false,
+  "cleanUrls": true,
   "trailingSlash": false,
+  "functions": {
+    "api/salon.js": {
+      "includeFiles": "client/salon.html",
+      "maxDuration": 10
+    },
+    "api/ville.js": {
+      "maxDuration": 10
+    },
+    "api/sitemap.js": {
+      "maxDuration": 10
+    }
+  },
+  "redirects": [
+    {
+      "source": "/client/salon.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "s",
+          "value": "(?<slug>[a-zA-Z0-9-]+)"
+        }
+      ],
+      "destination": "/salon/:slug",
+      "permanent": true
+    },
+    {
+      "source": "/client/salon",
+      "has": [
+        {
+          "type": "query",
+          "key": "s",
+          "value": "(?<slug>[a-zA-Z0-9-]+)"
+        }
+      ],
+      "destination": "/salon/:slug",
+      "permanent": true
+    },
+    {
+      "source": "/client/salon.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "salon",
+          "value": "(?<slug>[a-zA-Z0-9-]+)"
+        }
+      ],
+      "destination": "/salon/:slug",
+      "permanent": true
+    },
+    {
+      "source": "/client/salon",
+      "has": [
+        {
+          "type": "query",
+          "key": "salon",
+          "value": "(?<slug>[a-zA-Z0-9-]+)"
+        }
+      ],
+      "destination": "/salon/:slug",
+      "permanent": true
+    },
+    {
+      "source": "/pro",
+      "destination": "/pro/dashboard",
+      "permanent": false
+    },
+    {
+      "source": "/salon",
+      "destination": "/annuaire",
+      "permanent": false
+    },
+    {
+      "source": "/salons",
+      "destination": "/annuaire",
+      "permanent": false
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/sitemap.xml",
+      "destination": "/api/sitemap"
+    },
+    {
+      "source": "/salon/:slug",
+      "destination": "/api/salon?slug=:slug"
+    },
+    {
+      "source": "/salons/:wilaya",
+      "destination": "/api/ville?wilaya=:wilaya"
+    },
+    {
+      "source": "/salons/:wilaya/:cat",
+      "destination": "/api/ville?wilaya=:wilaya&cat=:cat"
+    }
+  ],
   "headers": [
     {
       "source": "/(.*)",
@@ -10,9 +105,18 @@
           "key": "Strict-Transport-Security",
           "value": "max-age=63072000; includeSubDomains; preload"
         },
-        { "key": "X-Content-Type-Options", "value": "nosniff" },
-        { "key": "X-Frame-Options", "value": "SAMEORIGIN" },
-        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "SAMEORIGIN"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        },
         {
           "key": "Permissions-Policy",
           "value": "camera=(self), microphone=(), geolocation=(self), payment=()"
@@ -22,7 +126,19 @@
     {
       "source": "/assets/(.*)",
       "headers": [
-        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    },
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex"
+        }
       ]
     }
   ]
