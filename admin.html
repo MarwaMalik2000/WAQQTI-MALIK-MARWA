@@ -123,7 +123,7 @@
         </div>
 
         <div class="form-row">
-          <label>Slug URL * <small style="color:var(--brun-l);font-weight:400">(waqqti.com/<span id="slug-preview">slug</span>)</small></label>
+          <label>Slug URL * <small style="color:var(--brun-l);font-weight:400">(waqqti.com/salon/<span id="slug-preview">slug</span>)</small></label>
           <input type="text" id="new-slug" placeholder="yasmine-beauty" required pattern="[a-z0-9-]+">
         </div>
 
@@ -287,7 +287,7 @@ document.getElementById('create-form').addEventListener('submit', async e => {
     if (res.ok) {
       gerantMsg = `<br><br>✅ <b>Compte gérant ${res.created ? 'créé' : 'mis à jour'} & lié</b><br>
         <div style="background:#fff;border:1px solid #EEE7DC;border-radius:8px;padding:10px;margin-top:6px">
-        🔗 <b>/pro/dashboard.html</b><br>📧 <b>${gerantEmail}</b><br>🔑 <b>${gerantMdp}</b></div>
+        🔗 <b>https://www.waqqti.com/pro/dashboard</b><br>📧 <b>${gerantEmail}</b><br>🔑 <b>${gerantMdp}</b></div>
         <span style="color:var(--brun-l)">Transmets ces identifiants au gérant.</span>`;
     } else {
       gerantMsg = `<br><br><b style="color:#C03">⚠️ Compte non créé :</b> ${res.error}`;
@@ -298,7 +298,7 @@ document.getElementById('create-form').addEventListener('submit', async e => {
       gerantMsg = `<br><br><b style="color:#C03">⚠️ Gérant non lié :</b> ${lk.error.message}<br>
         → Renseigne aussi un <b>mot de passe</b> pour créer le compte directement, ou clique <b>🔑 Compte</b> sur le salon.`;
     } else {
-      gerantMsg = `<br><br>✅ <b>Gérant lié</b> (${gerantEmail}) — il peut se connecter à /pro/dashboard.html.`;
+      gerantMsg = `<br><br>✅ <b>Gérant lié</b> (${gerantEmail}) — il peut se connecter sur https://www.waqqti.com/pro/dashboard.`;
     }
   } else {
     gerantMsg = `<br><br><span style="color:var(--brun-l)">ℹ️ Renseigne l'email + un mot de passe pour créer le compte du gérant, ou fais-le plus tard via <b>🔑 Compte</b>.</span>`;
@@ -309,10 +309,10 @@ document.getElementById('create-form').addEventListener('submit', async e => {
   link.className = 'link-output show';
   link.innerHTML = `
     <strong>Lien public à envoyer au salon :</strong><br>
-    <span style="color:var(--or)">https://www.waqqti.com/${data.slug}</span><br><br>
+    <span style="color:var(--or)">https://www.waqqti.com/salon/${data.slug}</span><br><br>
     <strong>Message WhatsApp prêt à envoyer :</strong><br>
     <em>Bonjour ${data.nom}, votre espace Waqqti est prêt ! 🎉<br>
-    Votre lien de réservation : https://www.waqqti.com/${data.slug}<br>
+    Votre lien de réservation : https://www.waqqti.com/salon/${data.slug}<br>
     Envoyez-moi vos prestations pour qu'on les ajoute.</em>
     ${gerantMsg}
   `;
@@ -407,7 +407,7 @@ function filterSalons(q) {
 }
 
 function copyLink(slug) {
-  navigator.clipboard.writeText(`https://www.waqqti.com/${slug}`);
+  navigator.clipboard.writeText(`https://www.waqqti.com/salon/${slug}`);
   WAQQTI.toast('Lien copié !');
 }
 
