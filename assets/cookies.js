@@ -78,7 +78,7 @@
     el.setAttribute('aria-label', 'Consentement cookies');
     if (lang === 'ar') el.dir = 'rtl';
     el.innerHTML =
-      '<p>' + t.msg + ' <a href="/confidentialite.html">' + t.more + '</a></p>' +
+      '<p>' + t.msg + ' <a href="/confidentialite">' + t.more + '</a></p>' +
       '<div class="wq-btns">' +
       '<button class="wq-refuse" type="button">' + t.refuse + '</button>' +
       '<button class="wq-accept" type="button">' + t.accept + '</button>' +
